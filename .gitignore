@@ -3,6 +3,7 @@
 # Packages
 *.egg
 *.egg-info
+ENV
 dist
 build
 eggs
@@ -25,3 +26,9 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+.idea
+log
+*.gz
+fab_settings.py
+local_settings.py

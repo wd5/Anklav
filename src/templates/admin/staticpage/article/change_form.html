@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}
+    {% url 'admin:jsi18n' as jsi18nurl %}
+    <script src="{{ jsi18nurl|default:"../../../jsi18n/" }}"></script>
+    {{ media }}
+
+    <script>
+        window.$ = window.jQuery = django.jQuery;
+    </script>
+    <script src="{{ MEDIA_URL }}redactor/redactor.min.js"></script>
+    <link rel="stylesheet" href="{{ MEDIA_URL }}redactor/css/redactor.css" />
+    <script>
+        $(document).ready(
+                function()
+                {
+                    $('textarea').css('height', '500px').redactor();
+                }
+        );
+    </script>
+{% endblock %}

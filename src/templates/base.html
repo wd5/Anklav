@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Анклав Екб</title>
+    <link rel="stylesheet" href="{{ MEDIA_URL }}base.css"/>
+</head>
+<body>
+<table class="main_container">
+    <tr>
+        <td class="b-logo"><a href="/"><img src="{{ MEDIA_URL }}i/logo.png"></a></td>
+        <td class="b-top">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2" class="b-navigation">
+            <img src="{{ MEDIA_URL }}i/navigation.png" alt="Навигация" usemap="#Navigation">
+            <map name="Navigation">
+                <area coords="396,13,525,61" href="/articles/2" alt="Информация">
+                <area coords="534,13,635,61" href="/articles/3" alt="Правила">
+                <area coords="643,13,730,61" href="/articles/4" alt="Тексты">
+                <area coords="740,13,830,61" href="/roles" alt="Список ролей">
+                <area coords="840,13,937,61" href="/articles/5" alt="Ищем игроков">
+                <area coords="950,13,1136,61" href="/form" alt="Форма заявки">
+            </map>
+        </td>
+    </tr>
+    <tr>
+        <td class="b-left">&nbsp;</td>
+        <td class="content" rowspan="2">
+            {% block content %}
+            {% endblock %}
+        </td>
+    </tr>
+    <tr>
+        <td class="b-left-bottom">&nbsp;</td>
+    </tr>
+</table>
+</body>
+</html>

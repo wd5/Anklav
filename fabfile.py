@@ -110,6 +110,7 @@ def manage_py(command):
 
 
 def migrate():
+    manage_py('sync_db')
     manage_py('migrate')
 
 

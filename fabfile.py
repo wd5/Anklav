@@ -43,11 +43,11 @@ def init():
         put('tools/lighttpd/10-modules.conf', '/etc/lighttpd/conf-available/10-modules.conf', use_sudo=True)
         sudo('ln -s /etc/lighttpd/conf-available/10-modules.conf /etc/lighttpd/conf-enabled/10-modules.conf', shell=False)
 
-    if not exists('/etc/lighttpd/conf-available/90-anklav.conf'):
-        sudo('touch /etc/lighttpd/conf-available/90-anklav.conf')
-        sudo('chown %s /etc/lighttpd/conf-available/90-anklav.conf' % SSH_USER)
-    if not exists('/etc/lighttpd/conf-enabled/90-anklav.conf'):
-        sudo('ln -s /etc/lighttpd/conf-available/90-anklav.conf /etc/lighttpd/conf-enabled/90-anklav.conf', shell=False)
+    if not exists('/etc/lighttpd/conf-available/90-anklav-ekb.conf'):
+        sudo('touch /etc/lighttpd/conf-available/90-anklav-ekb.conf')
+        sudo('chown %s /etc/lighttpd/conf-available/90-anklav-ekb.conf' % SSH_USER)
+    if not exists('/etc/lighttpd/conf-enabled/90-anklav-ekb.conf'):
+        sudo('ln -s /etc/lighttpd/conf-available/90-anklav-ekb.conf /etc/lighttpd/conf-enabled/90-anklav-ekb.conf', shell=False)
 
     if not exists('/etc/sv/anklav'):
         sudo('mkdir -p /etc/sv/anklav/supervise')
@@ -97,7 +97,7 @@ def local_settings():
 
 
 def lighttpd():
-    run('cp %(directory)s/tools/lighttpd/90-anklav.conf /etc/lighttpd/conf-available/90-anklav.conf' % env, shell=False)
+    run('cp %(directory)s/tools/lighttpd/90-anklav-ekb.conf /etc/lighttpd/conf-available/90-anklav-ekb.conf' % env, shell=False)
 #    sudo('/etc/init.d/lighttpd reload', shell=False)
 
 
@@ -110,7 +110,7 @@ def manage_py(command):
 
 
 def migrate():
-    manage_py('sync_db')
+    manage_py('syncdb')
     manage_py('migrate')
 
 

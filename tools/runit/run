@@ -1,4 +1,4 @@
 #!/bin/sh
 
 echo $(date) restarted >> /var/log/projects/anklav/restart.log
-exec chpst -u www /home/www/projects/anklav/ENV/bin/python /home/www/projects/anklav/src/manage.py runfcgi errlog=/var/log/projects/anklav/fcgi-error.log method=prefork host=127.0.0.1 port=3029 pidfile=/home/www/projects/anklav/pid daemonize=false
+exec chpst -u www /home/www/projects/anklav/ENV/bin/python /home/www/projects/anklav/src/manage.py runfcgi errlog=/var/log/projects/anklav/fcgi-error.log method=prefork host=127.0.0.1 port=3036 pidfile=/home/www/projects/anklav/pid daemonize=false

@@ -83,7 +83,12 @@ body
     height: 100%;
 }
 
-.content a:link
+.content a:link, .content a:hover, .content a:active
 {
     color: #ffffff;
+}
+
+.content a:visited
+{
+    color: #eee;
 }

@@ -5,33 +5,30 @@
     <link rel="stylesheet" href="{{ MEDIA_URL }}base.css"/>
 </head>
 <body>
-<table class="main_container">
+<table class="main_container" style="height: 100%">
     <tr>
-        <td><a href="/"><img src="{{ MEDIA_URL }}i/logo.png"></a></td>
+        <td colspan="2" style="height: 100px"><a href="/"><img src="{{ MEDIA_URL }}i/logo.png"></a></td>
         <td><a href="/"><img src="{{ MEDIA_URL }}i/login.png"></a></td>
         <td><a href="/"><img src="{{ MEDIA_URL }}i/hack.png"></a></td>
         <td><a href="/"><img src="{{ MEDIA_URL }}i/newspaper.png"></a></td>
         <td class="b-top">&nbsp;</td>
     </tr>
-</table>
-<table class="main_container" style="height: 100%">
     <tr>
-        <td style="width: 189px;">
-            <img src="{{ MEDIA_URL }}i/gap.png"><br>
-            <img src="{{ MEDIA_URL }}i/news.png"><br>
-            <img src="{{ MEDIA_URL }}i/dd.png"><br>
+        <td style="width: 189px; padding-top: 35px; background-position: left bottom; background-image: url('{{ MEDIA_URL }}i/left.png'); background-repeat: no-repeat;">
+            <img src="{{ MEDIA_URL }}i/news.png">
+            <img src="{{ MEDIA_URL }}i/dd.png">
             <img src="{{ MEDIA_URL }}i/exchange.png">
         </td>
-        <td style="width: 177px;">&nbsp;</td>
-        <td class="content">
-            <table class="b-navigation">
+        <td style="width: 177px; vertical-align: bottom;"><img src="{{ MEDIA_URL }}i/building.png"></td>
+        <td colspan="4" class="content">
+            <table class="b-navigation" style="height: 100%;">
                 <tr>
                     <td class="b-navigation-horizontal"></td>
                     <td style="height: 18px;"><img src="{{ MEDIA_URL }}i/t.png"></td>
                     <td class="b-navigation-horizontal"></td>
                 </tr>
                 <tr>
-                    <td class="b-navigation-menu">
+                    <td class="b-navigation-menu" style="height: 18px;">
                         <div class="b-navigation-menu-item"><a href="/articles/2">Орг.<br>инфо</a></div>
                         <div class="b-navigation-menu-item"><a href="/articles/3">Правила<br>игры</a></div>
                         <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
@@ -51,14 +48,21 @@
                 </tr>
                 <tr>
                     <td>
-                        {% block content %}
-                        {% endblock content %}
+                        <div style="overflow: auto; padding-left: 20px;">
+                            {% block content %}
+                            {% endblock content %}
+                        </div>
                     </td>
                     <td class="b-navigation-vertical">&nbsp;</td>
                     <td style="width: 177px">&nbsp;</td>
                 </tr>
             </table>
         </td>
+    </tr>
+    <tr>
+        <td style="height: 40px;"><img src="{{ MEDIA_URL }}i/left-bottom.png"></td>
+        <td><img src="{{ MEDIA_URL }}i/building-bottom.png"></td>
+        <td colspan="4"><img src="{{ MEDIA_URL }}i/content-bottom.png"></td>
     </tr>
 </table>
 </body>

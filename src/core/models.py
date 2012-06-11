@@ -13,7 +13,7 @@ from yafotki.fields import YFField
 class Role(models.Model):
     name = models.CharField(max_length=200, verbose_name=u"ФИО")
     profession = models.CharField(max_length=200, verbose_name=u"Профессия")
-    description = models.TextField(verbose_name=u"Описание", null=True, blank=True)
+    description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
     gun = models.CharField(max_length=200, verbose_name=u"Оружие", null=True, blank=True)
     goal = models.TextField(verbose_name=u"Цель")
     dream = models.TextField(verbose_name=u"Мечта", null=True, blank=True)

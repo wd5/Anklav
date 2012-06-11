@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load staticpages %}
+
+{% block content %}
+    <h1>Вход на сайт</h1>
+    <div>{% if form.data and not form.is_valid %}Ошибка заполнения формы.{% endif %}</div>
+    <form action="" method="POST">
+        {% csrf_token %}
+        Ник: {{ form.username }}<br>
+        Пароль: {{ form.password }} &nbsp;
+        <input type="submit" value="Войти">
+    </form>
+
+    <br>
+    <p>Если вы еще не регистрировались на сайте, пожалуйста, <a href="{% url registration %}">сделайте это</a>.</p>
+    <p>Если вы забыли пароль, его можно <a href="{% url password_reset %}">сменить</a>.</p>
+{% endblock %}

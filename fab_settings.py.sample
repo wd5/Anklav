@@ -8,7 +8,8 @@ SES_SECRET_ACCESS_KEY = ''
 
 DJANGO_SECRET_KEY = ''
 
-YAFOTKI_ACCOUNT_NAME = ''
-YAFOTKI_ACCOUNT_PASSWORD = ''
+YAFOTKI_ACCOUNT_NAME = '_username_'
+YAFOTKI_TOKEN = ''
+YAFOTKI_POST = '/api/users/_username_/photos/'
 
 SSH_USER = ''

@@ -8,7 +8,10 @@
 <table class="main_container" style="height: 100%">
     <tr>
         <td colspan="2" style="height: 100px"><a href="/"><img src="{{ MEDIA_URL }}i/logo.png"></a></td>
-        <td><a href="/"><img src="{{ MEDIA_URL }}i/login.png"></a></td>
+        <td>{{ request.profile }}|{{ request.role}}|{% if user.is_authenticated %}Приветствуем тебя, {{ user.username }}{% else %}
+            <a href="{% url login %}"><img src="{{ MEDIA_URL }}i/login.png"></a>
+            {% endif %}
+        </td>
         <td><a href="/"><img src="{{ MEDIA_URL }}i/hack.png"></a></td>
         <td><a href="/"><img src="{{ MEDIA_URL }}i/newspaper.png"></a></td>
         <td class="b-top">&nbsp;</td>
@@ -28,7 +31,7 @@
                     <td class="b-navigation-horizontal"></td>
                 </tr>
                 <tr>
-                    <td class="b-navigation-menu" style="height: 18px;">
+                    <td class="b-navigation-menu" style="height: 18px; padding-left: 40px;">
                         <div class="b-navigation-menu-item"><a href="/articles/2">Орг.<br>инфо</a></div>
                         <div class="b-navigation-menu-item"><a href="/articles/3">Правила<br>игры</a></div>
                         <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
@@ -65,5 +68,30 @@
         <td colspan="4"><img src="{{ MEDIA_URL }}i/content-bottom.png"></td>
     </tr>
 </table>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter15038905 = new Ya.Metrika({id:15038905, enableAll: true});
+            } catch(e) {}
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/15038905" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 </body>
 </html>

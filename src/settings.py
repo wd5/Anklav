@@ -44,6 +44,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',
     'django.core.context_processors.media',
+    'django.core.context_processors.request',
     'messages.context_processors.inbox',
 )
 
@@ -52,7 +53,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'core.middleware.Prepare',
 )
 
 ROOT_URLCONF = 'urls'
@@ -66,6 +67,7 @@ INSTALLED_APPS = (
     'pytils',
     'south',
     'messages',
+    'core',
 
     'yafotki',
     'staticpage',

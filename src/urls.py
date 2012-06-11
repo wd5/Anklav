@@ -7,6 +7,7 @@ from django.views.generic.simple import direct_to_template
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^auth/registration$', 'core.views.registration', name='registration'),
     url(r'^auth/login$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login'),
     url(r'^auth/logout$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
     url(r'^auth/password_reset$', 'django.contrib.auth.views.password_reset', name='password_reset'),
@@ -18,7 +19,8 @@ urlpatterns = patterns('',
     (r'^articles', include('staticpage.urls')),
 
     url('^roles$', direct_to_template, {'template': 'roles.html'}),
-    url('^form$', direct_to_template, {'template': 'form.html'}),
+    url('^add_role', 'core.views.add_role', name="add_role"),
+    url('^form$', 'core.views.form', name="form"),
     url('^$', direct_to_template, {'template': 'index.html'}),
 
 #(r'^', include('core.urls')),

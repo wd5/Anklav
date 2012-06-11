@@ -2,6 +2,7 @@ td, body, html
 {
     padding: 0;
     margin: 0;
+    color: #ffffff;
 }
 
 body, html
@@ -59,7 +60,7 @@ td img
 
 .b-navigation-menu
 {
-    padding-left: 30px;
+    padding-left: 15px;
 }
 
 .b-navigation-menu-item
@@ -82,7 +83,6 @@ td img
 
 .content
 {
-    color: #ffffff;
     font-family: Verdana, tahoma;
     //height: 100%;
 }
@@ -95,4 +95,15 @@ td img
 .content a:visited
 {
     color: #eee;
+}
+
+.b-bordered
+{
+    border-collapse: collapse;
+}
+
+.b-bordered td, .b-bordered th
+{
+    border: 1px solid gray;
+    padding: 3px;
 }

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Все новости</h1>
+
+	{% for announce in object_list %}
+		<div class="b-news_date">{{ announce.dt|ru_strftime:"%d %B" }}</div>
+		<div class="b-news_content">{{ announce.content|safe }}</div>
+	{% endfor %}
+{% endblock %}

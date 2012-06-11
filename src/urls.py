@@ -17,6 +17,7 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls), name="admin"),
     (r'^articles', include('staticpage.urls')),
+    (r'^news', include('news.urls')),
 
     url('^roles$', direct_to_template, {'template': 'roles.html'}),
     url('^add_role', 'core.views.add_role', name="add_role"),

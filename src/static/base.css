@@ -107,3 +107,19 @@ td img
     border: 1px solid gray;
     padding: 3px;
 }
+
+.b-news_date
+{
+    font-size: 80%;
+    margin: 0;
+}
+
+.b-news_content
+{
+    margin-bottom: 10px;
+}
+
+.b-news_content p
+{
+    margin: 0;
+}

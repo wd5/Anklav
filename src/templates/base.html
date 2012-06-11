@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load news %}<!DOCTYPE html>
 <html>
 <head>
     <title>Анклав Екб</title>
@@ -57,7 +57,10 @@
                         </div>
                     </td>
                     <td class="b-navigation-vertical">&nbsp;</td>
-                    <td style="width: 177px">&nbsp;</td>
+                    <td style="width: 177px">
+                        {% last_news %}
+                        &nbsp;
+                    </td>
                 </tr>
             </table>
         </td>

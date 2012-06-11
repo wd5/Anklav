@@ -1,0 +1,12 @@
+{% load pytils_dt %}
+
+<div class="b-news">
+    {% for announce in news %}
+        <div class="b-news_date">{{ announce.dt|ru_strftime:"%d %B" }}</div>
+        <div class="b-news_content">{{ announce.content|safe }}</div>
+    {% endfor %}
+
+    {% if news %}
+        <div style="font-size: 80%; margin-bottom: 5px;"><a href="{% url news %}" title="Новости">все новости &gt;&gt;</a></div>
+    {% endif %}
+</div>

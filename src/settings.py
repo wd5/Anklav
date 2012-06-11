@@ -66,10 +66,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'pytils',
     'south',
-    'messages',
-    'core',
-
     'yafotki',
+    'messages',
+
+    'core',
+    'news',
     'staticpage',
 )
 

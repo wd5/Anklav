@@ -8,7 +8,7 @@
 <table class="main_container" style="height: 100%">
     <tr>
         <td colspan="2" style="height: 100px"><a href="/"><img src="{{ MEDIA_URL }}i/logo.png"></a></td>
-        <td>{{ request.profile }}|{{ request.role}}|{% if user.is_authenticated %}Приветствуем тебя, {{ user.username }}{% else %}
+        <td style="vertical-align: middle;">{% if user.is_authenticated %}Приветствуем тебя, {{ user.username }}{% else %}
             <a href="{% url login %}"><img src="{{ MEDIA_URL }}i/login.png"></a>
             {% endif %}
         </td>

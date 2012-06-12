@@ -123,3 +123,24 @@ td img
 {
     margin: 0;
 }
+
+.b-roles
+{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.b-roles th
+{
+    border-bottom: 2px solid white;
+}
+
+.b-roles td
+{
+    padding: 3px 10px 3px 3px;
+}
+
+.b-roles tr.odd
+{
+    background-color: #031050;
+}

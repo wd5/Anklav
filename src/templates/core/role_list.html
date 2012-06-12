@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Список ролей</h1>
+
+    <table class="b-roles">
+        <tr>
+            <th>Имя</th>
+            <th>Локация</th>
+            <th>Традиция</th>
+            <th>Место работы</th>
+            <th>Специальность</th>
+        </tr>
+        {% for role in object_list %}
+            <tr class="{% cycle 'odd' 'even' %}">
+                <td>{{ role.name }}</td>
+                <td>{{ role.get_location_display }}</td>
+                <td>{{ role.get_tradition_display }}</td>
+                <td>{{ role.work }}</td>
+                <td>{{ role.profession }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

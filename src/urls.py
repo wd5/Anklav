@@ -3,6 +3,9 @@ from django.conf.urls.defaults import patterns, url, include, handler404, handle
 from django.conf import settings
 from django.contrib import admin
 from django.views.generic.simple import direct_to_template
+from django.views.generic import list_detail
+
+from core.models import Role
 
 admin.autodiscover()
 
@@ -19,7 +22,7 @@ urlpatterns = patterns('',
     (r'^articles', include('staticpage.urls')),
     (r'^news', include('news.urls')),
 
-    url('^roles$', direct_to_template, {'template': 'roles.html'}),
+    url('^roles$', list_detail.object_list, {"queryset": Role.objects.all().order_by('name')}, name='roles'),
     url('^add_role', 'core.views.add_role', name="add_role"),
     url('^form$', 'core.views.form', name="form"),
     url('^$', direct_to_template, {'template': 'index.html'}),

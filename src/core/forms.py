@@ -24,7 +24,7 @@ class RegistrationForm(CommonForm):
     icq = IntegerField(label=u'ICQ', required=False)
     tel = CharField(label=u'Телефон', max_length=100, required=False)
     med = CharField(label=u'Мед. особенности', max_length=100, widget=Textarea, required=False)
-    portrait = ImageField(label=u'Фото', required=False)
+    portrait = ImageField(label=u'Фото')
 
     def clean_login(self):
         try:

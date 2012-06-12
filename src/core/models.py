@@ -103,22 +103,29 @@ class Profile(models.Model):
 
 
     def save(self, check_diff=True, *args, **kwargs):
-        if self.pk and check_diff:
-            prev = self.__class__.objects.get(pk=self.pk)
+        if check_diff:
             report = ""
-            for field in self._meta.fields:
-                if field.name in('paid', 'locked_fields'):
-                    continue
+            if self.pk:
+                prev = self.__class__.objects.get(pk=self.pk)
+                report = u"Измененные поля профиля [http://anklav-ekb.ru/form?change_user=%s]:\n" % self.user.pk
+                for field in self._meta.fields:
+                    if field.name in('paid', 'locked_fields'):
+                        continue
 
-                if getattr(self, field.name) != getattr(prev, field.name):
-                    report += u"%s: '%s' -> '%s'\n" % (field.verbose_name, getattr(prev, field.name) or '-', getattr(self, field.name) or '-')
+                    if getattr(self, field.name) != getattr(prev, field.name):
+                        report += u"%s: '%s' -> '%s'\n" % (field.verbose_name, getattr(prev, field.name) or '-', getattr(self, field.name) or '-')
+            else:
+                report = u"Новый игрок [http://anklav-ekb.ru/form?change_user=%s]:\n" % self.user.pk
+                for field in self._meta.fields:
+                    if field.name in('paid', 'locked_fields'):
+                        continue
+                    report += u"%s: '%s'\n" % (field.verbose_name, getattr(self, field.name) or '-')
 
             if report:
-                report = u"Измененные поля профиля [http://anklav-ekb.ru/form?change_user=%s]:\n" % self.user.pk + report
                 emails = [settings.MANAGERS[0][1], settings.ADMINS[0][1], self.user.email]
 
                 send_mail(
-                    u"Аклав: изменения в профиле игрока %s" % self.name,
+                    u"Аклав: профиль игрока %s" % self.name,
                     report,
                     settings.SERVER_EMAIL,
                     emails,

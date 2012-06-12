@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Профиль игрока</h1>
+    <form action="{% url profile %}" method="POST">
+        <table class="b-bordered">
+            {{ form }}
+            <tr><td colspan="2" style="text-align: right;"><input type="submit" value="Сохранить"></td></tr>
+        </table>
+    </form>
+{% endblock %}

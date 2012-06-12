@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     url('^roles$', list_detail.object_list, {"queryset": Role.objects.all().order_by('name')}, name='roles'),
     url('^add_role', 'core.views.add_role', name="add_role"),
     url('^form$', 'core.views.form', name="form"),
+    url('^profile', 'core.views.profile', name="profile"),
     url('^$', direct_to_template, {'template': 'index.html'}),
 
 #(r'^', include('core.urls')),

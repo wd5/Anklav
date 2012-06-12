@@ -71,3 +71,16 @@ def add_role(request):
         form = RoleForm()
 
     return render_to_response(request, 'add_role.html', {'form': form})
+
+
+@login_required
+def profile(request):
+    if request.POST:
+        form = ProfileForm(request.POST, instance=request.profile)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('profile') + "?save=ok")
+    else:
+        form = ProfileForm(instance=request.profile)
+
+    return render_to_response(request, 'profile.html', {'form': form})

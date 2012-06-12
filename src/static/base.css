@@ -87,12 +87,12 @@ td img
     //height: 100%;
 }
 
-.content a:link, .content a:hover, .content a:active
+a:link, .content a:hover, .content a:active
 {
     color: #ffffff;
 }
 
-.content a:visited
+a:visited
 {
     color: #eee;
 }

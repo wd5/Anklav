@@ -104,7 +104,7 @@ class Profile(models.Model):
     locked_fields = models.CharField(max_length="300", verbose_name=u"Замороженные поля", null=True, blank=True)
 
     def __unicode__(self):
-        return self.name
+        return self.name or ""
 
     def form_link(self):
         return "<a href='" + reverse('form') + '?change_user=%s' % self.user.id + "'>анкета</a>"

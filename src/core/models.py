@@ -25,7 +25,6 @@ class Role(models.Model):
         ('arabic', u'Арабская'),
         ('vudu', u'Католическое Вуду'),
         ('mutabor', u'Храм Истиной Эволюции'),
-        ('neik', u'Нейкист'),
         ('unknown', u'Пока не определился'),
         )
     tradition = models.CharField(choices=TRADITIONS, max_length=20, verbose_name=u"Традиция")

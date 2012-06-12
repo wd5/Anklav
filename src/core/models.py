@@ -32,7 +32,7 @@ class Role(models.Model):
     profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
     special = models.TextField(verbose_name=u'Спец. способности', null=True, blank=True, default=None)
-    money = models.PositiveIntegerField(verbose_name=u"Деньги")
+    money = models.PositiveIntegerField(verbose_name=u"Деньги", null=True, blank=True, default=None)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
 
     order = models.IntegerField(verbose_name=u"Порядок", default=10000)

@@ -5,20 +5,26 @@
 
     <table class="b-roles">
         <tr>
+            <th>Фото</th>
             <th>Имя</th>
-            <th>Локация</th>
-            <th>Традиция</th>
-            <th>Место работы</th>
+            <th>Возраст</th>
             <th>Специальность</th>
+            <th>Место работы</th>
         </tr>
-        {% for role in object_list %}
-            <tr class="{% cycle 'odd' 'even' %}">
-                <td>{{ role.name }}</td>
-                <td>{{ role.get_location_display }}</td>
-                <td>{{ role.get_tradition_display }}</td>
-                <td>{{ role.work }}</td>
-                <td>{{ role.profession }}</td>
-            </tr>
+        {% regroup object_list by get_location_display as roles %}
+        {% for group in roles %}
+            <td colspan="5">{{ group.grouper }}</td>
+
+            {% for role in group.list %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{% if role.profile %}{{ role.profile.portrait.portrait.src_150 }}{% else %}-{% endif %}</td>
+                    <td>{{ role.name }}</td>
+                    <td>{{ role.age }}</td>
+                    <td>{{ role.get_location_display }}</td>
+                    <td>{{ role.work }}</td>
+                    <td>{{ role.profession }}</td>
+                </tr>
+            {% endfor %}
         {% endfor %}
     </table>
 {% endblock %}

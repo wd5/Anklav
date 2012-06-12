@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'core.middleware.Prepare',
+    'core.middleware.LogPost',
 )
 
 ROOT_URLCONF = 'urls'
@@ -99,6 +100,12 @@ LOGGING = {
             'filename': os.path.join(LOG_PATH, 'traceback.log'),
             'formatter': 'verbose',
             },
+        'post': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_PATH, 'post.log'),
+            'formatter': 'verbose',
+            },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
@@ -108,6 +115,11 @@ LOGGING = {
         'django.request': {
             'handlers': ['mail_admins', 'file'],
             'level': 'WARNING',
+            'propagate': True,
+            },
+        'django.post': {
+            'handlers': ['post'],
+            'level': 'INFO',
             'propagate': True,
             },
         }

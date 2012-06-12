@@ -12,6 +12,11 @@ body, html
     height: 100%;
 }
 
+.g-hidden
+{
+    display: none;
+}
+
 .main_container
 {
     width: 100%;
@@ -143,4 +148,39 @@ a:visited
 .b-roles tr.odd
 {
     background-color: #031050;
+}
+
+
+.form_menu
+{
+    border-bottom: 1px solid white;
+    padding-bottom: 5px;
+    margin: 10px 0;
+}
+
+.form_menu ul
+{
+    margin: 0;
+}
+
+.form_menu ul li
+{
+    display: inline;
+    margin: 5px 25px 5px 5px;
+    border: 1px solid white;
+    padding:  8px 10px 5px 10px;
+    font-size: 120%;
+
+
+    cursor: pointer;
+}
+
+.form_menu ul:first-child
+{
+    margin-left: 50px;
+}
+
+.form_menu_active
+{
+    border-bottom: 1px solid #010848 !important;
 }

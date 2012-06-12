@@ -35,16 +35,29 @@ def registration(request):
 def form(request):
     if request.POST:
         if request.profile.role:
-            form = RoleForm(request.POST, instance=request.profile.role)
-            if form.is_valid():
-                form.save()
+            valid = True
+            forms = {
+                'form': RoleForm(request.POST, instance=request.profile.role),
+                'quest_form': QuestForm(request.POST, instance=request.profile.role),
+            }
+            for name, form in forms.items():
+                if form.is_valid():
+                    form.save()
+                else:
+                    valid = False
+
+            if valid:
                 return HttpResponseRedirect(reverse('form') + '?save=ok')
-            return render_to_response(request, 'form.html', {'form': form})
+
+            return render_to_response(request, 'form.html', forms)
 
     else:
         if request.profile.role:
-            form = RoleForm(instance=request.profile.role)
-            return render_to_response(request, 'form.html', {'form': form})
+            forms = {
+                'form': RoleForm(instance=request.profile.role),
+                'quest_form': QuestForm(instance=request.profile.role),
+                }
+            return render_to_response(request, 'form.html', forms)
 
     free_roles = Role.objects.filter(profile__isnull=True)
     if free_roles:

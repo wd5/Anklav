@@ -55,6 +55,6 @@ class RegistrationForm(CommonForm):
 
 
 from django.forms.models import modelform_factory, inlineformset_factory
-RoleForm = modelform_factory(Role, exclude=('order', 'profile'))
+RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest'))
 ConnectionFormSet = inlineformset_factory(Role, RoleConnection, fk_name="role", exclude=('is_locked',), extra=1)
 #LayerFormSet = inlineformset_factory(Role, LayerConnection, fk_name="role", exclude=('is_locked',), extra=1)

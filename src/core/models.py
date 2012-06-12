@@ -11,19 +11,71 @@ from yafotki.fields import YFField
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=200, verbose_name=u"ФИО")
-    profession = models.CharField(max_length=200, verbose_name=u"Профессия")
+    name = models.CharField(max_length=200, verbose_name=u"ФИО персонажа")
+    age = models.PositiveIntegerField(verbose_name=u"Возраст персонажа")
+    LOCATIONS = (
+        ('corporation', u'Сотрудник корпорации'),
+        ('anklav', u'Житель анклава'),
+        ('guest', u'Гость анклава'),
+        ('world', u'Внешний мир'),
+    )
+    location = models.CharField(choices=LOCATIONS, max_length=20, verbose_name=u"Локация")
+    TRADITIONS = (
+        ('china', u'Китайская'),
+        ('arabic', u'Арабская'),
+        ('vudu', u'Католическое Вуду'),
+        ('mutabor', u'Храм Истиной Эволюции'),
+        ('unknown', u'Пока не определился'),
+        )
+    tradition = models.CharField(choices=TRADITIONS, max_length=20, verbose_name=u"Традиция")
+    work = models.CharField(max_length=200, verbose_name=u"Место работы")
+    profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
-    gun = models.CharField(max_length=200, verbose_name=u"Оружие", null=True, blank=True)
-    goal = models.TextField(verbose_name=u"Цель")
-    dream = models.TextField(verbose_name=u"Мечта", null=True, blank=True)
     special = models.TextField(verbose_name=u'Спец. способности', null=True, blank=True, default=None)
+    money = models.PositiveIntegerField(verbose_name=u"Деньги")
+    quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
 
     order = models.IntegerField(verbose_name=u"Порядок", default=10000)
     profile = models.ForeignKey('Profile', verbose_name=u'Профиль', null=True, blank=True, related_name="locked_role")
 
     def __unicode__(self):
         return self.name
+
+
+    def save(self, check_diff=True, *args, **kwargs):
+        if check_diff:
+            report = ""
+            if self.pk:
+                prev = self.__class__.objects.get(pk=self.pk)
+                report = u"Измененные поля роли %s\n" % self.name
+                for field in self._meta.fields:
+                    if field.name in ('order', 'profile'):
+                        continue
+
+                    if getattr(self, field.name) != getattr(prev, field.name):
+                        report += u"%s: '%s' -> '%s'\n" % (field.verbose_name, getattr(prev, field.name) or '-', getattr(self, field.name) or '-')
+            else:
+                report = u"Новая роль %s:\n" % self.name
+                for field in self._meta.fields:
+                    if field.name in ('order', 'profile'):
+                        continue
+                    report += u"%s: '%s'\n" % (field.verbose_name, getattr(self, field.name) or '-')
+
+            if report:
+                emails = [settings.MANAGERS[0][1], settings.ADMINS[0][1]]
+                if self.profile:
+                    emails.append(self.profile.user.email)
+
+                send_mail(
+                    u"Аклав: роль %s" % self.name,
+                    report,
+                    settings.SERVER_EMAIL,
+                    emails,
+                    fail_silently=True,
+                )
+
+        return super(Role, self).save(*args, **kwargs)
+
 
     class Meta:
         verbose_name = u"Роль"

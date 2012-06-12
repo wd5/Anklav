@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block inner %}
+    <table class="b-navigation" style="height: 100%;">
+        <tr>
+            <td class="b-navigation-horizontal"></td>
+        </tr>
+        <tr>
+            <td class="b-navigation-menu" style="height: 18px; padding-left: 40px;">
+                <div class="b-navigation-menu-item"><a href="/articles/2">Орг.<br>инфо</a></div>
+                <div class="b-navigation-menu-item"><a href="/articles/3">Правила<br>игры</a></div>
+                <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
+                <div class="b-navigation-menu-item"><a href="/roles">Список<br>заявок</a></div>
+                <div class="b-navigation-menu-item"><a href="/form">Форма<br>заявки</a></div>
+            </td>
+        </tr>
+        <tr>
+            <td class="b-navigation-horizontal"></td>
+        </tr>
+        <tr>
+            <td>
+                <div style="overflow: auto; padding: 0 10px 0 20px; ">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

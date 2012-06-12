@@ -1,11 +1,9 @@
-{% extends "base.html" %}
-{% load staticpages %}
+{% extends "inner_page.html" %}
 
 {% block content %}
     <h1>Создание новой роли</h1>
     <form action="" method="POST" class="b-bordered">
         <table>
-            {% csrf_token %}
             {{ form }}
             <tr><td colspan="2" style="text-align: right;"><input type="submit" value="Создать"></td></tr>
         </table>

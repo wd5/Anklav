@@ -24,45 +24,47 @@
         </td>
         <td style="width: 177px; vertical-align: bottom;"><img src="{{ MEDIA_URL }}i/building.png"></td>
         <td colspan="4" class="content">
-            <table class="b-navigation" style="height: 100%;">
-                <tr>
-                    <td class="b-navigation-horizontal"></td>
-                    <td style="height: 18px;"><img src="{{ MEDIA_URL }}i/t.png"></td>
-                    <td class="b-navigation-horizontal"></td>
-                </tr>
-                <tr>
-                    <td class="b-navigation-menu" style="height: 18px; padding-left: 40px;">
-                        <div class="b-navigation-menu-item"><a href="/articles/2">Орг.<br>инфо</a></div>
-                        <div class="b-navigation-menu-item"><a href="/articles/3">Правила<br>игры</a></div>
-                        <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
-                        <div class="b-navigation-menu-item"><a href="/roles">Список<br>заявок</a></div>
-                        <div class="b-navigation-menu-item"><a href="/form">Форма<br>заявки</a></div>
-                    </td>
+            {% block inner %}
+                <table class="b-navigation" style="height: 100%;">
+                    <tr>
+                        <td class="b-navigation-horizontal"></td>
+                        <td style="height: 18px;"><img src="{{ MEDIA_URL }}i/t.png"></td>
+                        <td class="b-navigation-horizontal"></td>
+                    </tr>
+                    <tr>
+                        <td class="b-navigation-menu" style="height: 18px; padding-left: 40px;">
+                            <div class="b-navigation-menu-item"><a href="/articles/2">Орг.<br>инфо</a></div>
+                            <div class="b-navigation-menu-item"><a href="/articles/3">Правила<br>игры</a></div>
+                            <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
+                            <div class="b-navigation-menu-item"><a href="/roles">Список<br>заявок</a></div>
+                            <div class="b-navigation-menu-item"><a href="/form">Форма<br>заявки</a></div>
+                        </td>
 
-                    <td class="b-navigation-vertical">&nbsp;</td>
-                    <td class="b-navigation-menu">
-                        <div class="b-navigation-menu-item"><a href="/news"></a>Обновления<br>на сайте</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="b-navigation-horizontal"></td>
-                    <td><img src="{{ MEDIA_URL }}i/cross.png"></td>
-                    <td class="b-navigation-horizontal"></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div style="overflow: auto; padding-left: 20px;">
-                            {% block content %}
-                            {% endblock content %}
-                        </div>
-                    </td>
-                    <td class="b-navigation-vertical">&nbsp;</td>
-                    <td style="width: 177px">
-                        {% last_news %}
-                        &nbsp;
-                    </td>
-                </tr>
-            </table>
+                        <td class="b-navigation-vertical">&nbsp;</td>
+                        <td class="b-navigation-menu">
+                            <div class="b-navigation-menu-item"><a href="/news"></a>Обновления<br>на сайте</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="b-navigation-horizontal"></td>
+                        <td><img src="{{ MEDIA_URL }}i/cross.png"></td>
+                        <td class="b-navigation-horizontal"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="overflow: auto; padding-left: 20px;">
+                                {% block content %}
+                                {% endblock content %}
+                            </div>
+                        </td>
+                        <td class="b-navigation-vertical">&nbsp;</td>
+                        <td style="width: 177px">
+                            {% last_news %}
+                            &nbsp;
+                        </td>
+                    </tr>
+                </table>
+            {% endblock %}
         </td>
     </tr>
     <tr>

@@ -27,8 +27,8 @@ class LogPost:
                 report += u"Игрок: %s\n" % request.user.username
             if request.profile:
                 report += u"Профиль: %s\n" % request.profile
-            if request.profile.role:
-                report += u"Роль: %s\n" % request.profile.role
+                if request.profile.role:
+                    report += u"Роль: %s\n" % request.profile.role
             if request.role:
                 report += u"Замороженная роль: %s\n" % request.role
 

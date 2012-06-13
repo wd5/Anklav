@@ -21,6 +21,7 @@ class Prepare:
 class LogPost:
     def process_request(self, request):
         if request.POST:
+            print "POST"
             log = logging.getLogger('django.post')
             report = u"POST\n"
             if request.user.is_authenticated():
@@ -33,7 +34,7 @@ class LogPost:
                 report += u"Замороженная роль: %s\n" % request.role
 
             report += request.META['PATH_INFO'] + "\n"
-            for k, v in request.POST.items():
-                report += u"%s: %s\n" % (k, v)
+            for key in sorted(request.POST.keys()):
+                report += u"%s: %s\n" % (key, request.POST[key])
 
             log.info(report)

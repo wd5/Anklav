@@ -39,6 +39,7 @@ def form(request):
             forms = {
                 'form': RoleForm(request.POST, instance=request.profile.role),
                 'quest_form': QuestForm(request.POST, instance=request.profile.role),
+                'connections_formset': ConnectionFormSet(request.POST, instance=request.profile.role)
             }
             for name, form in forms.items():
                 if form.is_valid():
@@ -56,7 +57,8 @@ def form(request):
             forms = {
                 'form': RoleForm(instance=request.profile.role),
                 'quest_form': QuestForm(instance=request.profile.role),
-                }
+                'connections_formset': ConnectionFormSet(instance=request.profile.role)
+            }
             return render_to_response(request, 'form.html', forms)
 
     free_roles = Role.objects.filter(profile__isnull=True)

@@ -1,0 +1,20 @@
+
+<div id="js-connections" class="js-tab-content g-hidden">
+    <h2>Связи</h2>
+
+    <p>Уважаемые игроки. Пожалуйста, когда заводите связи сами - указывайте не только игрока, но и вид отношений. Т.е. если заводите связь на мужа/жену, то пишете о том, как именно вы ее воспринимаете, или какие-то моменты, по поводу которых у вас могут быть разногласия. Человек, с которым вы ставите связь, этого все равно не увидит, а мне, как мастеру, будет сильно легче.</p>
+
+    {#  {% locked_connections profile_form.instance is_superuser %} #}
+
+    <table>
+        {{ connections_formset.management_form }}
+
+        {% for form in connections_formset.forms %}
+            {{ form.as_table }}
+            {# <tr><td colspan="2" style="text-align:right;">{% locker_rel form.instance form is_superuser %}</td> #}
+        {% endfor %}
+
+
+    </table>
+
+</div>

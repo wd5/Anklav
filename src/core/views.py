@@ -34,12 +34,12 @@ def registration(request):
 @login_required
 def form(request):
     if request.POST:
-        if request.profile.role:
+        if request.actual_profile.role:
             valid = True
             forms = {
-                'form': RoleForm(request.POST, instance=request.profile.role),
-                'quest_form': QuestForm(request.POST, instance=request.profile.role),
-                'connections_formset': ConnectionFormSet(request.POST, instance=request.profile.role)
+                'form': RoleForm(request.POST, instance=request.actual_profile.role),
+                'quest_form': QuestForm(request.POST, instance=request.actual_profile.role),
+                'connections_formset': ConnectionFormSet(request.POST, instance=request.actual_profile.role)
             }
             for name, form in forms.items():
                 if form.is_valid():
@@ -48,16 +48,16 @@ def form(request):
                     valid = False
 
             if valid:
-                return HttpResponseRedirect(reverse('form') + '?save=ok')
+                return HttpResponseRedirect(reverse('form') + '?save=ok&change_user=%s' % request.actual_user.pk)
 
             return render_to_response(request, 'form.html', forms)
 
     else:
-        if request.profile.role:
+        if request.actual_profile.role:
             forms = {
-                'form': RoleForm(instance=request.profile.role),
-                'quest_form': QuestForm(instance=request.profile.role),
-                'connections_formset': ConnectionFormSet(instance=request.profile.role)
+                'form': RoleForm(instance=request.actual_profile.role),
+                'quest_form': QuestForm(instance=request.actual_profile.role),
+                'connections_formset': ConnectionFormSet(instance=request.actual_profile.role)
             }
             return render_to_response(request, 'form.html', forms)
 
@@ -70,7 +70,7 @@ def form(request):
 
 @login_required
 def add_role(request):
-    if request.role:
+    if request.actual_role:
         # За пользователем уже закреплена роль
         return HttpResponseRedirect("/")
 
@@ -78,9 +78,9 @@ def add_role(request):
         form = RoleForm(request.POST)
         if form.is_valid():
             role = form.save()
-            request.profile.role = role
-            request.profile.save()
-            return HttpResponseRedirect(reverse('form'))
+            request.actual_profile.role = role
+            request.actual_profile.save()
+            return HttpResponseRedirect(reverse('form') + '?save=ok&change_user=%s' % request.actual_user.pk)
 
     else:
         form = RoleForm()
@@ -91,11 +91,11 @@ def add_role(request):
 @login_required
 def profile(request):
     if request.POST:
-        form = ProfileForm(request.POST, instance=request.profile)
+        form = ProfileForm(request.POST, instance=request.actual_profile)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('profile') + "?save=ok")
+            return HttpResponseRedirect(reverse('profile') + '?save=ok&change_user=%s' % request.actual_user.pk)
     else:
-        form = ProfileForm(instance=request.profile)
+        form = ProfileForm(instance=request.actual_profile)
 
     return render_to_response(request, 'profile.html', {'form': form})

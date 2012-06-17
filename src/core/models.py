@@ -106,9 +106,14 @@ class Profile(models.Model):
         return self.name or ""
 
     def form_link(self):
-        return "<a href='" + reverse('form') + '?change_user=%s' % self.user.id + "'>анкета</a>"
-    form_link.short_description = u"Анкета"
+        return "<a href='" + reverse('form') + '?change_user=%s' % self.user.id + "'>роль</a>"
+    form_link.short_description = u"Роль"
     form_link.allow_tags = True
+
+    def profile_link(self):
+        return "<a href='" + reverse('profile') + '?change_user=%s' % self.user.id + "'>профиль</a>"
+    profile_link.short_description = u"Профиль"
+    profile_link.allow_tags = True
 
     def user_email(self):
         return self.user.email

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from django.contrib.auth.models import User
 
 from .models import Profile, Role
 
@@ -7,21 +8,35 @@ class Prepare:
     def process_request(self, request):
         request.profile = None
         request.role = None
+
+        request.actual_user = request.user
+        request.actual_profile = None
+        request.actual_role = None
+
         if request.user.is_authenticated():
             try:
                 profile = request.user.get_profile()
             except Profile.DoesNotExist:
                 profile = Profile.objects.create(user=request.user)
-            request.profile = profile
+            request.actual_profile = request.profile = profile
 
             if profile.role and profile.role.profile == profile:
-                request.role = profile.role
+                request.actual_role = request.role = profile.role
+
+            if 'change_user' in request.GET and request.user.is_superuser:
+                try:
+                    request.actual_user = User.objects.get(pk=request.GET['change_user'])
+                    request.actual_profile = request.actual_user.get_profile()
+                    if request.actual_profile.role and request.actual_profile.role.profile == request.actual_profile:
+                        request.actual_role = request.actual_profile.role
+
+                except User.DoesNotExist:
+                    pass
 
 
 class LogPost:
     def process_request(self, request):
         if request.POST:
-            print "POST"
             log = logging.getLogger('django.post')
             report = u"POST\n"
             if request.user.is_authenticated():

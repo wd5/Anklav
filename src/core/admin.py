@@ -4,7 +4,11 @@ from .models import *
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'user_username', 'user_email', 'tel', 'city', 'role', 'role_locked', 'form_link')
+    list_display = (
+        'user', 'name', 'user_username', 'user_email',
+        'tel', 'city', 'role',
+        'role_locked', 'profile_link', 'form_link'
+    )
     list_per_page = 300
 
     def lookup_allowed(self, *args, **kwargs):

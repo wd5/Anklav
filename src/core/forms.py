@@ -54,6 +54,20 @@ class RegistrationForm(CommonForm):
         return authenticate(username=new_user.username, password=self.cleaned_data['passwd'])
 
 
+class ChooseRoleForm(CommonForm):
+    role = IntegerField(label=u'Роль', widget=Select)
+
+    def __init__(self, *args, **kwargs):
+        super(ChooseRoleForm, self).__init__(*args, **kwargs)
+        self.fields['role'].widget.choices = ((role.pk, role.name) for role in Role.objects.filter(profile__isnull=True).order_by('name'))
+
+    def clean_role(self):
+        try:
+            return Role.objects.get(pk=self.cleaned_data['role'], profile__isnull=True)
+        except Role.DoesNotExist:
+            raise ValidationError(u"Эта роль занята, попробуйте выбрать другую")
+
+
 from django.forms.models import modelform_factory, inlineformset_factory
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))
 RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special'))

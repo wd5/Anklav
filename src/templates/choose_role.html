@@ -3,14 +3,12 @@
 {% block content %}
     <h1>Выбор роли</h1>
     <p>Выберите роль из списка</p>
-    <form action="" method="POST">
+    <form action="{% url choose_role %}" method="POST">
         {% csrf_token %}
-        <select name="role">
-            {% for role in free_roles %}
-                <option value="{{ role.id }}">{{ role.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="submit" value="Выбрать">
+        <table>
+            {{ form }}
+            <tr><td colspan="2" style="text-align: right;"><input type="submit" value="Выбрать"></td></tr>
+        </table>
     </form>
     или <a href="{% url add_role %}">создайте новую роль</a>.
 {% endblock %}

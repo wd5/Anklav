@@ -2,6 +2,11 @@
 from django.contrib import admin
 from .models import *
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        'username', 'email', 'is_staff', 'is_superuser', 'change_user_link'
+        )
+
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
@@ -24,6 +29,12 @@ class RoleConnectionAdmin(admin.ModelAdmin):
     list_display = ('role', 'role_rel', 'is_locked')
 
 
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Role, RoleAdmin)
 admin.site.register(RoleConnection, RoleConnectionAdmin)
+
+admin.site.register(Tradition)
+admin.site.register(TraditionGuestbook)
+admin.site.register(TraditionText)

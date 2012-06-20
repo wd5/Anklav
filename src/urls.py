@@ -24,8 +24,13 @@ urlpatterns = patterns('',
 
     url('^roles$', list_detail.object_list, {"queryset": Role.objects.all().order_by('location', 'name')}, name='roles'),
     url('^add_role', 'core.views.add_role', name="add_role"),
+    url('^choose_role', 'core.views.choose_role', name="choose_role"),
     url('^form$', 'core.views.form', name="form"),
     url('^profile', 'core.views.profile', name="profile"),
+    url('^change_user/(\d+)$', 'core.views.change_user', name="change_user"),
+
+    url('^tradition$', 'core.views.tradition', name="tradition"),
+
     url('^$', direct_to_template, {'template': 'index.html'}),
 
 #(r'^', include('core.urls')),

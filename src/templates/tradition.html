@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>{{ tradition.name }}</h1>
+    {{ tradition.context|safe }}
+
+    <hr>
+
+    {% for text in articles %}
+        <p><a href="{% url traditiontext %}">{{ text.title }}</a></p>
+    {% endfor %}
+{% endblock %}
+
+{% block right_column %}
+    {% for message in chat %}
+        <div class="b-news_date">{{ message.dt_created|ru_strftime:"%d %B" }}</div>
+        <div class="b-news_content">{{ message.author.get_profile.role.name }}: {{ message.content }}</div>
+    {% endfor %}
+{% endblock %}

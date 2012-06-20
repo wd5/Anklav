@@ -20,14 +20,7 @@ class Role(models.Model):
         ('world', u'Внешний мир'),
     )
     location = models.CharField(choices=LOCATIONS, max_length=20, verbose_name=u"Локация")
-    TRADITIONS = (
-        ('china', u'Китайская'),
-        ('arabic', u'Арабская'),
-        ('vudu', u'Католическое Вуду'),
-        ('mutabor', u'Храм Истинной Эволюции'),
-        ('unknown', u'Пока не определился'),
-        )
-    tradition = models.CharField(choices=TRADITIONS, max_length=20, verbose_name=u"Традиция")
+    tradition = models.ForeignKey('Tradition', verbose_name=u"Традиция", null=True, blank=True, default=None)
     work = models.CharField(max_length=200, verbose_name=u"Место работы")
     profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
@@ -164,7 +157,7 @@ class Profile(models.Model):
             report = ""
             if self.pk:
                 prev = self.__class__.objects.get(pk=self.pk)
-                report = u"Измененные поля профиля [http://anklav-ekb.ru/form?change_user=%s]:\n" % self.user.pk
+                report = u"Измененные поля профиля [http://anklav-ekb.ru/profile?change_user=%s]:\n" % self.user.pk
                 for field in self._meta.fields:
                     if field.name in('paid', 'locked_fields'):
                         continue
@@ -172,7 +165,7 @@ class Profile(models.Model):
                     if getattr(self, field.name) != getattr(prev, field.name):
                         report += u"%s: '%s' -> '%s'\n" % (field.verbose_name, getattr(prev, field.name) or '-', getattr(self, field.name) or '-')
             else:
-                report = u"Новый игрок [http://anklav-ekb.ru/form?change_user=%s]:\n" % self.user.pk
+                report = u"Новый игрок [http://anklav-ekb.ru/profile?change_user=%s]:\n" % self.user.pk
                 for field in self._meta.fields:
                     if field.name in('paid', 'locked_fields'):
                         continue
@@ -241,3 +234,47 @@ class RoleConnection(models.Model):
     class Meta:
         verbose_name = u"Связь ролей"
         verbose_name_plural = u"Связи ролей"
+
+
+class Tradition(models.Model):
+    name = models.CharField(max_length=50, verbose_name=u"Название")
+    content = models.TextField(verbose_name=u"Описание", default="")
+    master = models.ForeignKey(Role, verbose_name=u"Иерарх", related_name="master", null=True, blank=True, default=None)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = u"Традиция"
+        verbose_name_plural = u"Традиции"
+
+
+class TraditionGuestbook(models.Model):
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Традиция")
+    author = models.ForeignKey(User, verbose_name=u"Юзер")
+    dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
+    content = models.TextField(verbose_name=u"Содержимое")
+
+    class Meta:
+        verbose_name = u"Запись в Традиции"
+        verbose_name_plural = u"Записи в Традициях"
+
+
+class TraditionText(models.Model):
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Традиция")
+    author = models.ForeignKey(User, verbose_name=u"Юзер")
+    dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
+    title = models.CharField(max_length=50, verbose_name=u"Название")
+    content = models.TextField(verbose_name=u"Содержимое")
+
+    class Meta:
+        verbose_name = u"Текст в Традиции"
+        verbose_name_plural = u"Тексты в Традициях"
+
+
+def change_user_link(self):
+    return "<a href='" + reverse('change_user', args=[self.id]) + "'>сменить пользователя</a>"
+change_user_link.short_description = u"Сменить пользователя"
+change_user_link.allow_tags = True
+
+User.change_user_link = change_user_link

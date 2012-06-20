@@ -31,6 +31,13 @@ def registration(request):
     return render_to_response(request, 'registration.html', {'form': form})
 
 
+def change_user(request, user_id):
+    if not request.user.is_superuser:
+        raise Http404()
+    request.session['_auth_user_id'] = user_id
+    return HttpResponseRedirect('/')
+
+
 @login_required
 def form(request):
     if request.POST:
@@ -63,9 +70,29 @@ def form(request):
 
     free_roles = Role.objects.filter(profile__isnull=True)
     if free_roles:
-        return render_to_response(request, 'choose_role.html', {'free_roles': free_roles})
+        form = ChooseRoleForm()
+        return render_to_response(request, 'choose_role.html', {'form': form})
     else:
         return add_role(request)
+
+
+@login_required
+def choose_role(request):
+    if request.actual_role:
+        # За пользователем уже закреплена роль
+        return HttpResponseRedirect("/")
+
+    if request.POST:
+        form = ChooseRoleForm(request.POST)
+        if form.is_valid():
+            request.actual_profile.role = form.cleaned_data['role']
+            request.actual_profile.save()
+            return HttpResponseRedirect(reverse('form') + '?save=ok&change_user=%s' % request.actual_user.pk)
+
+    else:
+        form = ChooseRoleForm()
+
+    return render_to_response(request, 'choose_role.html', {'form': form})
 
 
 @login_required
@@ -99,3 +126,16 @@ def profile(request):
         form = ProfileForm(instance=request.actual_profile)
 
     return render_to_response(request, 'profile.html', {'form': form})
+
+
+def tradition(request):
+    if not (request.actual_role and request.actual_role.tradition):
+        raise Http404
+
+    return render_to_response(request, 'tradition.html',
+        {
+            'tradition': request.actual_role.tradition,
+            'articles': request.actual_role.tradition.traditiontext_set.all(),
+            'chat': request.actual_role.tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
+        }
+    )

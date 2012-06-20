@@ -12,4 +12,7 @@ YAFOTKI_ACCOUNT_NAME = '_username_'
 YAFOTKI_TOKEN = ''
 YAFOTKI_POST = '/api/users/_username_/photos/'
 
+DUMP_ACCOUNT_NAME = ''
+DUMP_PASSWORD = ''
+
 SSH_USER = ''

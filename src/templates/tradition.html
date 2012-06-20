@@ -2,17 +2,28 @@
 {% load pytils_dt %}
 
 {% block content %}
-    <h1>{{ tradition.name }}</h1>
-    {{ tradition.context|safe }}
+    <h1 xmlns="http://www.w3.org/1999/html">
+        {{ tradition.name }}
+        {% if tradition.master == request.actual_role %}
+            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition %}">править</a>)</span>
+        {% endif %}
+    </h1>
+    {{ tradition.content|safe }}
 
     <hr>
 
     {% for text in articles %}
         <p><a href="{% url traditiontext %}">{{ text.title }}</a></p>
     {% endfor %}
+    <a href="{% url add_tradition_text %}">добавить текст</a>
 {% endblock %}
 
 {% block right_column %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <textarea rows="3" cols="20" name="post"></textarea><br>
+        <input type="submit" value="Написать">
+    </form>
     {% for message in chat %}
         <div class="b-news_date">{{ message.dt_created|ru_strftime:"%d %B" }}</div>
         <div class="b-news_content">{{ message.author.get_profile.role.name }}: {{ message.content }}</div>

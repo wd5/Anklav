@@ -128,9 +128,24 @@ def profile(request):
     return render_to_response(request, 'profile.html', {'form': form})
 
 
+def tradition_required(func):
+    def wrapper(request, *args, **kwargs):
+        if request.actual_role and request.actual_role.tradition:
+            return func(request, *args, **kwargs)
+        else:
+            raise Http404
+    return wrapper
+
+
+@tradition_required
 def tradition(request):
-    if not (request.actual_role and request.actual_role.tradition):
-        raise Http404
+    if request.POST and request.POST.get('post'):
+        TraditionGuestbook.objects.create(
+            tradition=request.actual_role.tradition,
+            author=request.actual_user,
+            content=request.POST.get('post'),
+        )
+        return HttpResponseRedirect(reverse('tradition') + '?save=ok')
 
     return render_to_response(request, 'tradition.html',
         {
@@ -139,3 +154,30 @@ def tradition(request):
             'chat': request.actual_role.tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
         }
     )
+
+
+@tradition_required
+def edit_tradition(request):
+    if request.POST:
+        form = TraditionForm(request.POST, instance=request.actual_role.tradition)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+    else:
+        form = TraditionForm(instance=request.actual_role.tradition)
+
+    return render_to_response(request, 'edit_tradition.html', {'form': form})
+
+
+@tradition_required
+def add_tradition_text(request):
+    if request.POST:
+        form = TraditionForm(request.POST, instance=request.actual_role.tradition)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+    else:
+        form = TraditionForm(instance=request.actual_role.tradition)
+
+    return render_to_response(request, 'edit_tradition.html', {'form': form})
+

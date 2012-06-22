@@ -68,10 +68,16 @@ class ChooseRoleForm(CommonForm):
             raise ValidationError(u"Эта роль занята, попробуйте выбрать другую")
 
 
+class TraditionTextForm(CommonForm):
+    title = CharField(label=u'Название', max_length=100)
+    content = CharField(label=u"Содержание", widget=Textarea)
+
+
 from django.forms.models import modelform_factory, inlineformset_factory
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))
 RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
+TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))
 ConnectionFormSet = inlineformset_factory(Role, RoleConnection, fk_name="role", exclude=('is_locked',), extra=1)
 #LayerFormSet = inlineformset_factory(Role, LayerConnection, fk_name="role", exclude=('is_locked',), extra=1)

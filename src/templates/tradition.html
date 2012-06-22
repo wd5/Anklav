@@ -13,7 +13,7 @@
     <hr>
 
     {% for text in articles %}
-        <p><a href="{% url traditiontext %}">{{ text.title }}</a></p>
+        <p><a href="{% url tradition_text text.id %}">{{ text.title }}</a></p>
     {% endfor %}
     <a href="{% url add_tradition_text %}">добавить текст</a>
 {% endblock %}

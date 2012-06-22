@@ -172,12 +172,36 @@ def edit_tradition(request):
 @tradition_required
 def add_tradition_text(request):
     if request.POST:
-        form = TraditionForm(request.POST, instance=request.actual_role.tradition)
+        form = TraditionTextForm(request.POST)
+        if form.is_valid():
+            TraditionText.objects.create(
+                tradition=request.actual_role.tradition,
+                author=request.actual_user,
+                title=form.cleaned_data['title'],
+                content=form.cleaned_data['content'],
+            )
+            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+    else:
+        form = TraditionTextForm()
+
+    return render_to_response(request, 'add_tradition_text.html', {'form': form})
+
+
+@tradition_required
+def tradition_text(request, text_id):
+    text = get_object_or_404(TraditionText, tradition=request.actual_role.tradition, pk=text_id)
+    return render_to_response(request, 'tradition_text.html', {'text': text})
+
+
+@tradition_required
+def edit_tradition_text(request, text_id):
+    text = get_object_or_404(TraditionText, tradition=request.actual_role.tradition, pk=text_id)
+    if request.POST:
+        form = TraditionTextModelForm(request.POST, instance=text)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('tradition') + '?save=ok')
     else:
-        form = TraditionForm(instance=request.actual_role.tradition)
+        form = TraditionTextModelForm(instance=text)
 
-    return render_to_response(request, 'edit_tradition.html', {'form': form})
-
+    return render_to_response(request, 'edit_tradition_text.html', {'form': form})

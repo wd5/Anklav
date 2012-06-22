@@ -32,6 +32,8 @@ urlpatterns = patterns('',
     url('^tradition$', 'core.views.tradition', name="tradition"),
     url('^tradition/edit$', 'core.views.edit_tradition', name="edit_tradition"),
     url('^tradition/add$', 'core.views.add_tradition_text', name="add_tradition_text"),
+    url('^tradition/(\d+)$', 'core.views.tradition_text', name="tradition_text"),
+    url('^tradition/(\d+)/edit$', 'core.views.edit_tradition_text', name="edit_tradition_text"),
 
     url('^$', direct_to_template, {'template': 'index.html'}),
 

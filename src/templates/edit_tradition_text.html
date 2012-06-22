@@ -1,0 +1,21 @@
+{% extends "inner_page.html" %}
+
+{% block extra_head %}
+    <script src="{{ MEDIA_URL }}redactor/redactor.min.js"></script>
+    <link rel="stylesheet" href="{{ MEDIA_URL }}redactor/css/redactor.css?2" />
+    <script>
+        $(function(){
+            $('textarea').redactor();
+        })
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ text.title }}</h1>
+    <form action="" method="POST">
+        <table class="b-bordered">
+            {{ form }}
+            <tr><td colspan="2" style="text-align: right;"><input type="submit" value="Сохранить"></td></tr>
+        </table>
+    </form>
+{% endblock %}

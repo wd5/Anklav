@@ -41,8 +41,16 @@
                             <div class="b-navigation-menu-item"><a href="/articles/4">Нужные<br>тексты</a></div>
                             <div class="b-navigation-menu-item"><a href="/roles">Список<br>заявок</a></div>
                             <div class="b-navigation-menu-item"><a href="/form">Форма<br>заявки</a></div>
-                            {% if request.actual_role and request.actual_role.tradition %}
-                                <div class="b-navigation-menu-item"><a href="{% url tradition %}">Моя<br>традиция</a></div>
+                            {% if request.actual_role %}
+                                {% if request.actual_role.tradition %}
+                                    <div class="b-navigation-menu-item"><a href="{% url tradition request.actual_role.tradition.code %}">Моя<br>традиция</a></div>
+                                {% endif %}
+                                {% if request.actual_role.corporation %}
+                                    <div class="b-navigation-menu-item"><a href="{% url tradition request.actual_role.corporation.code %}">Моя<br>фирма</a></div>
+                                {% endif %}
+                                {% if request.actual_role.crime %}
+                                    <div class="b-navigation-menu-item"><a href="{% url tradition request.actual_role.crime.code %}">Мой<br>синдикат</a></div>
+                                {% endif %}
                             {% endif %}
                         </td>
 

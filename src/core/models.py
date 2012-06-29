@@ -20,7 +20,12 @@ class Role(models.Model):
         ('world', u'Внешний мир'),
     )
     location = models.CharField(choices=LOCATIONS, max_length=20, verbose_name=u"Локация")
-    tradition = models.ForeignKey('Tradition', verbose_name=u"Традиция", null=True, blank=True, default=None)
+    tradition = models.ForeignKey('Tradition', verbose_name=u"Традиция", null=True, blank=True, default=None,
+        related_name='tradition', limit_choices_to={'type': 'tradition'})
+    corporation = models.ForeignKey('Tradition', verbose_name=u"Корпорация", null=True, blank=True, default=None,
+        related_name='corporation', limit_choices_to={'type': 'corporation'})
+    crime = models.ForeignKey('Tradition', verbose_name=u"Криминал", null=True, blank=True, default=None,
+        related_name='crime', limit_choices_to={'type': 'crime'})
     work = models.CharField(max_length=200, verbose_name=u"Место работы")
     profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
@@ -40,7 +45,7 @@ class Role(models.Model):
             report = ""
             if self.pk:
                 prev = self.__class__.objects.get(pk=self.pk)
-                report = u"Измененные поля роли %s\n" % self.name
+                header = u"Измененные поля роли %s\n" % self.name
                 for field in self._meta.fields:
                     if field.name in ('order', 'profile'):
                         continue
@@ -48,7 +53,7 @@ class Role(models.Model):
                     if getattr(self, field.name) != getattr(prev, field.name):
                         report += u"%s: '%s' -> '%s'\n" % (field.verbose_name, getattr(prev, field.name) or '-', getattr(self, field.name) or '-')
             else:
-                report = u"Новая роль %s:\n" % self.name
+                header = u"Новая роль %s:\n" % self.name
                 for field in self._meta.fields:
                     if field.name in ('order', 'profile'):
                         continue
@@ -61,7 +66,7 @@ class Role(models.Model):
 
                 send_mail(
                     u"Аклав: роль %s" % self.name,
-                    report,
+                    header + report,
                     settings.SERVER_EMAIL,
                     emails,
                     fail_silently=True,
@@ -238,38 +243,45 @@ class RoleConnection(models.Model):
 
 class Tradition(models.Model):
     name = models.CharField(max_length=50, verbose_name=u"Название")
+    code = models.CharField(max_length=50, verbose_name=u"Код", help_text=u"Англ. строчные буквы без пробелов", default="")
     content = models.TextField(verbose_name=u"Описание", default="")
     master = models.ForeignKey(Role, verbose_name=u"Иерарх", related_name="master", null=True, blank=True, default=None)
+    TYPES = (
+        ('corporation', u'Корпорация'),
+        ('tradition', u'Традиция'),
+        ('crime', u'Преступная группировка'),
+        )
+    type = models.CharField(verbose_name=u"Тип компании", default='tradition', max_length=15, choices=TYPES)
 
     def __unicode__(self):
-        return self.name
+        return u"%s '%s'" % (self.get_type_display(), self.name)
 
     class Meta:
-        verbose_name = u"Традиция"
-        verbose_name_plural = u"Традиции"
+        verbose_name = u"Компания"
+        verbose_name_plural = u"Компании"
 
 
 class TraditionGuestbook(models.Model):
-    tradition = models.ForeignKey(Tradition, verbose_name=u"Традиция")
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Компания")
     author = models.ForeignKey(User, verbose_name=u"Юзер")
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
     content = models.TextField(verbose_name=u"Содержимое")
 
     class Meta:
-        verbose_name = u"Запись в Традиции"
-        verbose_name_plural = u"Записи в Традициях"
+        verbose_name = u"Запись в Компании"
+        verbose_name_plural = u"Записи в Компаниях"
 
 
 class TraditionText(models.Model):
-    tradition = models.ForeignKey(Tradition, verbose_name=u"Традиция")
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Компания")
     author = models.ForeignKey(User, verbose_name=u"Юзер")
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
     title = models.CharField(max_length=50, verbose_name=u"Название")
     content = models.TextField(verbose_name=u"Содержимое")
 
     class Meta:
-        verbose_name = u"Текст в Традиции"
-        verbose_name_plural = u"Тексты в Традициях"
+        verbose_name = u"Текст в Компании"
+        verbose_name_plural = u"Тексты в Компаниях"
 
 
 def change_user_link(self):

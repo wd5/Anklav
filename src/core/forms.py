@@ -75,7 +75,7 @@ class TraditionTextForm(CommonForm):
 
 from django.forms.models import modelform_factory, inlineformset_factory
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))
-RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special'))
+RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special', 'crime'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
 TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))

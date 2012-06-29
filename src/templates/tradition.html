@@ -5,7 +5,7 @@
     <h1 xmlns="http://www.w3.org/1999/html">
         {{ tradition.name }}
         {% if tradition.master == request.actual_role %}
-            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition %}">править</a>)</span>
+            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition tradition.code %}">править</a>)</span>
         {% endif %}
     </h1>
     {{ tradition.content|safe }}
@@ -13,9 +13,9 @@
     <hr>
 
     {% for text in articles %}
-        <p><a href="{% url tradition_text text.id %}">{{ text.title }}</a></p>
+        <p><a href="{% url tradition_text tradition.code text.id %}">{{ text.title }}</a></p>
     {% endfor %}
-    <a href="{% url add_tradition_text %}">добавить текст</a>
+    <a href="{% url add_tradition_text tradition.code %}">добавить текст</a>
 {% endblock %}
 
 {% block right_column %}

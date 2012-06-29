@@ -4,6 +4,6 @@
     <h1>{{ request.actual_role.tradition.name }}: {{ text.title }}</h1>
     {{ text.content|safe }}
     {% if request.user.is_superuser or request.actual_user == text.author %}
-        <p><a href="{% url edit_tradition_text text.id %}">редактировать</a></p>
+        <p><a href="{% url edit_tradition_text text.tradition.code text.id %}">редактировать</a></p>
     {% endif %}
 {% endblock %}

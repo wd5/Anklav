@@ -130,57 +130,68 @@ def profile(request):
 
 def tradition_required(func):
     def wrapper(request, *args, **kwargs):
-        if request.actual_role and request.actual_role.tradition:
-            return func(request, *args, **kwargs)
-        else:
-            raise Http404
+        if request.actual_role:
+            try:
+                tradition = Tradition.objects.get(code=kwargs['code'])
+                if request.actual_role.tradition == tradition or \
+                    request.actual_role.corporation == tradition or\
+                    request.actual_role.crime == tradition:
+                        return func(request, *args, **kwargs)
+
+            except Tradition.DoesNotExist:
+                pass
+
+        raise Http404
     return wrapper
 
 
 @tradition_required
-def tradition(request):
+def tradition(request, code):
+    tradition = Tradition.objects.get(code=code)
     if request.POST and request.POST.get('post'):
         TraditionGuestbook.objects.create(
-            tradition=request.actual_role.tradition,
+            tradition=tradition,
             author=request.actual_user,
             content=request.POST.get('post'),
         )
-        return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+        return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
 
     return render_to_response(request, 'tradition.html',
         {
-            'tradition': request.actual_role.tradition,
-            'articles': request.actual_role.tradition.traditiontext_set.all(),
-            'chat': request.actual_role.tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            'tradition': tradition,
+            'articles': tradition.traditiontext_set.all(),
+            'chat': tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
         }
     )
 
 
 @tradition_required
-def edit_tradition(request):
+def edit_tradition(request, code):
+    tradition = Tradition.objects.get(code=code)
     if request.POST:
-        form = TraditionForm(request.POST, instance=request.actual_role.tradition)
+        form = TraditionForm(request.POST, instance=tradition)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+            return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
     else:
-        form = TraditionForm(instance=request.actual_role.tradition)
+        form = TraditionForm(instance=tradition)
 
     return render_to_response(request, 'edit_tradition.html', {'form': form})
 
 
 @tradition_required
-def add_tradition_text(request):
+def add_tradition_text(request, code):
+    tradition = Tradition.objects.get(code=code)
     if request.POST:
         form = TraditionTextForm(request.POST)
         if form.is_valid():
             TraditionText.objects.create(
-                tradition=request.actual_role.tradition,
+                tradition=tradition,
                 author=request.actual_user,
                 title=form.cleaned_data['title'],
                 content=form.cleaned_data['content'],
             )
-            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+            return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
     else:
         form = TraditionTextForm()
 
@@ -188,19 +199,21 @@ def add_tradition_text(request):
 
 
 @tradition_required
-def tradition_text(request, text_id):
-    text = get_object_or_404(TraditionText, tradition=request.actual_role.tradition, pk=text_id)
+def tradition_text(request, code, number):
+    tradition = Tradition.objects.get(code=code)
+    text = get_object_or_404(TraditionText, tradition=tradition, pk=number)
     return render_to_response(request, 'tradition_text.html', {'text': text})
 
 
 @tradition_required
-def edit_tradition_text(request, text_id):
-    text = get_object_or_404(TraditionText, tradition=request.actual_role.tradition, pk=text_id)
+def edit_tradition_text(request, code, number):
+    tradition = Tradition.objects.get(code=code)
+    text = get_object_or_404(TraditionText, tradition=tradition, pk=number)
     if request.POST:
         form = TraditionTextModelForm(request.POST, instance=text)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect(reverse('tradition') + '?save=ok')
+            return HttpResponseRedirect(reverse('tradition_text', args=[tradition.code, text.id]) + '?save=ok')
     else:
         form = TraditionTextModelForm(instance=text)
 

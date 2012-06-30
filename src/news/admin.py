@@ -6,3 +6,4 @@ class NewsAdmin(admin.ModelAdmin):
     list_display = ('content',)
 
 admin.site.register(News, NewsAdmin)
+admin.site.register(CommonNews)

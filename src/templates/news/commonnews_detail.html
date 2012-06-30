@@ -1,0 +1,13 @@
+{% extends "inner_page.html" %}
+
+
+{% block content %}
+    <h1>{{ object.author.get_profile.role.name }}: {{ object.title }}</h1>
+    {{ object.content|safe }}
+
+    {% if request.user == object.author %}
+        <p><a href="{% url common_news_item_edit object.pk %}">редактировать</a></p>
+    {% endif %}
+
+    <p><a href="{% url common_news %}">к остальным новостям</a></p>
+{% endblock %}

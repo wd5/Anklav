@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from django.utils import simplejson
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404
-from django.db.models import F
 
 from .forms import *
 

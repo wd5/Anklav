@@ -15,13 +15,13 @@
             <a href="{% url login %}"><img src="{{ MEDIA_URL }}i/login.png"></a>
             {% endif %}
         </td>
-        <td><a href="/"><img src="{{ MEDIA_URL }}i/hack.png"></a></td>
-        <td><a href="/"><img src="{{ MEDIA_URL }}i/newspaper.png"></a></td>
+        <td><img src="{{ MEDIA_URL }}i/hack.png"></td>
+        <td><a href="{% url common_news_add %}"><img src="{{ MEDIA_URL }}i/newspaper.png"></a></td>
         <td class="b-top">&nbsp;</td>
     </tr>
     <tr>
         <td style="width: 189px; padding-top: 35px; background-position: left bottom; background-image: url('{{ MEDIA_URL }}i/left.png'); background-repeat: no-repeat;">
-            <img src="{{ MEDIA_URL }}i/news.png">
+            <a href="{% url common_news %}"><img src="{{ MEDIA_URL }}i/news.png"></a>
             <img src="{{ MEDIA_URL }}i/dd.png">
             <img src="{{ MEDIA_URL }}i/exchange.png">
         </td>
@@ -56,7 +56,7 @@
 
                         <td class="b-navigation-vertical">&nbsp;</td>
                         <td class="b-navigation-menu">
-                            <div class="b-navigation-menu-item"><a href="/news"></a>Обновления<br>на сайте</div>
+                            <div class="b-navigation-menu-item"><a href="{% url site_news %}"></a>Обновления<br>на сайте</div>
                         </td>
                     </tr>
                     <tr>

@@ -23,6 +23,7 @@ LANGUAGE_CODE = 'ru-ru'
 SITE_ID = 1
 USE_I18N = True
 
+DOMAIN = 'anklav-ekb.ru'
 STATIC_ROOT = MEDIA_ROOT = PROJECT_PATH + '/static/'
 STATIC_URL = MEDIA_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/admin/media/'
@@ -74,6 +75,7 @@ INSTALLED_APPS = (
     'core',
     'news',
     'staticpage',
+    'role_message',
 )
 
 LOG_PATH = '/var/log/projects/anklav'

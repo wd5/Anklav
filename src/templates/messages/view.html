@@ -1,0 +1,24 @@
+{% extends "messages/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "View Message" %}{% endblock %}
+
+{% block messages_content %}
+	<table class="message-headers">
+		<tr><td class="label">Тема</td>
+			<td><strong>{{ message.subject }}</strong></td></tr>
+		<tr><td class="label">От кого</td>
+			<td>{{ message.sender.get_profile.role.name }}</td></tr>
+		<tr><td class="label">дата</td>
+			<td>{{ message.sent_at|date:_("DATETIME_FORMAT")}}</td></tr>
+		<tr><td class="label">Кому</td>
+			<td>{{ message.recipient.get_profile.role.name }}</td></tr>
+	</table>
+
+	<p>{{ message.body|linebreaksbr }}</p><br />
+
+	{% ifequal message.recipient.pk user.pk %}
+		<a href="{% url messages_reply message.id %}" class="reply_link">Ответить</a>
+	{% endifequal %}
+	<a href="{% url messages_delete message.id %}">Удалить</a>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h1>Личные сообщения</h1>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <a href="{% url messages_inbox %} ">Входящие</a> |
+        <a href="{% url messages_outbox %} ">Отправленные</a> |
+        <a href="{% url messages_compose %} ">Написать</a> |
+        <a href="{% url messages_trash %} ">Корзина</a>
+    </div>
+
+    {% block messages_content %}{% endblock %}
+{% endblock %}

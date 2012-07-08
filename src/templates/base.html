@@ -35,6 +35,17 @@
                     <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.crime.code %}">Мой синдикат</a></div>
                 {% endif %}
             {% endif %}
+            {% if request.actual_profile %}
+                <div class="b-left-menu__item">
+                    <a href="{% url messages_inbox %}">
+                    {% if messages_inbox_count %}
+                            Новых сообщений: {{ messages_inbox_count }}
+                        {% else %}
+                            личная почта
+                    {% endif %}
+                    </a>
+                </div>
+            {% endif %}
         </td>
         <td style="width: 177px; vertical-align: bottom;"><img src="{{ MEDIA_URL }}i/building.png"></td>
         <td colspan="4" class="content">

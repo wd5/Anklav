@@ -1,0 +1,13 @@
+{% extends "messages/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Compose Message" %}{% endblock %}
+
+{% block messages_content %}
+	<form action="" method="post">
+		<table class="new_message">
+            {{ form }}
+		</table>
+		<input type="submit" value="{% trans "Send" %} &raquo;"/>
+	</form>
+{% endblock %}

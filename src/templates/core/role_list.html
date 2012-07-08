@@ -10,6 +10,7 @@
             <th>Возраст</th>
             <th>Специальность</th>
             <th>Место работы</th>
+            <th>&nbsp;</th>
         </tr>
         {% regroup object_list by get_location_display as roles %}
         {% for group in roles %}
@@ -22,6 +23,16 @@
                     <td>{{ role.age }}</td>
                     <td>{{ role.profession }}</td>
                     <td>{{ role.work }}</td>
+                    <td>{% if role.profile %}
+                        {% if request.user.is_authenticated %}
+                            <a href="{% url messages_compose %}?recipient={{ role.id }}" title="Личное сообщение"
+                                    ><img class="img_link" src="{{ MEDIA_URL }}i/email.png"></a>
+                        {% else %}
+                            <img class="img_link" src="{{ MEDIA_URL }}i/email.png" title="Зарегистрируйтесь, чтобы отправлять сообщения">
+                        {% endif %}
+                    {% else %}
+                        &nbsp;
+                    {% endif %}</td>
                 </tr>
             {% endfor %}
         {% endfor %}

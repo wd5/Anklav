@@ -39,6 +39,31 @@ td img
     width: 100%;
 }
 
+.b-left-menu
+{
+    width: 189px;
+    padding-top: 35px;
+    background-position: left bottom;
+    background-image: url('i/left.png');
+    background-repeat: no-repeat;
+    text-align: right;
+}
+
+.b-left-menu__item
+{
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 120%;
+    font-family: Arial;
+    margin: 10px 7px 0 0;
+}
+
+.b-left-menu__item a:link, .b-left-menu__item a:active,
+.b-left-menu__item a:visited, .b-left-menu__item a:hover
+{
+    text-decoration: none;
+}
+
 .b-navigation
 {
     border: 0;

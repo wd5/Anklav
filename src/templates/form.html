@@ -17,6 +17,7 @@
         {% include "form/quest.html" %}
         {% include "form/connections.html" %}
 
+        <input type="hidden" name="change_user" value="{{ request.actual_user.pk }}">
         <input type="submit" value="Сохранить" style="margin-left: 200px; padding: 5px 20px; font-size: 150%"/>
 
     </form>

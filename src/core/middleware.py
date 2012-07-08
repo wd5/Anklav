@@ -23,9 +23,10 @@ class Prepare:
             if profile.role and profile.role.profile == profile:
                 request.actual_role = request.role = profile.role
 
-            if 'change_user' in request.GET and request.user.is_superuser:
+            change_user = request.GET.get('change_user') or request.POST.get('change_user')
+            if change_user and request.user.is_superuser:
                 try:
-                    request.actual_user = User.objects.get(pk=request.GET['change_user'])
+                    request.actual_user = User.objects.get(pk=change_user)
                     request.actual_profile = request.actual_user.get_profile()
                     if request.actual_profile.role and request.actual_profile.role.profile == request.actual_profile:
                         request.actual_role = request.actual_profile.role

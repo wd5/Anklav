@@ -6,6 +6,33 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.mail import send_mail
 from yafotki.fields import YFField
+from BeautifulSoup import BeautifulSoup, Comment as HtmlComment
+
+
+def sanitizeHTML(value, mode='none'):
+    """ Удаляет из value html-теги.
+        Если mode==none - все теги
+        Если mode==strict - все теги кроме разрешенных
+    """
+    if mode == 'strict':
+        valid_tags = 'p i strong b u a h1 h2 h3 pre br div span img blockquote glader youtube cut blue object param embed iframe'.split()
+    else:
+        valid_tags = []
+    valid_attrs = 'href src pic user page class text title alt'.split()
+    # параметры видеороликов
+    valid_attrs += 'width height classid codebase id name value flashvars allowfullscreen allowscriptaccess quality src type bgcolor base seamlesstabbing swLiveConnect pluginspage data frameborder'.split()
+
+    soup = BeautifulSoup(value)
+    for comment in soup.findAll(
+        text=lambda text: isinstance(text, HtmlComment)):
+        comment.extract()
+    for tag in soup.findAll(True):
+        if tag.name not in valid_tags:
+            tag.hidden = True
+        tag.attrs = [(attr, val) for attr, val in tag.attrs
+                                 if attr in valid_attrs]
+    result = soup.renderContents().decode('utf8')
+    return result
 
 
 class Role(models.Model):
@@ -122,8 +149,11 @@ class Profile(models.Model):
     def role_locked(self):
         if not self.role:
             return ''
-        return self.role.profile == self and '+' or ''
+        return self.role.profile == self \
+               and '<a href="/lock_role/%s" title="Разморозить">+</a>' % self.user_id \
+               or '<a href="/lock_role/%s" title="Заморозить">-</a>' % self.user_id
     role_locked.short_description = u"Роль заморожена"
+    role_locked.allow_tags = True
 
     def is_locked(self, field):
         return self.locked_fields and field in self.locked_fields
@@ -265,6 +295,10 @@ class TraditionGuestbook(models.Model):
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
     content = models.TextField(verbose_name=u"Содержимое")
 
+    def save(self, *args, **kwargs):
+        self.content = sanitizeHTML(self.content)
+        super(TraditionGuestbook, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = u"Запись в Компании"
         verbose_name_plural = u"Записи в Компаниях"
@@ -276,6 +310,10 @@ class TraditionText(models.Model):
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
     title = models.CharField(max_length=50, verbose_name=u"Название")
     content = models.TextField(verbose_name=u"Содержимое")
+
+    def save(self, *args, **kwargs):
+        self.content = sanitizeHTML(self.content)
+        super(TraditionText, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = u"Текст в Компании"

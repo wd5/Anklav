@@ -5,7 +5,7 @@ from fabric.contrib.files import exists, append, upload_template
 
 from fab_settings import *
 
-env.ami = 'ami-8f03ede6'
+env.ami = 'ami-82fa58eb'
 env.directory = '/home/%s/projects/anklav' % SSH_USER
 env.manage_dir = env.directory + '/src'
 env.deploy_user = env.user = SSH_USER

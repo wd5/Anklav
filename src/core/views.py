@@ -36,6 +36,27 @@ def change_user(request, user_id):
     return HttpResponseRedirect('/')
 
 
+def lock_role(request, user_id):
+    if not request.user.is_superuser:
+        raise Http404()
+
+    profile = User.objects.get(pk=user_id).get_profile()
+    if not profile.role:
+        return HttpResponseRedirect('/admin/core/profile/')
+
+    role = profile.role
+    if role.profile == profile:
+        role.profile = None
+        role.save()
+
+    else:
+        Profile.objects.filter(role=role).exclude(pk=profile.pk).update(role=None)
+        role.profile = profile
+        role.save()
+
+    return HttpResponseRedirect('/admin/core/profile/')
+
+
 @login_required
 def form(request):
     if request.POST:

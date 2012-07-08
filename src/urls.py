@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url('^form$', 'core.views.form', name="form"),
     url('^profile', 'core.views.profile', name="profile"),
     url('^change_user/(\d+)$', 'core.views.change_user', name="change_user"),
+    url('^lock_role/(\d+)$', 'core.views.lock_role', name="lock_role"),
 
     url('^group/(?P<code>\w+)$', 'core.views.tradition', name="tradition"),
     url('^group/(?P<code>\w+)/edit$', 'core.views.edit_tradition', name="edit_tradition"),

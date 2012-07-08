@@ -7,8 +7,9 @@
         {% csrf_token %}
         <table>
             {{ form }}
+            <input type="hidden" name="change_user" value="{{ request.actual_user.pk }}">
             <tr><td colspan="2" style="text-align: right;"><input type="submit" value="Выбрать"></td></tr>
         </table>
     </form>
-    или <a href="{% url add_role %}">создайте новую роль</a>.
+    или <a href="{% url add_role %}?change_user={{ request.actual_user.pk }}">создайте новую роль</a>.
 {% endblock %}

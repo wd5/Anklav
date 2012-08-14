@@ -109,6 +109,12 @@ LOGGING = {
             'filename': os.path.join(LOG_PATH, 'post.log'),
             'formatter': 'verbose',
             },
+        'duels': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_PATH, 'duels.log'),
+            'formatter': 'verbose',
+            },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
@@ -122,6 +128,11 @@ LOGGING = {
             },
         'django.post': {
             'handlers': ['post'],
+            'level': 'INFO',
+            'propagate': True,
+            },
+        'django.duels': {
+            'handlers': ['duels'],
             'level': 'INFO',
             'propagate': True,
             },

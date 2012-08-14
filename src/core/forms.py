@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from django.contrib.auth import authenticate
 from django.forms import *
 from django.db.models import Q
@@ -71,6 +73,47 @@ class ChooseRoleForm(CommonForm):
 class TraditionTextForm(CommonForm):
     title = CharField(label=u'Название', max_length=100)
     content = CharField(label=u"Содержание", widget=Textarea)
+
+
+class CreateDuelForm(ModelForm):
+    class Meta:
+        model = Duel
+        fields = ('role_2', 'number_1')
+
+    @classmethod
+    def check_number(cls, number):
+        try:
+            int(number)
+            if len(number) != 4:
+                raise ValidationError(u"Загаданное число должно содержать 4 цифры")
+
+            if len(set(number)) != 4:
+                raise ValidationError(u"Все цифры числа должны быть разными")
+
+            return number
+
+        except ValueError:
+            raise ValidationError(u"Введите четырехзначное число")
+
+    def clean_number_1(self):
+        return self.check_number(self.cleaned_data['number_1'])
+
+    def save(self, role, *args, **kwargs):
+        duel = Duel.objects.create(
+            role_1=role,
+            role_2=self.cleaned_data['role_2'],
+            number_1=self.cleaned_data['number_1'],
+            dt=datetime.now()
+        )
+
+        send_mail(
+            u"Анклав: Дуэль",
+            u"Вы вызваны на дуэль. http://anklav-ekb.ru" + reverse('duel', args=[duel.pk]),
+            None,
+            [self.cleaned_data['role_2'].profile.user.email, 'glader.ru@gmail.com']
+        )
+
+        return duel
 
 
 from django.forms.models import modelform_factory, inlineformset_factory

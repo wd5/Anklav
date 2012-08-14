@@ -29,6 +29,16 @@ class RoleConnectionAdmin(admin.ModelAdmin):
     list_display = ('role', 'role_rel', 'is_locked')
 
 
+class DuelMoveInline(admin.TabularInline):
+    model = DuelMove
+    fk_name = 'duel'
+    extra = 0
+
+class DuelAdmin(admin.ModelAdmin):
+    list_display = ('role_1', 'role_2', 'state', 'winner', 'result')
+    inlines = (DuelMoveInline,)
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)
@@ -38,3 +48,5 @@ admin.site.register(RoleConnection, RoleConnectionAdmin)
 admin.site.register(Tradition)
 admin.site.register(TraditionGuestbook)
 admin.site.register(TraditionText)
+
+admin.site.register(Duel, DuelAdmin)

@@ -1,0 +1,51 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Дуэль "{{ duel.role_1 }} <small>vs</small> {{ duel.role_2 }}"</h1>
+    <p>Вы - {% if request.actual_role == duel.role_1 %}ломщик{% else %}машинист{% endif %}</p>
+    <p>Статус дуэли: {{ duel.get_state_display }}</p>
+
+    {% if moves %}
+        <h3>Ходы</h3>
+        <table>
+            {% for move in moves %}
+                <tr>
+                    <td>{{ move.move_1|default:"-" }} ({{ move.result_1|default:"-" }})</td>
+                    <td>|</td>
+                    <td>{{ move.move_2|default:"-" }} ({{ move.result_2|default:"-" }})</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if duel.state == 'finished' %}
+        <p>Дуэль окончена. Победитель: {{ duel.winner }}. Результат: {{ duel.result }}.</p>
+
+    {% else %}
+
+        {% if mode == 'security' and duel.state == 'not_started' %}
+            <p>Введите ваш номер (четырехзначное число без повторений цифр):
+            {{ error }}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="text" name="number">
+                <input type="submit" name="action" value="Сохранить">
+            </form>
+            </p>
+        {% endif %}
+
+        {% if can_move %}
+            <p>Ваш ход: {{ error }}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="text" name="number">
+                <input type="submit" name="action" value="Попробовать"> {% if mode == 'hacker' %}<input type="submit" name="action" value="Сдаться">{% endif %}
+            </form>
+            </p>
+        {% else %}
+            <p>Ожидание действий соперника.</p>
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}

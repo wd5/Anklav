@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+import logging
 
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -237,3 +239,134 @@ def edit_tradition_text(request, code, number):
         form = TraditionTextModelForm(instance=text)
 
     return render_to_response(request, 'edit_tradition_text.html', {'form': form})
+
+
+@login_required
+def duels(request):
+    log = logging.getLogger('django.duels')
+
+    if request.actual_role and request.POST:
+        form = CreateDuelForm(request.POST)
+        if form.is_valid():
+            duel = form.save(request.actual_role)
+            log.info("New duel %s", reverse('duel', args=[duel.pk]))
+            return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
+    else:
+        form = CreateDuelForm()
+
+    return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.all().order_by('-id')})
+
+
+@login_required
+def duel_page(request, pk):
+    log = logging.getLogger('django.duels')
+
+    duel = get_object_or_404(Duel, pk=pk)
+    if not (request.actual_role == duel.role_1
+            or request.actual_role == duel.role_2
+            or request.user.is_superuser):
+        raise Http404
+
+    context = {
+        'mode': request.actual_role == duel.role_1 and 'hacker' or 'security',
+        'moves': list(duel.duelmove_set.all().order_by('dt')),
+        'last_move': None,
+        'can_move': False,
+        'duel': duel,
+    }
+
+    if duel.state == 'finished':
+        return render_to_response(request, 'duel.html', context)
+
+    if len(context['moves']):
+        context['last_move'] = context['moves'][-1]
+
+    if duel.state == 'in_progress':
+        if context['last_move']:
+            if context['last_move'].move_1 and context['last_move'].move_2: # предыдущий ход сделан обоими сторонами
+                context['can_move'] = True
+
+            elif context['mode'] == 'hacker':
+                # Ломщик
+                if not context['last_move'].move_1:
+                    context['can_move'] = True
+
+            else:
+                # Машинист
+                if not context['last_move'].move_2:
+                    context['can_move'] = True
+
+        else: # Еще не сделано ни одного хода
+            context['can_move'] = True
+
+
+    if context['mode'] == 'security' and duel.state == 'not_started' and request.POST:
+        try:
+            n = request.POST.get('number')
+            CreateDuelForm.check_number(n)
+
+            duel.number_2 = n
+            duel.state = 'in_progress'
+            duel.save()
+
+            log.info("Duel %s: started by security", duel.pk)
+            return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
+
+        except ValidationError, e:
+            context['error'] = unicode(e)
+
+
+    # Ходы
+    if duel.state == 'in_progress' and request.POST:
+        if request.POST.get('action') == 'Сдаться':
+            duel.state = 'finished'
+            duel.winner = duel.role_2
+            duel.result = u"Ломщик сбежал"
+            duel.save()
+            log.info("Duel %s: hacker gave up", duel.pk)
+            return HttpResponseRedirect(reverse('duels'))
+
+        try:
+            number = request.POST.get('number')
+            CreateDuelForm.check_number(number)
+
+            log.info("Duel %s: move by %s: %s", duel.pk, context['mode'], number)
+
+            if not context['last_move'] or (context['last_move'].move_1 and context['last_move'].move_2):
+                context['last_move'] = DuelMove.objects.create(
+                    duel=duel,
+                    dt=datetime.now()
+                )
+                setattr(context['last_move'], 'move_%s' % (context['mode'] == 'hacker' and '1' or '2'), number)
+                context['last_move'].save()
+
+            elif context['mode'] == 'hacker' and not context['last_move'].move_1:
+                context['last_move'].move_1 = number
+                context['last_move'].save()
+
+            elif context['mode'] == 'security' and not context['last_move'].move_2:
+                context['last_move'].move_2 = number
+                context['last_move'].save()
+
+            if context['last_move'].result_1 == '1111':
+                duel.state = 'finished'
+                duel.winner = duel.role_1
+                duel.result = u"Ломщик выиграл"
+                duel.save()
+                log.info("Duel %s: hacker win", duel.pk)
+                return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
+
+            if context['last_move'].result_2 == '1111':
+                duel.state = 'finished'
+                duel.winner = duel.role_2
+                duel.result = u"Машинист выиграл"
+                duel.save()
+                log.info("Duel %s: security win", duel.pk)
+                return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
+
+            return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
+
+        except ValidationError, e:
+            context['error'] = unicode(e.messages[0])
+
+    return render_to_response(request, 'duel.html', context)

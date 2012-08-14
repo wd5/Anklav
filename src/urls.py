@@ -3,7 +3,7 @@ from django.conf.urls.defaults import patterns, url, include, handler404, handle
 from django.conf import settings
 from django.contrib import admin
 from django.views.generic.simple import direct_to_template
-from django.views.generic import list_detail
+from django.views.generic import list_detail, TemplateView
 
 from core.models import Role
 
@@ -29,6 +29,10 @@ urlpatterns = patterns('',
     url('^profile', 'core.views.profile', name="profile"),
     url('^change_user/(\d+)$', 'core.views.change_user', name="change_user"),
     url('^lock_role/(\d+)$', 'core.views.lock_role', name="lock_role"),
+
+    url('^hack$', TemplateView.as_view(template_name="hack.html"), name="hack"),
+    url('^hack/duels$', 'core.views.duels', name="duels"),
+    url('^hack/duels/(\d+)$', 'core.views.duel_page', name="duel"),
 
     url('^group/(?P<code>\w+)$', 'core.views.tradition', name="tradition"),
     url('^group/(?P<code>\w+)/edit$', 'core.views.edit_tradition', name="edit_tradition"),

@@ -320,6 +320,63 @@ class TraditionText(models.Model):
         verbose_name_plural = u"Тексты в Компаниях"
 
 
+class Duel(models.Model):
+    role_1 = models.ForeignKey(Role, verbose_name=u"Игрок 1", related_name="role_1")
+    role_2 = models.ForeignKey(Role, verbose_name=u"Игрок 2", related_name="role_2")
+    STATES = (
+        ('not_started', u"Не началась"),
+        ('in_progress', u"Идет"),
+        ('finished', u"завершена"),
+    )
+    state = models.CharField(verbose_name=u"Состояние", max_length=20, default="not_started", choices=STATES)
+    number_1 = models.CharField(verbose_name=u"Загаданное число 1", max_length=4)
+    number_2 = models.CharField(verbose_name=u"Загаданное число 2", max_length=4, null=True, blank=True, default=None)
+    winner = models.ForeignKey(Role, verbose_name=u"Победитель", related_name="winner", null=True, blank=True, default=None)
+    result = models.CharField(verbose_name=u"Итог", max_length=20, null=True, blank=True, default=None)
+    dt = models.DateTimeField(verbose_name=u"Начало дуэли", default=None)
+
+    @classmethod
+    def get_result(cls, number, move):
+        res = []
+        good = list(number)
+        for i, l in enumerate(move):
+            if l == good[i]:
+                res.append('1')
+            elif l in good:
+                res.append('0')
+
+        res.sort(reverse=True)
+        return ''.join(res)
+
+
+class Meta:
+        verbose_name = u"Дуэль"
+        verbose_name_plural = u"Дуэли"
+
+
+class DuelMove(models.Model):
+    duel = models.ForeignKey(Duel, verbose_name=u"Дуэль")
+    dt = models.DateTimeField(verbose_name=u"Начало хода", default=None)
+    move_1 = models.CharField(verbose_name=u"Ход игрока 1", max_length=4, null=True, blank=True, default=None)
+    result_1 = models.CharField(verbose_name=u"Результат игрока 1", max_length=4, null=True, blank=True, default=None)
+    move_2 = models.CharField(verbose_name=u"Ход игрока 2", max_length=4, null=True, blank=True, default=None)
+    result_2 = models.CharField(verbose_name=u"Результат игрока 2", max_length=4, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if self.move_1 and not self.result_1:
+            self.result_1 = Duel.get_result(self.duel.number_2, self.move_1)
+
+        if self.move_2 and not self.result_2:
+            self.result_2 = Duel.get_result(self.duel.number_1, self.move_2)
+
+        super(DuelMove, self).save(*args, **kwargs)
+
+
+    class Meta:
+        verbose_name = u"Ход дуэли"
+        verbose_name_plural = u"Ходы дуэлей"
+
+
 def change_user_link(self):
     return "<a href='" + reverse('change_user', args=[self.id]) + "'>сменить пользователя</a>"
 change_user_link.short_description = u"Сменить пользователя"

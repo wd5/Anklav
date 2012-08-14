@@ -6,6 +6,7 @@ from django.views.generic.simple import direct_to_template
 from django.views.generic import list_detail, TemplateView
 
 from core.models import Role
+from news.feeds import NewsFeed
 
 admin.autodiscover()
 
@@ -41,6 +42,8 @@ urlpatterns = patterns('',
     url('^group/(?P<code>\w+)/(?P<number>\d+)/edit$', 'core.views.edit_tradition_text', name="edit_tradition_text"),
 
     (r'^messages', include('role_message.urls')),
+
+    (r'^feeds/news', NewsFeed()),
 
     url('^$', direct_to_template, {'template': 'index.html'}),
 

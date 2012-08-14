@@ -2,7 +2,7 @@
 {% load pytils_dt %}
 
 {% block content %}
-    <h1>Все новости</h1>
+    <h1>Все новости <a href="/feeds/news"><img src="http://perspektiva-ekb.ru/media//design/feed.png" class="b-icon"></a></h1>
 
 	{% for announce in object_list %}
 		<div class="b-news_date">{{ announce.dt|ru_strftime:"%d %B" }}</div>

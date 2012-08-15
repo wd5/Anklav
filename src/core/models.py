@@ -312,7 +312,7 @@ class TraditionText(models.Model):
     content = models.TextField(verbose_name=u"Содержимое")
 
     def save(self, *args, **kwargs):
-        self.content = sanitizeHTML(self.content)
+        self.content = sanitizeHTML(self.content, mode='strict')
         super(TraditionText, self).save(*args, **kwargs)
 
     class Meta:

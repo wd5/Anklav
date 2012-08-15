@@ -154,10 +154,10 @@ def tradition_required(func):
         if request.actual_role or request.user.is_superuser:
             try:
                 tradition = Tradition.objects.get(code=kwargs['code'])
-                if request.actual_role.tradition == tradition or \
+                if request.user.is_superuser or \
+                    request.actual_role.tradition == tradition or \
                     request.actual_role.corporation == tradition or \
-                    request.actual_role.crime == tradition or \
-                    request.user.is_superuser:
+                    request.actual_role.crime == tradition:
                         return func(request, *args, **kwargs)
 
             except Tradition.DoesNotExist:

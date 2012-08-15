@@ -5,7 +5,8 @@
     <h1>Все новости</h1>
 
 	{% for announce in object_list %}
-		<h3>{{ announce.title|safe }} <small>({{ announce.dt|ru_strftime:"%d %B" }})</small></h3>
+		<h3>{{ announce.title|safe }}</h3>
 		<div class="b-news_content">{{ announce.content|safe }}</div>
+        <div><small>({{ announce.dt|ru_strftime:"%d %B" }})</small></div>
 	{% endfor %}
 {% endblock %}

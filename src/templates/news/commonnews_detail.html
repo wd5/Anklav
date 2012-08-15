@@ -2,7 +2,7 @@
 
 
 {% block content %}
-    <h1>{{ object.author.get_profile.role.name }}: {{ object.title }}</h1>
+    <h1>{{ object.title }}</h1>
     {{ object.content|safe }}
 
     {% if request.user == object.author %}

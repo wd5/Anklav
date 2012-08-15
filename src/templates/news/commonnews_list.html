@@ -5,7 +5,7 @@
     <h1>Все новости</h1>
 
 	{% for announce in object_list %}
-		<div class="b-news_date">{{ announce.dt|ru_strftime:"%d %B" }}, {{ announce.author.get_profile.role.name }}</div>
-		<div class="b-news_content"><a href="{% url common_news_item announce.pk %}">{{ announce.content|safe }}</a></div>
+		<div class="b-news_date">{{ announce.dt|ru_strftime:"%d %B" }}</div>
+		<div class="b-news_content"><a href="{% url common_news_item announce.pk %}">{{ announce.title|safe }}</a></div>
 	{% endfor %}
 {% endblock %}

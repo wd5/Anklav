@@ -52,7 +52,8 @@ class CommonNews(models.Model):
     def __unicode__(self): return self.title
 
     def save(self, *args, **kwargs):
-        self.content = sanitizeHTML(self.content)
+        self.title = sanitizeHTML(self.title)
+        self.content = sanitizeHTML(self.content, mode='strict')
         super(CommonNews, self).save(*args, **kwargs)
 
     class Meta:

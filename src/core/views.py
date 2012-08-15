@@ -151,12 +151,13 @@ def profile(request):
 
 def tradition_required(func):
     def wrapper(request, *args, **kwargs):
-        if request.actual_role:
+        if request.actual_role or request.user.is_superuser:
             try:
                 tradition = Tradition.objects.get(code=kwargs['code'])
                 if request.actual_role.tradition == tradition or \
-                    request.actual_role.corporation == tradition or\
-                    request.actual_role.crime == tradition:
+                    request.actual_role.corporation == tradition or \
+                    request.actual_role.crime == tradition or \
+                    request.user.is_superuser:
                         return func(request, *args, **kwargs)
 
             except Tradition.DoesNotExist:

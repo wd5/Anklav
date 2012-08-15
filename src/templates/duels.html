@@ -2,17 +2,6 @@
 
 {% block content %}
     <h1>Дуэли</h1>
-    <ul>
-    {% for duel in duels %}
-        <li>"{{ duel.role_1 }} <small>vs</small> {{ duel.role_2 }}",
-            {% if request.actual_role == duel.role_1 or request.actual_role == duel.role_2 %}
-                <a href="{% url duel duel.pk %}">{{ duel.get_state_display }}</a>
-            {% else %}
-                {{ duel.get_state_display }}
-            {% endif %}
-            {% if duel.winner %}, победитель - {{ duel.winner }}, {{ duel.result }}{% endif %}</li>
-    {% endfor %}
-    </ul>
 
     {% if request.actual_role %}
         <p>Начать новую дуэль

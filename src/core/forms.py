@@ -23,10 +23,10 @@ class RegistrationForm(CommonForm):
     name = CharField(label=u'ФИО', max_length=100)
     age = IntegerField(label=u'Возраст')
     city = CharField(label=u'Город', max_length=100)
-    icq = IntegerField(label=u'ICQ')
+    icq = IntegerField(label=u'ICQ', required=False)
     tel = CharField(label=u'Телефон', max_length=100, required=False)
     med = CharField(label=u'Мед. особенности', max_length=100, widget=Textarea, required=False)
-    portrait = ImageField(label=u'Фото')
+    portrait = ImageField(label=u'Фото', required=False)
 
     def clean_login(self):
         try:

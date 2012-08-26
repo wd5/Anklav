@@ -19,7 +19,7 @@
             {% for role in group.list %}
                 <tr class="{% cycle 'odd' 'even' %}">
                     <td>{% if role.profile %}<img src="{{ role.profile.portrait.src_150 }}">{% else %}&nbsp;{% endif %}</td>
-                    <td>{{ role.name }}</td>
+                    <td><div title="{{ role.description }}">{{ role.name }}</div></td>
                     <td>{{ role.age }}</td>
                     <td>{{ role.profession }}</td>
                     <td>{{ role.work }}</td>

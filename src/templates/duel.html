@@ -24,7 +24,7 @@
     {% else %}
 
         {% if mode == 'security' and duel.state == 'not_started' %}
-            <p>Введите ваш номер (четырехзначное число без повторений цифр):
+            <p>Введите ваш номер (число из {{ number_len }} цифр без повторений):
             {{ error }}
             <form action="" method="POST">
                 {% csrf_token %}

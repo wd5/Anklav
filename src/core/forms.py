@@ -81,13 +81,17 @@ class CreateDuelForm(ModelForm):
         fields = ('role_2', 'number_1')
 
     @classmethod
-    def check_number(cls, number):
+    def check_number(cls, number, number_len=None):
         try:
             int(number)
-            if len(number) != 4:
-                raise ValidationError(u"Загаданное число должно содержать 4 цифры")
+            if number_len:
+                if len(number) != number_len:
+                    raise ValidationError(u"Загаданное число должно содержать %s цифр" % number_len)
+            else:
+                if len(number) > 10:
+                    raise ValidationError(u"Загаданное число должно содержать не более 10 цифры")
 
-            if len(set(number)) != 4:
+            if len(set(number)) != len(number):
                 raise ValidationError(u"Все цифры числа должны быть разными")
 
             return number
@@ -108,7 +112,7 @@ class CreateDuelForm(ModelForm):
 
         send_mail(
             u"Анклав: Дуэль",
-            u"Вы вызваны на дуэль. http://anklav-ekb.ru" + reverse('duel', args=[duel.pk]),
+            u"%s, вы вызваны на дуэль. http://anklav-ekb.ru%s" % (self.cleaned_data['role_2'].name, reverse('duel', args=[duel.pk])),
             None,
             [self.cleaned_data['role_2'].profile.user.email, 'glader.ru@gmail.com']
         )

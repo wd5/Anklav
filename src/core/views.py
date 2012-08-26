@@ -274,6 +274,7 @@ def duel_page(request, pk):
         'last_move': None,
         'can_move': False,
         'duel': duel,
+        'number_len': duel.number_len,
     }
 
     if duel.state == 'finished':
@@ -304,7 +305,7 @@ def duel_page(request, pk):
     if context['mode'] == 'security' and duel.state == 'not_started' and request.POST:
         try:
             n = request.POST.get('number')
-            CreateDuelForm.check_number(n)
+            CreateDuelForm.check_number(n, number_len=duel.number_len)
 
             duel.number_2 = n
             duel.state = 'in_progress'
@@ -314,7 +315,7 @@ def duel_page(request, pk):
             return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
 
         except ValidationError, e:
-            context['error'] = unicode(e)
+            context['error'] = unicode(e.messages[0])
 
 
     # Ходы
@@ -329,7 +330,7 @@ def duel_page(request, pk):
 
         try:
             number = request.POST.get('number')
-            CreateDuelForm.check_number(number)
+            CreateDuelForm.check_number(number, number_len=duel.number_len)
 
             log.info("Duel %s: move by %s: %s", duel.pk, context['mode'], number)
 
@@ -349,7 +350,7 @@ def duel_page(request, pk):
                 context['last_move'].move_2 = number
                 context['last_move'].save()
 
-            if context['last_move'].result_1 == '1111':
+            if context['last_move'].result_1 == '1' * duel.number_len:
                 duel.state = 'finished'
                 duel.winner = duel.role_1
                 duel.result = u"Ломщик выиграл"
@@ -357,7 +358,7 @@ def duel_page(request, pk):
                 log.info("Duel %s: hacker win", duel.pk)
                 return HttpResponseRedirect(reverse('duel', args=[duel.pk]))
 
-            if context['last_move'].result_2 == '1111':
+            if context['last_move'].result_2 == '1' * duel.number_len:
                 duel.state = 'finished'
                 duel.winner = duel.role_2
                 duel.result = u"Машинист выиграл"

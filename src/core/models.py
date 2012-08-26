@@ -329,8 +329,8 @@ class Duel(models.Model):
         ('finished', u"завершена"),
     )
     state = models.CharField(verbose_name=u"Состояние", max_length=20, default="not_started", choices=STATES)
-    number_1 = models.CharField(verbose_name=u"Загаданное число 1", max_length=4)
-    number_2 = models.CharField(verbose_name=u"Загаданное число 2", max_length=4, null=True, blank=True, default=None)
+    number_1 = models.CharField(verbose_name=u"Загаданное число 1", max_length=10, help_text=u"До 10 символов. Обычно - 4. Машинист должен будет ввести число такой же длины.")
+    number_2 = models.CharField(verbose_name=u"Загаданное число 2", max_length=10, null=True, blank=True, default=None)
     winner = models.ForeignKey(Role, verbose_name=u"Победитель", related_name="winner", null=True, blank=True, default=None)
     result = models.CharField(verbose_name=u"Итог", max_length=20, null=True, blank=True, default=None)
     dt = models.DateTimeField(verbose_name=u"Начало дуэли", default=None)
@@ -348,6 +348,10 @@ class Duel(models.Model):
         res.sort(reverse=True)
         return ''.join(res)
 
+    @property
+    def number_len(self):
+        return len(str(self.number_1))
+
 
 class Meta:
         verbose_name = u"Дуэль"
@@ -357,10 +361,10 @@ class Meta:
 class DuelMove(models.Model):
     duel = models.ForeignKey(Duel, verbose_name=u"Дуэль")
     dt = models.DateTimeField(verbose_name=u"Начало хода", default=None)
-    move_1 = models.CharField(verbose_name=u"Ход игрока 1", max_length=4, null=True, blank=True, default=None)
-    result_1 = models.CharField(verbose_name=u"Результат игрока 1", max_length=4, null=True, blank=True, default=None)
-    move_2 = models.CharField(verbose_name=u"Ход игрока 2", max_length=4, null=True, blank=True, default=None)
-    result_2 = models.CharField(verbose_name=u"Результат игрока 2", max_length=4, null=True, blank=True, default=None)
+    move_1 = models.CharField(verbose_name=u"Ход игрока 1", max_length=10, null=True, blank=True, default=None)
+    result_1 = models.CharField(verbose_name=u"Результат игрока 1", max_length=10, null=True, blank=True, default=None)
+    move_2 = models.CharField(verbose_name=u"Ход игрока 2", max_length=10, null=True, blank=True, default=None)
+    result_2 = models.CharField(verbose_name=u"Результат игрока 2", max_length=10, null=True, blank=True, default=None)
 
     def save(self, *args, **kwargs):
         if self.move_1 and not self.result_1:

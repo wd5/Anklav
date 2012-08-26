@@ -23,7 +23,7 @@ urlpatterns = patterns('',
     (r'^articles', include('staticpage.urls')),
     (r'^news', include('news.urls')),
 
-    url('^roles$', list_detail.object_list, {"queryset": Role.objects.all().order_by('location', 'name')}, name='roles'),
+    url('^roles$',  'core.views.roles', name='roles'),
     url('^add_role', 'core.views.add_role', name="add_role"),
     url('^choose_role', 'core.views.choose_role', name="choose_role"),
     url('^form$', 'core.views.form', name="form"),

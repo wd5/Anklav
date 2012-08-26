@@ -136,6 +136,13 @@ def add_role(request):
     return render_to_response(request, 'add_role.html', {'form': form})
 
 
+def roles(request):
+    return render_to_response(request, 'core/role_list.html', {
+        'object_list': Role.objects.all().order_by('location', 'name'),
+        'amount': Role.objects.filter(profile__isnull=False).count(),
+    })
+
+
 @login_required
 def profile(request):
     if request.POST:

@@ -18,7 +18,7 @@
 
             {% for role in group.list %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                    <td>{% if role.profile %}{{ role.profile.portrait.portrait.src_150 }}{% else %}-{% endif %}</td>
+                    <td>{% if role.profile %}<img src="{{ role.profile.portrait.src_150 }}">{% else %}&nbsp;{% endif %}</td>
                     <td>{{ role.name }}</td>
                     <td>{{ role.age }}</td>
                     <td>{{ role.profession }}</td>
@@ -37,4 +37,5 @@
             {% endfor %}
         {% endfor %}
     </table>
+    <p>Всего утвержденных ролей: {{ amount }}.</p>
 {% endblock %}

@@ -14,7 +14,7 @@
         </tr>
         {% regroup object_list by get_location_display as roles %}
         {% for group in roles %}
-            <td colspan="5">{{ group.grouper }}</td>
+            <td colspan="5" style="padding-top: 10px;"><h2>{{ group.grouper }}</h2></td>
 
             {% for role in group.list %}
                 <tr class="{% cycle 'odd' 'even' %}">

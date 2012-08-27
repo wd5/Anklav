@@ -189,6 +189,7 @@ def tradition(request, code):
         {
             'tradition': tradition,
             'articles': tradition.traditiontext_set.all(),
+            'files': tradition.traditionfile_set.all(),
             'chat': tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
         }
     )
@@ -225,6 +226,23 @@ def add_tradition_text(request, code):
         form = TraditionTextForm()
 
     return render_to_response(request, 'add_tradition_text.html', {'form': form})
+
+
+@tradition_required
+def add_tradition_file(request, code):
+    tradition = Tradition.objects.get(code=code)
+    if request.POST:
+        form = TraditionFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = form.save(commit=False)
+            file.author = request.user
+            file.tradition = tradition
+            file.save()
+            return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
+    else:
+        form = TraditionFileForm()
+
+    return render_to_response(request, 'add_tradition_file.html', {'form': form})
 
 
 @tradition_required

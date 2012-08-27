@@ -321,6 +321,17 @@ class TraditionText(models.Model):
         verbose_name_plural = u"Тексты в Компаниях"
 
 
+class TraditionFile(models.Model):
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Компания")
+    author = models.ForeignKey(User, verbose_name=u"Юзер")
+    dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
+    file = models.FileField(upload_to='files', verbose_name=u"Файл")
+
+    class Meta:
+        verbose_name = u"Файл в Компании"
+        verbose_name_plural = u"Файлы в Компаниях"
+
+
 class Duel(models.Model):
     role_1 = models.ForeignKey(Role, verbose_name=u"Игрок 1", related_name="role_1")
     role_2 = models.ForeignKey(Role, verbose_name=u"Игрок 2", related_name="role_2")

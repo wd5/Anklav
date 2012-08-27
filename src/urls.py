@@ -38,6 +38,7 @@ urlpatterns = patterns('',
     url('^group/(?P<code>\w+)$', 'core.views.tradition', name="tradition"),
     url('^group/(?P<code>\w+)/edit$', 'core.views.edit_tradition', name="edit_tradition"),
     url('^group/(?P<code>\w+)/add$', 'core.views.add_tradition_text', name="add_tradition_text"),
+    url('^group/(?P<code>\w+)/add_file$', 'core.views.add_tradition_file', name="add_tradition_file"),
     url('^group/(?P<code>\w+)/(?P<number>\d+)$', 'core.views.tradition_text', name="tradition_text"),
     url('^group/(?P<code>\w+)/(?P<number>\d+)/edit$', 'core.views.edit_tradition_text', name="edit_tradition_text"),
 

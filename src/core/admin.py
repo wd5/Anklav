@@ -48,6 +48,7 @@ admin.site.register(RoleConnection, RoleConnectionAdmin)
 admin.site.register(Tradition)
 admin.site.register(TraditionGuestbook)
 admin.site.register(TraditionText)
+admin.site.register(TraditionFile)
 
 admin.site.register(Duel, DuelAdmin)
 

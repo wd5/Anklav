@@ -29,4 +29,11 @@
         <p><a href="{% url tradition_text tradition.code text.id %}">{{ text.title }}</a></p>
     {% endfor %}
     <a href="{% url add_tradition_text tradition.code %}">добавить текст</a>
+
+    <hr>
+
+    {% for file in files %}
+        <p><a href="{{ MEDIA_URL }}{{ file.file.name }}">{{ file.file.name }}</a></p>
+    {% endfor %}
+    <a href="{% url add_tradition_file tradition.code %}">добавить файл</a>
 {% endblock %}

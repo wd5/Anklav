@@ -1,0 +1,15 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Заявки</h1>
+
+    <p>Добро пожаловать на сервер DD. Перед вами список открытых заявок. Дерзайте!</p>
+
+    <ul>
+        {% for req in requests %}
+            <li><strong>{{ req.author.get_profile.role.dd_number }}</strong>:<br><a href="{% url dd_request req.id %}">{{ req.description }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url dd_add %}">Создать новую заявку</a>
+{% endblock %}

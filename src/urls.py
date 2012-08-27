@@ -41,6 +41,10 @@ urlpatterns = patterns('',
     url('^group/(?P<code>\w+)/(?P<number>\d+)$', 'core.views.tradition_text', name="tradition_text"),
     url('^group/(?P<code>\w+)/(?P<number>\d+)/edit$', 'core.views.edit_tradition_text', name="edit_tradition_text"),
 
+    url('^dd$', 'core.views.dd', name="dd"),
+    url('^dd/add$', 'core.views.dd_add', name="dd_add"),
+    url('^dd/(\d+)$', 'core.views.dd_request', name="dd_request"),
+
     (r'^messages', include('role_message.urls')),
 
     (r'^feeds/news', NewsFeed()),

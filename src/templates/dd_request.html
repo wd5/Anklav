@@ -1,0 +1,61 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Заявка
+        {% if request.user == req.author %}(вы - заказчик){% endif %}
+        {% if request.user == req.assignee %}(вы - исполнитель){% endif %}
+    </h1>
+
+    <p>От: {{ req.author.get_profile.role.dd_number }}</p>
+    <p>Описание: {{ req.description }}</p>
+    <p>Добавлено: {{ req.dt|ru_strftime:"%d %B" }}</p>
+    <p>Статус: {{ req.get_status_display }}</p>
+    {% if req.status == 'done' %}
+        <p>Оплата: {{ req.cost }}</p>
+    {% endif %}
+
+    <hr>
+        {% for comment in comments %}
+        <p>{{ comment.author.get_profile.role.dd_number }}: {{ comment.content }} <small>({{ comment.dt|ru_strftime:"%d %B" }})</small>
+            {% if req.status == 'created' %}
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="n" value="{{ comment.author.get_profile.role.dd_number }}">
+                    <input type="submit" name="action" value="Назначить исполнителем">
+                </form>
+            {% endif %}
+        </p>
+    {% endfor %}
+
+    {% if req.status == 'created' or req.status == 'assigned' %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <textarea name="content"></textarea>
+            <input type="submit" name="action" value="Написать">
+        </form>
+    {% endif %}
+
+    <hr>
+    {% if req.status == 'assigned' and request.user == req.assignee %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="submit" name="action" value="Сделано">
+        </form>
+    {% endif %}
+
+    {% if req.status == 'ready' and request.user == req.author %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="submit" name="action" value="Подтверждено">
+        </form>
+    {% endif %}
+
+    {% if req.status == 'assigned' or req.status == 'ready' %}{% if request.user == req.author %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="submit" name="action" value="Провалено">
+        </form>
+    {% endif %}{% endif %}
+
+{% endblock %}

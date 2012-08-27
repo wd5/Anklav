@@ -379,3 +379,105 @@ def duel_page(request, pk):
             context['error'] = unicode(e.messages[0])
 
     return render_to_response(request, 'duel.html', context)
+
+
+def dd_required(func):
+    def wrapper(request, *args, **kwargs):
+        if request.actual_role or request.actual_role.dd_number:
+            return func(request, *args, **kwargs)
+
+        return HttpResponseRedirect(reverse('dd'))
+    return wrapper
+
+
+@login_required
+def dd(request):
+    context = {}
+    if request.actual_role.dd_number:
+        context['requests'] = DDRequest.objects.filter(status='created').order_by('-dt')
+        return render_to_response(request, 'dd_requests.html', context)
+
+    else:
+        if request.POST:
+            try:
+                n = int(request.POST.get('n', ''))
+
+                if Role.objects.filter(dd_number=n).exists() or n in (9, 42):
+                    raise ValidationError(u"Этот номеро уже занят, выберите другой.")
+
+                request.actual_role.dd_number = n
+                request.actual_role.save()
+                return HttpResponseRedirect(reverse('dd'))
+
+            except ValueError:
+                context['error'] = u"Это не число"
+            except ValidationError, e:
+                context['error'] = unicode(e.messages[0])
+
+        return render_to_response(request, 'dd_number_form.html', context)
+
+
+@dd_required
+def dd_add(request):
+    if request.POST:
+        form = DDForm(request.POST)
+        if form.is_valid():
+            req = form.save(commit=False)
+            req.author = request.actual_user
+            req.save()
+            return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+    else:
+        form = DDForm()
+
+    return render_to_response(request, 'dd_request_add.html', {'form': form})
+
+
+@dd_required
+def dd_request(request, req_id):
+    req = get_object_or_404(DDRequest, pk=req_id)
+    if req.status != 'created':
+        if not (request.user in (req.author, req.assignee) or request.user.is_superuser):
+            raise Http404
+
+    if request.POST:
+        if request.POST.get('action') == u'Написать' and request.POST.get('content'):
+            DDComment.objects.create(
+                request=req,
+                author=request.actual_user,
+                content=request.POST.get('content')
+            )
+            req.send_notification('comment')
+            return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+
+        if req.status == 'created' and request.POST.get('action') == u"Назначить исполнителем" and request.POST.get('n'):
+            try:
+                role = Role.objects.get(dd_number=request.POST.get('n'))
+                user = role.profile.user
+                req.assignee = user
+                req.status = 'assigned'
+                req.save()
+                req.send_notification('assigned')
+                return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+
+            except Role.DoesNotExist:
+                pass
+
+        if request.POST.get('action') == u'Сделано' and request.user == req.assignee and req.status == 'assigned':
+            req.status = 'ready'
+            req.save()
+            req.send_notification('ready')
+            return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+
+        if request.POST.get('action') == u'Подтверждено' and request.user == req.author and req.status == 'ready':
+            req.status = 'done'
+            req.save()
+            req.send_notification('done')
+            return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+
+        if request.POST.get('action') == u'Провалено' and request.user == req.author:
+            req.status = 'fail'
+            req.save()
+            req.send_notification('fail')
+            return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
+
+    return render_to_response(request, 'dd_request.html', {'req': req, 'comments': req.ddcomment_set.all().order_by('dt')})

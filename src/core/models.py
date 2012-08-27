@@ -58,6 +58,8 @@ class Role(models.Model):
     money = models.PositiveIntegerField(verbose_name=u"Деньги", null=True, blank=True, default=None)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
 
+    dd_number = models.PositiveIntegerField(verbose_name=u"DD", null=True, blank=True, default=None)
+
     order = models.IntegerField(verbose_name=u"Порядок", default=10000)
     profile = models.ForeignKey('Profile', verbose_name=u'Профиль', null=True, blank=True, related_name="locked_role")
 
@@ -379,6 +381,54 @@ class DuelMove(models.Model):
     class Meta:
         verbose_name = u"Ход дуэли"
         verbose_name_plural = u"Ходы дуэлей"
+
+
+class DDRequest(models.Model):
+    author = models.ForeignKey(User, verbose_name=u"Автор заявки", related_name='request_author')
+    dt = models.DateTimeField(verbose_name=u"Дата заявки", auto_now_add=True)
+    description = models.TextField(verbose_name=u"Заявка", help_text=u"Краткое публичное описание задания")
+    cost = models.TextField(verbose_name=u"Плата", help_text=u"Оплата за задание. Информация, деньги, акции. Раскрывается исполнителю после выполнения заявки.")
+    assignee = models.ForeignKey(User, verbose_name=u"Исполнитель", related_name='assignee', null=True, blank=True, default=None)
+    STATUSES = (
+        ('created', u"Создано"),
+        ('assigned', u"Назначено"),
+        ('ready', u"Готово"),
+        ('done', u"Подтверждено"),
+        ('fail', u"Провалена"),
+    )
+    status = models.CharField(verbose_name=u"Статус", default='created', max_length=20, choices=STATUSES)
+
+    def send_notification(self, event):
+        recievers = ['linashyti@gmail.com', 'glader.ru@gmail.com']
+        if event == 'assigned':
+            recievers.append(self.assignee.email)
+        else:
+            recievers.append(self.author.email)
+
+        message = {
+            'comment': u"Новый комментарий к заявке %s. ",
+            'assigned': u"Назначен исполнитель к заявке %s. ",
+            'ready': u"Заявка %s помечена как исполненная. ",
+            'done': u"Заявка %s помечена как подтвержденная. ",
+            'fail': u"Заявка %s помечена как проваленная. ",
+            }
+
+        send_mail(u"Анклав: уведомление с сервера DD", message[event] % self.id + reverse('dd_request', args=[self.id]), None, recievers)
+
+    class Meta:
+        verbose_name = u"Заявка DD"
+        verbose_name_plural = u"DD - заявки"
+
+
+class DDComment(models.Model):
+    request = models.ForeignKey(DDRequest, verbose_name=u"Заявка")
+    author = models.ForeignKey(User, verbose_name=u"Автор")
+    dt = models.DateTimeField(verbose_name=u"Дата заявки", auto_now_add=True)
+    content = models.TextField(verbose_name=u"Комментарий")
+
+    class Meta:
+        verbose_name = u"Комментарий к заявке DD"
+        verbose_name_plural = u"DD - комментарии"
 
 
 def change_user_link(self):

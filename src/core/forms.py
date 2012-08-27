@@ -123,9 +123,10 @@ class CreateDuelForm(ModelForm):
 from django.forms.models import modelform_factory, inlineformset_factory
 
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))
-RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special', 'crime'))
+RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'special', 'crime', 'dd_number'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
 TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))
 ConnectionFormSet = inlineformset_factory(Role, RoleConnection, fk_name="role", exclude=('is_locked',), extra=1)
 #LayerFormSet = inlineformset_factory(Role, LayerConnection, fk_name="role", exclude=('is_locked',), extra=1)
+DDForm = modelform_factory(DDRequest, fields=('description', 'cost'))

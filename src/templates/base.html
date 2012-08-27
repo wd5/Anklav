@@ -24,7 +24,13 @@
     <tr>
         <td class="b-left-menu">
             <a href="{% url common_news %}"><img src="{{ MEDIA_URL }}i/news.png"></a>
-            <img src="{{ MEDIA_URL }}i/dd.png">
+
+            {% if request.actual_role %}
+                <a href="{% url dd %}"><img src="{{ MEDIA_URL }}i/dd.png"></a>
+            {% else %}
+                <img src="{{ MEDIA_URL }}i/dd.png">
+            {% endif %}
+
             <img src="{{ MEDIA_URL }}i/exchange.png">
             {% if request.actual_role %}
                 {% if request.actual_role.tradition %}

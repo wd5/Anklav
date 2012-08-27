@@ -1,0 +1,13 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Ваш номер в DD</h1>
+
+    <p>Добро пожаловать на сервер DD. Выберите номер, по которому вы будете видны другим посетителям. Помните, что номер можно выбрать только один раз.</p>
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ error }}
+        <input type="text" name="n">&nbsp;<input type="submit" value="Сохранить">
+    </form>
+{% endblock %}

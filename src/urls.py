@@ -46,6 +46,7 @@ urlpatterns = patterns('',
     url('^dd/(\d+)$', 'core.views.dd_request', name="dd_request"),
 
     (r'^messages', include('role_message.urls')),
+    (r'^contest', include('contest.urls')),
 
     (r'^feeds/news', NewsFeed()),
 

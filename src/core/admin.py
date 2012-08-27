@@ -50,3 +50,5 @@ admin.site.register(TraditionGuestbook)
 admin.site.register(TraditionText)
 
 admin.site.register(Duel, DuelAdmin)
+
+admin.site.register(DDRequest)

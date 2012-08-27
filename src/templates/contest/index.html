@@ -1,0 +1,12 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Бал Королевы Осени</h1>
+
+    {% for member in members %}
+        <p><img src="{{ member.photo.src_150 }}"><br>
+            <a href="{% url contest_member member.id %}">{{ member.user.get_profile.role }}</a>
+        </p>
+
+    {% endfor %}
+{% endblock %}

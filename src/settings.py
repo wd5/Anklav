@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'news',
     'staticpage',
     'role_message',
+    'contest',
 )
 
 LOG_PATH = '/var/log/projects/anklav'

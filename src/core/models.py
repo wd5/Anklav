@@ -66,7 +66,6 @@ class Role(models.Model):
     def __unicode__(self):
         return self.name
 
-
     def save(self, check_diff=True, *args, **kwargs):
         if check_diff:
             report = ""

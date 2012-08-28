@@ -34,13 +34,13 @@
             <img src="{{ MEDIA_URL }}i/exchange.png">
             {% if request.actual_role %}
                 {% if request.actual_role.tradition %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.tradition.code %}">Моя традиция</a></div>
+                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.tradition.code %}">{{ request.actual_role.tradition.name }}</a></div>
                 {% endif %}
                 {% if request.actual_role.corporation %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.corporation.code %}">Моя фирма</a></div>
+                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.corporation.code %}">{{ request.actual_role.corporation.name }}</a></div>
                 {% endif %}
                 {% if request.actual_role.crime %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.crime.code %}">Мой синдикат</a></div>
+                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.crime.code %}">{{ request.actual_role.crime.name }}</a></div>
                 {% endif %}
             {% endif %}
             {% if request.actual_profile %}

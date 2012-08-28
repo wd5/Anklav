@@ -21,7 +21,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'profession', 'profile')
+    list_display = ('name', 'profession', 'profile', 'dd_number')
     raw_id_fields = ('profile',)
 
 

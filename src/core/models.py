@@ -397,7 +397,7 @@ class DDRequest(models.Model):
     author = models.ForeignKey(User, verbose_name=u"Автор заявки", related_name='request_author')
     dt = models.DateTimeField(verbose_name=u"Дата заявки", auto_now_add=True)
     description = models.TextField(verbose_name=u"Заявка", help_text=u"Краткое публичное описание задания")
-    cost = models.TextField(verbose_name=u"Плата", help_text=u"Оплата за задание. Информация, деньги, акции. Раскрывается исполнителю после выполнения заявки.")
+    cost = models.TextField(verbose_name=u"Плата", help_text=u"Тип оплаты за задание. Информация, деньги, акции.")
     assignee = models.ForeignKey(User, verbose_name=u"Исполнитель", related_name='assignee', null=True, blank=True, default=None)
     STATUSES = (
         ('created', u"Создано"),

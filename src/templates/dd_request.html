@@ -11,9 +11,7 @@
     <p>Описание: {{ req.description }}</p>
     <p>Добавлено: {{ req.dt|ru_strftime:"%d %B" }}</p>
     <p>Статус: {{ req.get_status_display }}</p>
-    {% if req.status == 'done' %}
-        <p>Оплата: {{ req.cost }}</p>
-    {% endif %}
+    <p>Оплата: {{ req.cost }}</p>
 
     <hr>
         {% for comment in comments %}

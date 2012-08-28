@@ -175,7 +175,7 @@ def tradition_required(func):
 
 
 @tradition_required
-def tradition(request, code):
+def tradition_view(request, code):
     tradition = Tradition.objects.get(code=code)
     if request.POST and request.POST.get('post'):
         TraditionGuestbook.objects.create(
@@ -183,6 +183,14 @@ def tradition(request, code):
             author=request.actual_user,
             content=request.POST.get('post'),
         )
+        recievers = [role.profile.user.email for role in Role.objects.filter(Q(tradition=tradition)|Q(corporation=tradition)|Q(crime=tradition))] + ['glader.ru@gmail.com', 'linashyti@gmail.com']
+        for email in recievers:
+            send_mail(
+                u"Анклав: Новая запись",
+                u"Новая запись на странице '%s'. http://%s%s" % (tradition.name, settings.DOMAIN, reverse('tradition', args=[tradition.code])),
+                None,
+                [email],
+            )
         return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
 
     return render_to_response(request, 'tradition.html',

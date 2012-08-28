@@ -35,7 +35,7 @@ urlpatterns = patterns('',
     url('^hack/duels$', 'core.views.duels', name="duels"),
     url('^hack/duels/(\d+)$', 'core.views.duel_page', name="duel"),
 
-    url('^group/(?P<code>\w+)$', 'core.views.tradition', name="tradition"),
+    url('^group/(?P<code>\w+)$', 'core.views.tradition_view', name="tradition"),
     url('^group/(?P<code>\w+)/edit$', 'core.views.edit_tradition', name="edit_tradition"),
     url('^group/(?P<code>\w+)/add$', 'core.views.add_tradition_text', name="add_tradition_text"),
     url('^group/(?P<code>\w+)/add_file$', 'core.views.add_tradition_file', name="add_tradition_file"),

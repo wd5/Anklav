@@ -1,0 +1,13 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Конкурс "Королева Осени": {{ member.user.get_profile.role.name }}.</h1>
+
+    <p>Выберите свое лучшее фото.</p>
+
+    <p><form action="" method="POST" enctype="multipart/form-data">
+        {{ form.as_p }}
+        <input type="submit" value="Сохранить">
+    </form></p>
+
+{% endblock %}

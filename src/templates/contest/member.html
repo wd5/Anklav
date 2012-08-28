@@ -1,0 +1,16 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Конкурс "Королева Осени". {{ member.user.get_profile.role.name }}.</h1>
+
+    <img src="{{ member.photo.src }}">
+
+    <p>Голосов: {{ member.count }}
+        {% if voted %}(<a href="?action=cancel">отозвать голос</a>){% endif %}
+        {% if can_vote %}(<a href="?action=vote">проголосовать</a>){% endif %}
+    </p>
+
+    {% if can_edit %}
+        <p><a href="{% url contest_edit member.id %}">Редактировать заявку</a></p>
+    {% endif %}
+{% endblock %}

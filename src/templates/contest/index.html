@@ -1,12 +1,17 @@
 {% extends "inner_page.html" %}
 
 {% block content %}
-    <h1>Бал Королевы Осени</h1>
+    <h1>Конкурс "Королева Осени"</h1>
 
     {% for member in members %}
-        <p><img src="{{ member.photo.src_150 }}"><br>
-            <a href="{% url contest_member member.id %}">{{ member.user.get_profile.role }}</a>
+        <p style="float: left; height: 250px; margin-right: 20px; vertical-align: bottom;">
+            <a href="{% url contest_member member.id %}"><img src="{{ member.photo.src_150 }}"><br>
+            {{ member.user.get_profile.role }}</a><br>
+            Голосов: {{ member.count }}
         </p>
-
     {% endfor %}
+
+    {% if can_add %}
+        <p style="clear: both;"><a href="{% url contest_add %}">Добавить заявку</a></p>
+    {% endif %}
 {% endblock %}

@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import User
 from django.db import models
+from django import forms
 from yafotki.fields import YFField
 
 
@@ -24,5 +25,7 @@ class ContestMember(models.Model):
 
 class ContestVote(models.Model):
     author = models.ForeignKey(User, verbose_name=u"Голосующий", related_name='author')
-    member = models.ForeignKey(User, verbose_name=u"За кого", related_name='member')
+    member = models.ForeignKey(ContestMember, verbose_name=u"За кого", related_name='member')
 
+
+ContestMemberForm = forms.models.modelform_factory(ContestMember, fields=('photo',))

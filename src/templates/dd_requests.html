@@ -7,7 +7,7 @@
 
     <ul>
         {% for req in requests %}
-            <li><strong>{{ req.author.get_profile.role.dd_number }}</strong>:<br><a href="{% url dd_request req.id %}">{{ req.description }}</a></li>
+            <li><strong>{{ req.author.get_profile.role.dd_number }}</strong>:<br><a href="{% url dd_request req.id %}">{{ req.description }}</a> ({{ req.get_status_display }})</li>
         {% endfor %}
     </ul>
 

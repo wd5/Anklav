@@ -412,7 +412,7 @@ def dd_required(func):
 def dd(request):
     context = {}
     if request.actual_role.dd_number:
-        context['requests'] = DDRequest.objects.filter(status='created').order_by('-dt')
+        context['requests'] = DDRequest.objects.all().order_by('-dt')
         return render_to_response(request, 'dd_requests.html', context)
 
     else:
@@ -453,9 +453,6 @@ def dd_add(request):
 @dd_required
 def dd_request(request, req_id):
     req = get_object_or_404(DDRequest, pk=req_id)
-    if req.status != 'created':
-        if not (request.user in (req.author, req.assignee) or request.user.is_superuser):
-            raise Http404
 
     if request.POST:
         if request.POST.get('action') == u'Написать' and request.POST.get('content'):

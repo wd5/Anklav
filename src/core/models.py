@@ -423,7 +423,13 @@ class DDRequest(models.Model):
             'fail': u"Заявка %s помечена как проваленная. ",
             }
 
-        send_mail(u"Анклав: уведомление с сервера DD", message[event] % self.id + reverse('dd_request', args=[self.id]), None, recievers)
+        send_mail(
+            u"Анклав: уведомление с сервера DD",
+            message[event] % self.id +
+            "http://%s%s" % (settings.DOMAIN, reverse('dd_request', args=[self.id])),
+            None,
+            recievers
+        )
 
     class Meta:
         verbose_name = u"Заявка DD"

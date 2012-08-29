@@ -1,5 +1,11 @@
 {% extends "inner_page.html" %}
 
+{% block extra_head %}
+    {% if not can_move %}
+        <meta http-equiv="refresh" content="10">
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <h1>Дуэль "{{ duel.role_1 }} <small>vs</small> {{ duel.role_2 }}"</h1>
     <p>Вы - {% if request.actual_role == duel.role_1 %}ломщик{% else %}машинист{% endif %}</p>

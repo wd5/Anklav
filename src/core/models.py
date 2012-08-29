@@ -281,6 +281,7 @@ class Tradition(models.Model):
         ('crime', u'Преступная группировка'),
         )
     type = models.CharField(verbose_name=u"Тип компании", default='tradition', max_length=15, choices=TYPES)
+    mana = models.IntegerField(verbose_name=u"Мана", default=0)
 
     def __unicode__(self):
         return u"%s '%s'" % (self.get_type_display(), self.name)
@@ -330,6 +331,32 @@ class TraditionFile(models.Model):
     class Meta:
         verbose_name = u"Файл в Компании"
         verbose_name_plural = u"Файлы в Компаниях"
+
+
+class Miracle(models.Model):
+    name = models.CharField(verbose_name=u"Название", max_length=50)
+    description = models.CharField(verbose_name=u"Описание", max_length=250, default="", blank=True)
+    cost = models.PositiveIntegerField(verbose_name=u"Сколько маны стоит")
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = u"Чудо"
+        verbose_name_plural = u"Чудеса"
+
+
+class RoleMiracle(models.Model):
+    owner = models.ForeignKey(Role, verbose_name=u"Владелец чуда", related_name='owner')
+    miracle = models.ForeignKey(Miracle, verbose_name=u"Чудо")
+    recipient = models.ForeignKey(Role, verbose_name=u"На кого применено", null=True, blank=True, default=None, related_name='recipient')
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.owner, self.miracle)
+
+    class Meta:
+        verbose_name = u"Чудо"
+        verbose_name_plural = u"Чудеса"
 
 
 class Duel(models.Model):

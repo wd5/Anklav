@@ -288,7 +288,7 @@ def duels(request):
     else:
         form = CreateDuelForm()
 
-    return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.all().order_by('-id')})
+    return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.filter(Q(role_1=request.actual_role)|Q(role_2=request.actual_role)).order_by('-id')})
 
 
 @login_required

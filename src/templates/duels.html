@@ -3,6 +3,15 @@
 {% block content %}
     <h1>Дуэли</h1>
 
+    {% if duels %}
+        <p>Ваши дуэли:</p>
+        <ul>
+            {% for duel in duels %}
+                <li><a href="{% url duel duel.id %}">{{ duel.role_1 }} - {{ duel.role_2 }}: {{ duel.get_state_display }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     {% if request.actual_role %}
         <p>Начать новую дуэль
         <form action="" method="POST">

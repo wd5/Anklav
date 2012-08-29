@@ -91,7 +91,7 @@ class Role(models.Model):
                     emails.append(self.profile.user.email)
 
                 send_mail(
-                    u"Аклав: роль %s" % self.name,
+                    u"Анклав: роль %s" % self.name,
                     header + report,
                     settings.SERVER_EMAIL,
                     emails,
@@ -209,7 +209,7 @@ class Profile(models.Model):
                 emails = [settings.MANAGERS[0][1], settings.ADMINS[0][1], self.user.email]
 
                 send_mail(
-                    u"Аклав: профиль игрока %s" % self.name,
+                    u"Анклав: профиль игрока %s" % self.name,
                     report,
                     settings.SERVER_EMAIL,
                     emails,

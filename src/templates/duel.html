@@ -14,11 +14,16 @@
     {% if moves %}
         <h3>Ходы</h3>
         <table>
+            <tr>
+                <td>{% if request.actual_role == duel.role_1 %}вы{% else %}противник{% endif %}</td>
+                <td>|</td>
+                <td>{% if request.actual_role == duel.role_2 %}вы{% else %}противник{% endif %}</td>
+            </tr>
             {% for move in moves %}
                 <tr>
-                    <td>{{ move.move_1|default:"-" }} ({{ move.result_1|default:"-" }})</td>
+                    <td>{% if move.move_1 %}{{ move.move_1 }} ({{ move.result_1 }}){% else %}ожидание хода{% endif %}</td>
                     <td>|</td>
-                    <td>{{ move.move_2|default:"-" }} ({{ move.result_2|default:"-" }})</td>
+                    <td>{% if move.move_2 %}{{ move.move_2 }} ({{ move.result_2 }}){% else %}ожидание хода{% endif %}</td>
                 </tr>
             {% endfor %}
         </table>

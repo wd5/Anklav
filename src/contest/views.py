@@ -18,7 +18,7 @@ def render_to_response(request, template_name, context_dict=None):
 
 def index(request):
     members = ContestMember.objects.all()
-    can_add = not ContestMember.objects.filter(user=request.user).exists()
+    can_add = request.user.is_authenticated() and not ContestMember.objects.filter(user=request.user).exists()
 
     return render_to_response(request, 'contest/index.html', {'members': members, 'can_add': can_add})
 
@@ -63,8 +63,8 @@ def member_view(request, member_id):
     context = {
         'member': member,
         'can_edit': member.user == request.user,
-        'can_vote': not ContestVote.objects.filter(author=request.user).exists(),
-        'voted': ContestVote.objects.filter(author=request.user, member=member).exists(),
+        'can_vote': request.user.is_authenticated() and not ContestVote.objects.filter(author=request.user).exists(),
+        'voted': request.user.is_authenticated() and ContestVote.objects.filter(author=request.user, member=member).exists(),
     }
 
     if request.GET.get('action') == 'vote' and context['can_vote']:

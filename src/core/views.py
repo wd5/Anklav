@@ -219,20 +219,23 @@ def tradition_members(request, code):
     tradition = Tradition.objects.get(code=code)
     membership = tradition.membership(request.actual_role)
 
-    if not (membership and membership.level == 'master'):
+    if not ((membership and membership.level == 'master') or request.user.is_superuser):
         raise Http404
 
     members = TraditionRole.objects.filter(tradition=tradition).order_by('is_approved', 'role__name')
 
     if request.POST:
         try:
-            print request.POST
             role_id = int(request.POST['role'])
             relation = tradition.membership(Role.objects.get(pk=role_id))
             if request.POST['action'] == u'Принять':
                 relation.is_approved = True
                 relation.save()
+                tradition.mana += TraditionRole.objects.filter(tradition=tradition, is_approved=True).exclude(level='master').count()
+                tradition.save()
             else:
+                tradition.mana -= TraditionRole.objects.filter(tradition=tradition, is_approved=True).exclude(level='master').count()
+                tradition.save()
                 relation.delete()
             return HttpResponseRedirect(reverse('tradition_members', args=[tradition.code]))
         except (Role.DoesNotExist, AttributeError, ValueError):

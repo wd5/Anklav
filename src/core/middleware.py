@@ -2,7 +2,7 @@
 import logging
 from django.contrib.auth.models import User
 
-from .models import Profile, Role
+from .models import Profile, Role, TraditionRole
 
 class Prepare:
     def process_request(self, request):
@@ -33,6 +33,12 @@ class Prepare:
 
                 except User.DoesNotExist:
                     pass
+
+        if request.actual_role:
+            request.actual_role.companies = [
+                traditionrole.tradition
+                for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True)
+            ]
 
 
 class LogPost:

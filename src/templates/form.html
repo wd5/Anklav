@@ -22,4 +22,10 @@
 
     </form>
 
+    {% if request.actual_role %}
+        <hr>
+        <div></div><a href="{% url traditions_request %}">Заявка на участие в Традиции/Корпорации</a></div>
+        <br>
+    {% endif %}
+
 {% endblock %}

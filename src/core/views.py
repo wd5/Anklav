@@ -162,9 +162,7 @@ def tradition_required(func):
             try:
                 tradition = Tradition.objects.get(code=kwargs['code'])
                 if request.user.is_superuser or \
-                    request.actual_role.tradition == tradition or \
-                    request.actual_role.corporation == tradition or \
-                    request.actual_role.crime == tradition:
+                    TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True).exists():
                         return func(request, *args, **kwargs)
 
             except Tradition.DoesNotExist:
@@ -174,9 +172,80 @@ def tradition_required(func):
     return wrapper
 
 
+@login_required
+def traditions_request(request):
+    traditions = Tradition.objects.all().order_by('type', 'name')
+    membership = dict((tr.tradition_id, tr) for tr in TraditionRole.objects.filter(role=request.actual_role))
+    for tradition in traditions:
+        tradition.membership = membership.get(tradition.id, None)
+
+    traditions = filter(lambda t: t.type != 'crime' or t.membership, traditions)
+
+    return render_to_response(request, 'traditions_request.html', {'traditions': traditions})
+
+
+@login_required
+def tradition_request(request, code):
+    tradition = Tradition.objects.get(code=code)
+    membership = tradition.membership(request.actual_role)
+
+    if request.POST:
+        # заявка на участие в группе
+        TraditionRole.objects.filter(role=request.actual_role, tradition__type=tradition.type).delete()
+        TraditionRole.objects.create(role=request.actual_role, tradition=tradition)
+
+        try:
+            master = TraditionRole.objects.get(tradition=tradition, level='master').role
+            send_mail(
+                u"Анклав: заявка на участие",
+                u"Новая заявка на участие: http://%s%s" % (settings.DOMAIN, reverse('tradition_members', args=[tradition.code])),
+                None,
+                ['linashyti@gmail.com', 'glader.ru@gmail.com', master.profile.user.email],
+            )
+        except TraditionRole.DoesNotExist:
+            send_mail(
+                u"Анклав: заявка на участие",
+                u"У %s нет иерарха, некому утверждать заявки." % tradition.name,
+                None,
+                ['linashyti@gmail.com', 'glader.ru@gmail.com'],
+            )
+        return HttpResponseRedirect(reverse('tradition_request', args=[tradition.code]))
+
+    return render_to_response(request, 'tradition_request.html', {'tradition': tradition, 'membership': membership})
+
+
+@tradition_required
+def tradition_members(request, code):
+    tradition = Tradition.objects.get(code=code)
+    membership = tradition.membership(request.actual_role)
+
+    if not (membership and membership.level == 'master'):
+        raise Http404
+
+    members = TraditionRole.objects.filter(tradition=tradition).order_by('is_approved', 'role__name')
+
+    if request.POST:
+        try:
+            print request.POST
+            role_id = int(request.POST['role'])
+            relation = tradition.membership(Role.objects.get(pk=role_id))
+            if request.POST['action'] == u'Принять':
+                relation.is_approved = True
+                relation.save()
+            else:
+                relation.delete()
+            return HttpResponseRedirect(reverse('tradition_members', args=[tradition.code]))
+        except (Role.DoesNotExist, AttributeError, ValueError):
+            pass
+
+    return render_to_response(request, 'tradition_members.html', {'tradition': tradition, 'members': members})
+
+
 @tradition_required
 def tradition_view(request, code):
     tradition = Tradition.objects.get(code=code)
+    membership = tradition.membership(request.actual_role)
+
     if request.POST and request.POST.get('post'):
         TraditionGuestbook.objects.create(
             tradition=tradition,
@@ -198,7 +267,8 @@ def tradition_view(request, code):
             'tradition': tradition,
             'articles': tradition.traditiontext_set.all(),
             'files': tradition.traditionfile_set.all(),
-            'chat': tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            'chat': tradition.traditionguestbook_set.all().order_by('-dt_created')[:20],
+            'master': membership and membership.level == 'master',
         }
     )
 
@@ -206,6 +276,11 @@ def tradition_view(request, code):
 @tradition_required
 def edit_tradition(request, code):
     tradition = Tradition.objects.get(code=code)
+    membership = tradition.membership(request.actual_role)
+
+    if not (membership and membership.level == 'master'):
+        raise Http404
+
     if request.POST:
         form = TraditionForm(request.POST, instance=tradition)
         if form.is_valid():

@@ -32,16 +32,10 @@
             {% endif %}
 
             <img src="{{ MEDIA_URL }}i/exchange.png">
-            {% if request.actual_role %}
-                {% if request.actual_role.tradition %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.tradition.code %}">{{ request.actual_role.tradition.name }}</a></div>
-                {% endif %}
-                {% if request.actual_role.corporation %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.corporation.code %}">{{ request.actual_role.corporation.name }}</a></div>
-                {% endif %}
-                {% if request.actual_role.crime %}
-                    <div class="b-left-menu__item"><a href="{% url tradition request.actual_role.crime.code %}">{{ request.actual_role.crime.name }}</a></div>
-                {% endif %}
+            {% if request.actual_role and request.actual_role.companies %}
+                {% for company in request.actual_role.companies %}
+                    <div class="b-left-menu__item"><a href="{% url tradition company.code %}">{{ company.name }}</a></div>
+                {% endfor %}
             {% endif %}
             {% if request.actual_profile %}
                 <div class="b-left-menu__item">

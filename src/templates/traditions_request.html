@@ -1,0 +1,26 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Участие</h1>
+
+    {% regroup traditions by get_type_display as grouped_traditions %}
+
+    {% for group in grouped_traditions %}
+        <h2>{{ group.grouper }}</h2>
+
+        {% for tradition in group.list %}
+            <div>
+                <a href="{% url tradition_request tradition.code %}">{{ tradition.name }}</a>
+                {% if tradition.membership %}
+                    {% if tradition.membership.is_approved %}
+                        (состою)
+                    {% else %}
+                        (ожидание разрешения)
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endfor %}
+
+    {% endfor %}
+
+{% endblock %}

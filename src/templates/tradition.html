@@ -4,8 +4,9 @@
 {% block content %}
     <h2>
         {{ tradition.name }}
-        {% if tradition.master == request.actual_role %}
-            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition tradition.code %}">править</a>)</span>
+        {% if master %}
+            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition tradition.code %}">править</a> |
+                <a href="{% url tradition_members tradition.code %}">участники</a>)</span>
         {% endif %}
     </h2>
 

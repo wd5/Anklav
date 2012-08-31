@@ -29,6 +29,10 @@ class RoleConnectionAdmin(admin.ModelAdmin):
     list_display = ('role', 'role_rel', 'is_locked')
 
 
+class TraditionRoleAdmin(admin.ModelAdmin):
+    list_display = ('tradition', 'role', 'level', 'is_approved')
+    list_filter = ('level', 'is_approved', 'tradition')
+
 class DuelMoveInline(admin.TabularInline):
     model = DuelMove
     fk_name = 'duel'
@@ -49,6 +53,7 @@ admin.site.register(Tradition)
 admin.site.register(TraditionGuestbook)
 admin.site.register(TraditionText)
 admin.site.register(TraditionFile)
+admin.site.register(TraditionRole, TraditionRoleAdmin)
 
 admin.site.register(Duel, DuelAdmin)
 

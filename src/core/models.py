@@ -45,12 +45,6 @@ class Role(models.Model):
         ('world', u'Внешний мир'),
     )
     location = models.CharField(choices=LOCATIONS, max_length=20, verbose_name=u"Локация")
-    tradition = models.ForeignKey('Tradition', verbose_name=u"Традиция", null=True, blank=True, default=None,
-        related_name='tradition', limit_choices_to={'type': 'tradition'})
-    corporation = models.ForeignKey('Tradition', verbose_name=u"Корпорация", null=True, blank=True, default=None,
-        related_name='corporation', limit_choices_to={'type': 'corporation'})
-    crime = models.ForeignKey('Tradition', verbose_name=u"Криминал", null=True, blank=True, default=None,
-        related_name='crime', limit_choices_to={'type': 'crime'})
     work = models.CharField(max_length=200, verbose_name=u"Место работы")
     profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
@@ -274,7 +268,6 @@ class Tradition(models.Model):
     name = models.CharField(max_length=50, verbose_name=u"Название")
     code = models.CharField(max_length=50, verbose_name=u"Код", help_text=u"Англ. строчные буквы без пробелов", default="")
     content = models.TextField(verbose_name=u"Описание", default="")
-    master = models.ForeignKey(Role, verbose_name=u"Иерарх", related_name="master", null=True, blank=True, default=None)
     TYPES = (
         ('corporation', u'Корпорация'),
         ('tradition', u'Традиция'),
@@ -285,6 +278,12 @@ class Tradition(models.Model):
 
     def __unicode__(self):
         return u"%s '%s'" % (self.get_type_display(), self.name)
+
+    def membership(self, role):
+        try:
+            return TraditionRole.objects.get(role=role, tradition=self)
+        except TraditionRole.DoesNotExist:
+            return None
 
     class Meta:
         verbose_name = u"Компания"
@@ -331,6 +330,22 @@ class TraditionFile(models.Model):
     class Meta:
         verbose_name = u"Файл в Компании"
         verbose_name_plural = u"Файлы в Компаниях"
+
+
+class TraditionRole(models.Model):
+    tradition = models.ForeignKey(Tradition, verbose_name=u"Компания")
+    role = models.ForeignKey(Role, verbose_name=u"Роль")
+    is_approved = models.BooleanField(verbose_name=u"Подтверждена", default=False)
+    LEVELS = (
+        ('ordinal', u"Рядовой"),
+        ('security', u"Машинист"),
+        ('master', u"Иерарх"),
+    )
+    level = models.CharField(choices=LEVELS, max_length=15, verbose_name=u"Должность", default='ordinal')
+
+    class Meta:
+        verbose_name = u"Роль в Компании"
+        verbose_name_plural = u"Роли в Компаниях"
 
 
 class Miracle(models.Model):

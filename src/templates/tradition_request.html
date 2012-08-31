@@ -1,0 +1,21 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Участие в {% if tradition.type == 'corporation' %}корпорации{% else %}{% if tradition.type == 'tradition' %}традиции{% else %}криминальной структуре{% endif %}{% endif %} "{{ tradition.name }}"</h1>
+
+    {% if membership %}
+        {% if membership.is_approved %}
+            <p>Вы уже состоите в "<a href="{% url tradition tradition.code %}">{{ tradition.name }}</a>".</p>
+        {% else %}
+            <p>Глава "{{ tradition.name }}" рассматривает вашу заявку.</p>
+        {% endif %}
+    {% else %}
+        <p>Вы понимаете, что, подав заявку на участие в "{{ tradition.name }}", вы автоматически исключаетесь из остальных
+            {% if tradition.type == 'corporation' %}корпораций{% else %}{% if tradition.type == 'tradition' %}традиций{% else %}криминальных структур{% endif %}{% endif %}.</p>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Да, я хочу подать заявку на участие в этой {% if tradition.type == 'corporation' %}корпорации{% else %}{% if tradition.type == 'tradition' %}традиции{% else %}криминальной структуре{% endif %}{% endif %}">
+        </form>
+    {% endif %}
+
+{% endblock %}

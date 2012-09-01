@@ -1,0 +1,49 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h2>Участники "{{ tradition.name }}"</h2>
+
+    <p>Запас маны у традиции: {{ tradition.mana }}.</p>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    <table>
+    {% for member in members %}
+        <tr>
+            <td>{{ member.role.name }}</td>
+            <td>
+                <form action="" method="POST" style="display: inline; padding-left: 20px;">
+                    {% csrf_token %}
+                    <select name="miracle">
+                        {% for miracle in miracles %}
+                            <option value="{{ miracle.id }}">{{ miracle.name }} ({{ miracle.cost}})</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="role" value="{{ member.role.id }}">
+                    <input type="submit" name="action" value="Одарить чудом" title="{{ member.role.name }}">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    {% regroup granted_miracles by used as grouped_miracles %}
+
+    {% for group in grouped_miracles %}
+        <h2>{% if group.grouper %}Использованные чудеса{% else %}Неиспользованные чудеса{% endif %}</h2>
+
+        <table>
+            {% for miracle in group.list %}
+                <tr>
+                    <td>{{ miracle.owner.name }}:</td>
+                    <td>{{ miracle.miracle.name }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% endfor %}
+
+
+{% endblock %}

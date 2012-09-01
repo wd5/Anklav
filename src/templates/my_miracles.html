@@ -1,0 +1,44 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Мои чудеса</h1>
+
+    {% if miracles %}
+
+        {% regroup miracles by used as grouped_miracles %}
+
+        {% for group in grouped_miracles %}
+            {% if group.grouper %}
+                <h2>Использованные чудеса</h2>
+                {% for miracle in group.list %}
+                    <div>{{ miracle.miracle.name }} -> {{ miracle.recipient }} ({{ miracle.use_dt|ru_strftime:"%d %B" }})</div>
+                {% endfor %}
+
+            {% else %}
+                <h2>Неиспользованные чудеса</h2>
+                <table>
+                    {% for miracle in group.list %}
+                        <tr>
+                            <td>{{ miracle.miracle.name }}</td>
+                            <td><form action="" method="POST" style="display: inline; padding-left: 20px;">
+                                    {% csrf_token %}
+                                    <select name="role">
+                                        {% for role in roles %}
+                                            <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="miracle" value="{{ miracle.id }}">
+                                    <input type="submit" name="action" value="Применить чудо" title="{{ miracle.miracle.name }}">
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% endfor %}
+
+    {% else %}
+        <p>Вы не одарены чудесами. Обратитесь к иерарху вашей традиции.</p>
+    {% endif %}
+{% endblock %}

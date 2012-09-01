@@ -44,6 +44,9 @@ urlpatterns = patterns('',
     url('^groups/(?P<code>\w+)/(?P<number>\d+)/edit$', 'core.views.edit_tradition_text', name="edit_tradition_text"),
     url('^groups/(?P<code>\w+)/request$', 'core.views.tradition_request', name="tradition_request"),
     url('^groups/(?P<code>\w+)/members', 'core.views.tradition_members', name="tradition_members"),
+    url('^groups/(?P<code>\w+)/miracles', 'core.views.tradition_miracles', name="tradition_miracles"),
+
+    url('^miracles', 'core.views.my_miracles', name="my_miracles"),
 
     url('^dd$', 'core.views.dd', name="dd"),
     url('^dd/add$', 'core.views.dd_add', name="dd_add"),

@@ -5,8 +5,13 @@
     <h2>
         {{ tradition.name }}
         {% if master %}
-            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url edit_tradition tradition.code %}">править</a> |
-                <a href="{% url tradition_members tradition.code %}">участники</a>)</span>
+            <span style="font-size: 70%; font-weight: normal;">( <a href="{% url edit_tradition tradition.code %}">править</a> |
+                <a href="{% url tradition_members tradition.code %}">участники</a>
+                {% if tradition.type == 'tradition' %}| <a href="{% url tradition_miracles tradition.code %}">чудеса</a>{% endif %}
+                )</span>
+        {% endif %}
+        {% if not master and tradition.type == 'tradition' %}
+            <span style="font-size: 70%; font-weight: normal;">(<a href="{% url my_miracles %}">мои чудеса</a>)</span>
         {% endif %}
     </h2>
 

@@ -222,7 +222,7 @@ def tradition_members(request, code):
     if not ((membership and membership.level == 'master') or request.user.is_superuser):
         raise Http404
 
-    members = TraditionRole.objects.filter(tradition=tradition).order_by('is_approved', 'role__name')
+    members = TraditionRole.objects.filter(tradition=tradition).exclude(level='master').order_by('is_approved', 'role__name')
 
     if request.POST:
         try:
@@ -242,6 +242,65 @@ def tradition_members(request, code):
             pass
 
     return render_to_response(request, 'tradition_members.html', {'tradition': tradition, 'members': members})
+
+
+@tradition_required
+def tradition_miracles(request, code):
+    error = ""
+    tradition = Tradition.objects.get(code=code)
+    if tradition.type != 'tradition':
+        raise Http404
+
+    membership = tradition.membership(request.actual_role)
+    if not ((membership and membership.level == 'master') or request.user.is_superuser):
+        raise Http404
+
+    if request.POST:
+        # одаривание чудом
+        try:
+            role = Role.objects.get(pk=request.POST.get('role'))
+            member = TraditionRole.objects.get(tradition=tradition, role=role, is_approved=True)
+            miracle = Miracle.objects.get(pk=request.POST.get('miracle'))
+            if miracle.cost <= tradition.mana:
+                RoleMiracle.objects.create(owner=role, miracle=miracle)
+                tradition.mana -= miracle.cost
+                tradition.save()
+
+                send_mail(
+                    u"Анклав: вы одарены чудом",
+                    u"Иерарх одарил вас чудом '%s'. Вы можете отметить его как примененное на странице http://%s%s ." \
+                        % (miracle.name, settings.DOMAIN, reverse('my_miracles')),
+                    None,
+                    ['linashyti@gmail.com', 'glader.ru@gmail.com', role.profile.user.email]
+                )
+                return HttpResponseRedirect(reverse('tradition_miracles', args=[tradition.code]))
+
+            else:
+                error = u"В традиции недостаточно маны для этого чуда."
+
+        except (Role.DoesNotExist, TraditionRole.DoesNotExist):
+            error = u"Неизвестный персонаж"
+
+        except (Miracle.DoesNotExist,):
+            error = u"Неизвестное чудо"
+
+    miracles = Miracle.objects.filter(cost__lte=tradition.mana).order_by('cost', 'name')
+    members = TraditionRole.objects.filter(tradition=tradition, is_approved=True).exclude(level='master')
+    granted_miracles = list(RoleMiracle.objects.filter(owner__in=[member.role_id for member in members]))
+    for miracle in granted_miracles:
+        miracle.used = miracle.recipient_id is not None
+
+    granted_miracles.sort(key=lambda m: m.used)
+
+    return render_to_response(request, 'tradition_miracles.html',
+            {
+                'tradition': tradition,
+                'members': members,
+                'miracles': miracles,
+                'granted_miracles': granted_miracles,
+                'error': error,
+            }
+    )
 
 
 @tradition_required
@@ -351,6 +410,40 @@ def edit_tradition_text(request, code, number):
         form = TraditionTextModelForm(instance=text)
 
     return render_to_response(request, 'edit_tradition_text.html', {'form': form})
+
+
+@login_required
+def my_miracles(request):
+    miracles = list(RoleMiracle.objects.filter(owner=request.actual_role))
+    for miracle in miracles:
+        miracle.used = miracle.recipient_id is not None
+
+    miracles.sort(key=lambda m: m.used)
+
+    roles = Role.objects.filter(profile__isnull=False).exclude(pk=request.actual_role.id).order_by('name')
+
+    if request.POST:
+        try:
+            recipient = Role.objects.get(pk=request.POST.get('role'))
+            miracle = RoleMiracle.objects.get(pk=request.POST.get('miracle'), owner=request.actual_role, recipient__isnull=True)
+            miracle.recipient = recipient
+            miracle.use_dt = datetime.now()
+            miracle.save()
+
+            send_mail(
+                u"Анклав: чудо применено",
+                u"'%s' применил на '%s' чудо '%s'."\
+                % (request.actual_role, recipient, miracle.miracle.name),
+                None,
+                ['linashyti@gmail.com', 'glader.ru@gmail.com', request.actual_role.profile.user.email, recipient.profile.user.email]
+            )
+
+            return HttpResponseRedirect(reverse('my_miracles') + '?save=ok')
+
+        except (Role.DoesNotExist, RoleMiracle):
+            pass
+
+    return render_to_response(request, 'my_miracles.html', {'miracles': miracles, 'roles': roles})
 
 
 @login_required

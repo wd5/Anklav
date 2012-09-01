@@ -349,7 +349,7 @@ class TraditionRole(models.Model):
 
 
 class Miracle(models.Model):
-    name = models.CharField(verbose_name=u"Название", max_length=50)
+    name = models.CharField(verbose_name=u"Название", max_length=100)
     description = models.CharField(verbose_name=u"Описание", max_length=250, default="", blank=True)
     cost = models.PositiveIntegerField(verbose_name=u"Сколько маны стоит")
 
@@ -365,13 +365,15 @@ class RoleMiracle(models.Model):
     owner = models.ForeignKey(Role, verbose_name=u"Владелец чуда", related_name='owner')
     miracle = models.ForeignKey(Miracle, verbose_name=u"Чудо")
     recipient = models.ForeignKey(Role, verbose_name=u"На кого применено", null=True, blank=True, default=None, related_name='recipient')
+    created = models.DateTimeField(auto_now_add=True, verbose_name=u"Выдано")
+    use_dt = models.DateTimeField(verbose_name=u"Использовано", null=True, blank=True, default=None)
 
     def __unicode__(self):
         return u"%s: %s" % (self.owner, self.miracle)
 
     class Meta:
-        verbose_name = u"Чудо"
-        verbose_name_plural = u"Чудеса"
+        verbose_name = u"Подаренное чудо"
+        verbose_name_plural = u"Чудеса подаренные"
 
 
 class Duel(models.Model):

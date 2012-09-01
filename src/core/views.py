@@ -323,7 +323,8 @@ def tradition_view(request, code):
             author=request.actual_user,
             content=request.POST.get('post'),
         )
-        recievers = [role.profile.user.email for role in Role.objects.filter(Q(tradition=tradition)|Q(corporation=tradition)|Q(crime=tradition))] + ['glader.ru@gmail.com', 'linashyti@gmail.com']
+        recievers = [tr.role.profile.user.email for tr in TraditionRole.objects.filter(tradition=tradition, is_approved=True)] \
+                    + ['glader.ru@gmail.com', 'linashyti@gmail.com']
         for email in recievers:
             send_mail(
                 u"Анклав: Новая запись",

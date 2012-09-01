@@ -427,7 +427,6 @@ def my_miracles(request):
     miracles = list(RoleMiracle.objects.filter(owner=request.actual_role))
     for miracle in miracles:
         miracle.used = miracle.recipient_id is not None
-
     miracles.sort(key=lambda m: m.used)
 
     roles = Role.objects.filter(profile__isnull=False).exclude(pk=request.actual_role.id).order_by('name')

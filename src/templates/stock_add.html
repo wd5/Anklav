@@ -1,0 +1,11 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Биржа: новая заявка</h1>
+
+    <form action="" method="POST">
+        {{ form.as_p }}
+        <input type="submit" value="Сохранить">
+    </form>
+{% endblock %}

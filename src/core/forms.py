@@ -120,6 +120,51 @@ class CreateDuelForm(ModelForm):
         return duel
 
 
+class DealForm(CommonForm):
+    company = IntegerField(label=u'Фирма', widget=Select)
+    amount = IntegerField(label=u'Количество акций')
+    cost = IntegerField(label=u'Цена сделки')
+
+    def get_actions(self, role):
+        return RoleStock.objects.filter(role=role, amount__gt=0)
+
+    def __init__(self, role, *args, **kwargs):
+        super(DealForm, self).__init__(*args, **kwargs)
+
+        self.role = role
+        self.fields['company'].widget.choices = ((action.company.pk, action.company.name) for action in self.get_actions(role))
+
+    def clean_company(self):
+        try:
+            return Tradition.objects.get(pk=self.cleaned_data['company'], type='corporation')
+        except Tradition.DoesNotExist:
+            raise ValidationError(u"Фирма не найдена")
+
+    def clean(self):
+        try:
+            actions = RoleStock.objects.get(role=self.role, company=self.cleaned_data['company'])
+            if actions.amount < self.cleaned_data['amount']:
+                raise ValidationError(u"У вас недостаточно акций этой фирмы, уменьшите заявку до %s акций." % actions.amount)
+
+            return self.cleaned_data
+
+        except RoleStock.DoesNotExist:
+            raise ValidationError(u"У вас нет акций этой фирмы")
+
+    def save(self):
+        actions = RoleStock.objects.get(role=self.role, company=self.cleaned_data['company'])
+        actions.amount -= self.cleaned_data['amount']
+        actions.save()
+
+        Deal.objects.create(
+            role=self.role,
+            amount=self.cleaned_data['amount'],
+            company=self.cleaned_data['company'],
+            cost=self.cleaned_data['cost']
+        )
+
+
+
 from django.forms.models import modelform_factory, inlineformset_factory
 
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))

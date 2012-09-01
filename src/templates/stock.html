@@ -1,0 +1,51 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Биржа</h1>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    {% if deals %}
+        {% regroup deals by company as grouped_deals %}
+
+        {% for group in grouped_deals %}
+            <h2>{{ group.grouper.name }}</h2>
+
+            <table>
+                <tr>
+                    <td>Количество акций</td>
+                    <td>Цена сделки</td>
+                    <td>&nbsp;</td>
+                </tr>
+                {% for deal in group.list %}
+                    <tr>
+                        <td>{{ deal.amount }} шт.</td>
+                        <td>{{ deal.cost }}</td>
+                        <td><form action="" method="POST">
+                            <input type="hidden" name="deal" value="{{ deal.id }}">
+                            <input type="submit" value="Принять сделку">
+                        </form></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% else %}
+        <p>Предложений пока нет.</p>
+    {% endif %}
+
+    {% if actions %}
+        <h2>Ваши акции</h2>
+        <ul>
+            {% for action in actions %}
+                <li>{{ action.company.name }}: {{ action.amount }} шт.</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p>Доступные средства: {{ request.actual_role.money|default:"0" }}</p>
+
+    <p><a href="{% url stock_add %}">Добавить предложение</a>.</p>
+{% endblock %}

@@ -156,6 +156,15 @@ def profile(request):
     return render_to_response(request, 'profile.html', {'form': form})
 
 
+def role_required(func):
+    def wrapper(request, *args, **kwargs):
+        if request.actual_role or request.user.is_superuser:
+            return func(request, *args, **kwargs)
+        else:
+            return render_to_response(request, 'role_required.html')
+    return wrapper
+
+
 def tradition_required(func):
     def wrapper(request, *args, **kwargs):
         if request.actual_role or request.user.is_superuser:
@@ -675,3 +684,53 @@ def dd_request(request, req_id):
             return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
 
     return render_to_response(request, 'dd_request.html', {'req': req, 'comments': req.ddcomment_set.all().order_by('dt')})
+
+
+@role_required
+def stock(request):
+    deals = Deal.objects.filter(is_closed=False).order_by('company')
+    actions = RoleStock.objects.filter(role=request.actual_role, amount__gt=0)
+    error = u""
+
+    if request.POST:
+        try:
+            deal = Deal.objects.get(pk=request.POST.get('deal'), is_closed=False)
+
+            if request.actual_role.money >= deal.cost:
+                deal.is_closed = True
+                deal.save()
+
+                if request.actual_role != deal.role:
+                    owner = Role.objects.get(pk=deal.role_id)
+                    owner.money += deal.cost
+                    owner.save()
+
+                    request.actual_role.money -= deal.cost
+                    request.actual_role.save()
+
+                action, _ = RoleStock.objects.get_or_create(role=request.actual_role, company=deal.company)
+                action.amount += deal.amount
+                action.save()
+
+                return HttpResponseRedirect(reverse('stock') + '?save=ok')
+            else:
+                error = u"У вас недостаточно денег для покупки"
+
+        except Deal.DoesNotExist:
+            error = u"Сделка не найдена"
+
+    return render_to_response(request, 'stock.html', {'deals': deals, 'actions': actions, 'error': error})
+
+
+@role_required
+def stock_add(request):
+    if request.POST:
+        form = DealForm(request.actual_role, request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('stock'))
+
+    else:
+        form = DealForm(request.actual_role)
+
+    return render_to_response(request, 'stock_add.html', {'form': form})

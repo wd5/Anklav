@@ -49,7 +49,7 @@ class Role(models.Model):
     profession = models.CharField(max_length=200, verbose_name=u"Специальность")
     description = models.TextField(verbose_name=u"Общеизвестная информация", null=True, blank=True)
     special = models.TextField(verbose_name=u'Спец. способности', null=True, blank=True, default=None)
-    money = models.PositiveIntegerField(verbose_name=u"Деньги", null=True, blank=True, default=None)
+    money = models.PositiveIntegerField(verbose_name=u"Деньги", default=0)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
 
     dd_number = models.PositiveIntegerField(verbose_name=u"DD", null=True, blank=True, default=None)
@@ -489,6 +489,28 @@ class DDComment(models.Model):
     class Meta:
         verbose_name = u"Комментарий к заявке DD"
         verbose_name_plural = u"DD - комментарии"
+
+
+class RoleStock(models.Model):
+    role = models.ForeignKey(Role, verbose_name=u"Роль")
+    company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})
+    amount = models.IntegerField(verbose_name=u"Количество акций", default=0)
+
+    class Meta:
+        verbose_name = u"Акции"
+        verbose_name_plural = u"Акции"
+
+
+class Deal(models.Model):
+    role = models.ForeignKey(Role, verbose_name=u"Роль")
+    company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})
+    amount = models.PositiveIntegerField(verbose_name=u"Количество акций", default=0)
+    cost = models.PositiveIntegerField(verbose_name=u"Стоимость", default=0)
+    is_closed = models.BooleanField(verbose_name=u"Исполнено", default=False)
+
+    class Meta:
+        verbose_name = u"Сделка"
+        verbose_name_plural = u"Сделки"
 
 
 def change_user_link(self):

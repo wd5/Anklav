@@ -47,6 +47,10 @@ class DuelAdmin(admin.ModelAdmin):
     inlines = (DuelMoveInline,)
 
 
+class RoleStockAdmin(admin.ModelAdmin):
+    list_display = ('role', 'company', 'amount')
+    list_filter = ('role', 'company')
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)
@@ -65,3 +69,6 @@ admin.site.register(RoleMiracle, RoleMiracleAdmin)
 admin.site.register(Duel, DuelAdmin)
 
 admin.site.register(DDRequest)
+
+admin.site.register(RoleStock, RoleStockAdmin)
+admin.site.register(Deal)

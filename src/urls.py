@@ -52,6 +52,9 @@ urlpatterns = patterns('',
     url('^dd/add$', 'core.views.dd_add', name="dd_add"),
     url('^dd/(\d+)$', 'core.views.dd_request', name="dd_request"),
 
+    url('^stock$', 'core.views.stock', name="stock"),
+    url('^stock/add$', 'core.views.stock_add', name="stock_add"),
+
     (r'^messages', include('role_message.urls')),
     (r'^contest', include('contest.urls')),
 

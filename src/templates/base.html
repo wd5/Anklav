@@ -31,12 +31,14 @@
                 <img src="{{ MEDIA_URL }}i/dd.png">
             {% endif %}
 
-            <img src="{{ MEDIA_URL }}i/exchange.png">
+            <a href="{% url stock %}"><img src="{{ MEDIA_URL }}i/exchange.png"></a>
+
             {% if request.actual_role and request.actual_role.companies %}
                 {% for company in request.actual_role.companies %}
                     <div class="b-left-menu__item"><a href="{% url tradition company.code %}">{{ company.name }}</a></div>
                 {% endfor %}
             {% endif %}
+
             {% if request.actual_profile %}
                 <div class="b-left-menu__item">
                     <a href="{% url messages_inbox %}">

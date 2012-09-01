@@ -254,7 +254,6 @@ class RoleConnection(models.Model):
                 % (profile.user.pk, self.role, self.role_rel, self.comment),
                 settings.SERVER_EMAIL,
                 emails,
-                fail_silently=True,
             )
 
         return super(RoleConnection, self).save(*args, **kwargs)

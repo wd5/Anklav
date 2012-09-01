@@ -468,7 +468,7 @@ def duels(request):
     else:
         form = CreateDuelForm()
 
-    return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.filter(Q(role_1=request.actual_role)|Q(role_2=request.actual_role)).order_by('-id')})
+    return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.filter(Q(role_1=request.actual_role) | Q(role_2=request.actual_role)).order_by('-id')})
 
 
 @login_required
@@ -498,7 +498,7 @@ def duel_page(request, pk):
 
     if duel.state == 'in_progress':
         if context['last_move']:
-            if context['last_move'].move_1 and context['last_move'].move_2: # предыдущий ход сделан обоими сторонами
+            if context['last_move'].move_1 and context['last_move'].move_2:  # предыдущий ход сделан обоими сторонами
                 context['can_move'] = True
 
             elif context['mode'] == 'hacker':
@@ -511,9 +511,8 @@ def duel_page(request, pk):
                 if not context['last_move'].move_2:
                     context['can_move'] = True
 
-        else: # Еще не сделано ни одного хода
+        else:  # Еще не сделано ни одного хода
             context['can_move'] = True
-
 
     if context['mode'] == 'security' and duel.state == 'not_started' and request.POST:
         try:
@@ -529,7 +528,6 @@ def duel_page(request, pk):
 
         except ValidationError, e:
             context['error'] = unicode(e.messages[0])
-
 
     # Ходы
     if duel.state == 'in_progress' and request.POST:

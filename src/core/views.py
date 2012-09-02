@@ -760,3 +760,17 @@ def stock_add(request):
         form = DealForm(request.actual_role)
 
     return render_to_response(request, 'stock_add.html', {'form': form})
+
+
+@role_required
+def transfer(request):
+    if request.POST:
+        form = TransferForm(request.actual_role, request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('stock') + '?transfer=ok')
+
+    else:
+        form = TransferForm(request.actual_role)
+
+    return render_to_response(request, 'transfer.html', {'form': form})

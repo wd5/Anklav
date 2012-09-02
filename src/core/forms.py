@@ -164,6 +164,35 @@ class DealForm(CommonForm):
         )
 
 
+class TransferForm(CommonForm):
+    recipient = IntegerField(label=u'Получатель', widget=Select)
+    amount = IntegerField(label=u'Сумма')
+
+    def __init__(self, role, *args, **kwargs):
+        super(TransferForm, self).__init__(*args, **kwargs)
+
+        self.sender = role
+        self.fields['recipient'].widget.choices = ((role.pk, role.name) for role in Role.objects.filter(profile__isnull=False).exclude(pk=role.id))
+
+    def clean_recipient(self):
+        try:
+            return Role.objects.get(pk=self.cleaned_data['recipient'])
+        except Role.DoesNotExist:
+            raise ValidationError(u"Получатель не найден")
+
+    def clean_amount(self):
+        if self.sender.money >= int(self.cleaned_data['amount']):
+            return int(self.cleaned_data['amount'])
+        else:
+            raise ValidationError(u"У вас недостаточно средств")
+
+    def save(self):
+        self.sender.money -= self.cleaned_data['amount']
+        self.sender.save()
+
+        self.cleaned_data['recipient'].money += self.cleaned_data['amount']
+        self.cleaned_data['recipient'].save()
+
 
 from django.forms.models import modelform_factory, inlineformset_factory
 

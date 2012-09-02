@@ -1,0 +1,42 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Взлом: выбор цели</h1>
+
+    <p>Персонаж
+        <form action="" method="POST" style="padding-left: 20px;">
+            {% csrf_token %}
+            <select name="role">
+                {% for role in roles %}
+                    <option value="{{ role.id }}">{{ role.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="field">
+                {% for field in role_fields %}
+                    <option value="{{ field.0 }}">{{ field.1 }}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="target" value="role">
+            <input type="submit" name="action" value="Выбрать">
+        </form>
+    </p>
+
+    <p>Корпорация/Традиция/Криминальная структура
+        <form action="" method="POST" style="padding-left: 20px;">
+            {% csrf_token %}
+            <select name="tradition">
+                {% for tradition in traditions %}
+                    <option value="{{ tradition.id }}">{{ tradition.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="field">
+                {% for field in tradition_fields %}
+                    <option value="{{ field.0 }}">{{ field.1 }}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="target" value="tradition">
+            <input type="submit" name="action" value="Выбрать">
+        </form>
+    </p>
+
+{% endblock %}

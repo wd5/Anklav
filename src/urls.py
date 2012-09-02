@@ -34,6 +34,7 @@ urlpatterns = patterns('',
     url('^hack$', TemplateView.as_view(template_name="hack.html"), name="hack"),
     url('^hack/duels$', 'core.views.duels', name="duels"),
     url('^hack/duels/(\d+)$', 'core.views.duel_page', name="duel"),
+    url('^hack/target$', 'core.views.target', name="target"),
 
     url('^groups$', 'core.views.traditions_request', name='traditions_request'),
     url('^groups/(?P<code>\w+)$', 'core.views.tradition_view', name="tradition"),

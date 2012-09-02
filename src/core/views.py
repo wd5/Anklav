@@ -455,11 +455,11 @@ def my_miracles(request):
     return render_to_response(request, 'my_miracles.html', {'miracles': miracles, 'roles': roles})
 
 
-@login_required
+@role_required
 def duels(request):
     log = logging.getLogger('django.duels')
 
-    if request.actual_role and request.POST:
+    if request.POST:
         form = CreateDuelForm(request.POST)
         if form.is_valid():
             duel = form.save(request.actual_role)
@@ -471,7 +471,35 @@ def duels(request):
     return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.filter(Q(role_1=request.actual_role) | Q(role_2=request.actual_role)).order_by('-id')})
 
 
-@login_required
+ROLE_FIELDS = (
+    ('tradition', u"Традиция"),
+    ('special', u"Спецспособности"),
+    ('actions', u"Акции"),
+    ('actions_steal', u"Кража акции"),
+    ('quest', u"Жизненный путь"),
+    ('criminal', u"Связь с криминалом"),
+    ('messages', u"Переписка"),
+)
+
+TRADITION_FIELDS = (
+    ('document', u"Один документ"),
+    ('documents_list', u"Список документов"),
+    ('questbook', u"Гостевая книга"),
+)
+
+@role_required
+def target(request):
+    context = {}
+
+    context['roles'] = Role.objects.filter(profile__isnull=False).exclude(pk=request.actual_role.id)
+    context['role_fields'] = ROLE_FIELDS
+    context['traditions'] = Tradition.objects.all()
+    context['tradition_fields'] = TRADITION_FIELDS
+
+    return render_to_response(request, 'hack_target.html', context)
+
+
+@role_required
 def duel_page(request, pk):
     log = logging.getLogger('django.duels')
 
@@ -594,7 +622,7 @@ def dd_required(func):
     return wrapper
 
 
-@login_required
+@role_required
 def dd(request):
     context = {}
     if request.actual_role.dd_number:

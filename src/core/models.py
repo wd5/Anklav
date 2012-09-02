@@ -94,7 +94,6 @@ class Role(models.Model):
 
         return super(Role, self).save(*args, **kwargs)
 
-
     class Meta:
         verbose_name = u"Роль"
         verbose_name_plural = u"Роли"
@@ -178,7 +177,6 @@ class Profile(models.Model):
             if field == 'role':
                 self.role.profile = None
                 self.role.save()
-
 
     def save(self, check_diff=True, *args, **kwargs):
         if check_diff:
@@ -429,7 +427,6 @@ class DuelMove(models.Model):
             self.result_2 = Duel.get_result(self.duel.number_1, self.move_2)
 
         super(DuelMove, self).save(*args, **kwargs)
-
 
     class Meta:
         verbose_name = u"Ход дуэли"

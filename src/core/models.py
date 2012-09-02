@@ -309,6 +309,9 @@ class TraditionText(models.Model):
     title = models.CharField(max_length=50, verbose_name=u"Название")
     content = models.TextField(verbose_name=u"Содержимое")
 
+    def __unicode__(self):
+        return u"%s: %s" % (self.tradition, self.title)
+
     def save(self, *args, **kwargs):
         self.content = sanitizeHTML(self.content, mode='strict')
         super(TraditionText, self).save(*args, **kwargs)

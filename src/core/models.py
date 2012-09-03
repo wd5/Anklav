@@ -325,6 +325,7 @@ class TraditionFile(models.Model):
     tradition = models.ForeignKey(Tradition, verbose_name=u"Компания")
     author = models.ForeignKey(User, verbose_name=u"Юзер")
     dt_created = models.DateTimeField(auto_now_add=True, verbose_name=u"Добавлено")
+    title = models.CharField(max_length=50, verbose_name=u"Название")
     file = models.FileField(upload_to='files', verbose_name=u"Файл")
 
     class Meta:
@@ -494,6 +495,10 @@ class RoleStock(models.Model):
     role = models.ForeignKey(Role, verbose_name=u"Роль")
     company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})
     amount = models.IntegerField(verbose_name=u"Количество акций", default=0)
+
+#    def save(self, *args, **kwargs):
+#        pass
+
 
     class Meta:
         verbose_name = u"Акции"

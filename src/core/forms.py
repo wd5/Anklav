@@ -201,7 +201,7 @@ RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_num
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
 TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))
-TraditionFileForm = modelform_factory(TraditionFile, fields=('file',))
+TraditionFileForm = modelform_factory(TraditionFile, fields=('title' ,'file'))
 ConnectionFormSet = inlineformset_factory(Role, RoleConnection, fk_name="role", exclude=('is_locked',), extra=1)
 #LayerFormSet = inlineformset_factory(Role, LayerConnection, fk_name="role", exclude=('is_locked',), extra=1)
 DDForm = modelform_factory(DDRequest, fields=('description', 'cost'))

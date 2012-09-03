@@ -34,12 +34,12 @@
     {% for text in articles %}
         <p><a href="{% url tradition_text tradition.code text.id %}">{{ text.title }}</a></p>
     {% endfor %}
-    <a href="{% url add_tradition_text tradition.code %}">добавить текст</a>
+    <a href="{% url add_tradition_text tradition.code %}" style="font-size: 80%;">добавить текст</a>
 
     <hr>
 
     {% for file in files %}
-        <p><a href="{{ MEDIA_URL }}{{ file.file.name }}">{{ file.file.name }}</a></p>
+        <p><a href="{{ MEDIA_URL }}{{ file.file.name }}">{{ file.title }}</a></p>
     {% endfor %}
-    <a href="{% url add_tradition_file tradition.code %}">добавить файл</a>
+    <a href="{% url add_tradition_file tradition.code %}" style="font-size: 80%;">добавить файл</a>
 {% endblock %}

@@ -39,6 +39,11 @@ class TraditionTextAdmin(admin.ModelAdmin):
     list_filter = ('tradition',)
 
 
+class TraditionFileAdmin(admin.ModelAdmin):
+    list_display = ('tradition', 'author', 'title')
+    list_filter = ('tradition',)
+
+
 class RoleMiracleAdmin(admin.ModelAdmin):
     list_display = ('owner', 'miracle', 'recipient')
 
@@ -66,7 +71,7 @@ admin.site.register(RoleConnection, RoleConnectionAdmin)
 admin.site.register(Tradition)
 admin.site.register(TraditionGuestbook)
 admin.site.register(TraditionText, TraditionTextAdmin)
-admin.site.register(TraditionFile)
+admin.site.register(TraditionFile, TraditionTextAdmin)
 admin.site.register(TraditionRole, TraditionRoleAdmin)
 
 admin.site.register(Miracle)

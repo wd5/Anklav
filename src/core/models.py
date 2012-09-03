@@ -340,6 +340,8 @@ class TraditionRole(models.Model):
     LEVELS = (
         ('ordinal', u"Рядовой"),
         ('security', u"Машинист"),
+        ('economy', u"Экономист"),
+        ('media', u"Пресс-аналитик"),
         ('master', u"Иерарх"),
     )
     level = models.CharField(choices=LEVELS, max_length=15, verbose_name=u"Должность", default='ordinal')

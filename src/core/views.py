@@ -734,7 +734,7 @@ def dd_history(request, recipient_number):
             )
             send_mail(
                 u"Анклав: новое сообщение на сервере DD",
-                u"http://%s%s" % (settings.DOMAIN, reverse('dd_history', args=[request.actual_role.dd_number])),
+                u"Hello, %s. You are waiting at http://%s%s" % (recipient_number, settings.DOMAIN, reverse('dd_history', args=[request.actual_role.dd_number])),
                 None,
                 [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
             )

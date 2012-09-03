@@ -1,0 +1,32 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Переписка с DD {{ number }}</h1>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    <table>
+        <tr>
+            <td>От кого</td>
+            <td>Сообщение</td>
+            <td>Дата</td>
+        </tr>
+    {% for message in dd_messages %}
+        <tr>
+            <td>{{ message.sender.get_profile.role.dd_number }}</td>
+            <td>{{ message.content }}</td>
+            <td>{{ message.dt }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    <br>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <textarea name="content"></textarea>
+        <input type="submit" name="action" value="Отправить">
+    </form>
+
+{% endblock %}

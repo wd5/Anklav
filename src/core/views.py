@@ -712,6 +712,40 @@ def dd_request(request, req_id):
     return render_to_response(request, 'dd_request.html', {'req': req, 'comments': req.ddcomment_set.all().order_by('dt')})
 
 
+@dd_required
+def dd_messages(request):
+    pass
+
+
+@dd_required
+def dd_history(request, recipient_number):
+    context = {}
+
+    try:
+        recipient = Role.objects.get(dd_number=recipient_number).profile.user
+        context['number'] = recipient_number
+        context['dd_messages'] = DDMessage.objects.filter(Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user))
+
+        if request.POST and request.POST.get('content'):
+            DDMessage.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                content=request.POST.get('content'),
+            )
+            send_mail(
+                u"Анклав: новое сообщение на сервере DD",
+                u"http://%s%s" % (settings.DOMAIN, reverse('dd_history', args=[request.actual_role.dd_number])),
+                None,
+                [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+            )
+            return HttpResponseRedirect(reverse('dd_history', args=[recipient_number]))
+
+    except Role.DoesNotExist:
+        context['error'] = u"Неизвестный получатель"
+
+    return render_to_response(request, 'dd_history.html', context)
+
+
 @role_required
 def stock(request):
     deals = Deal.objects.filter(is_closed=False).order_by('company')

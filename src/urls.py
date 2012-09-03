@@ -52,6 +52,8 @@ urlpatterns = patterns('',
     url('^dd$', 'core.views.dd', name="dd"),
     url('^dd/add$', 'core.views.dd_add', name="dd_add"),
     url('^dd/(\d+)$', 'core.views.dd_request', name="dd_request"),
+    url('^dd/messages$', 'core.views.dd_messages', name="dd_messages"),
+    url('^dd/messages/(\d+)$', 'core.views.dd_history', name="dd_history"),
 
     url('^stock$', 'core.views.stock', name="stock"),
     url('^stock/add$', 'core.views.stock_add', name="stock_add"),

@@ -80,6 +80,7 @@ admin.site.register(RoleMiracle, RoleMiracleAdmin)
 admin.site.register(Duel, DuelAdmin)
 
 admin.site.register(DDRequest)
+admin.site.register(DDMessage)
 
 admin.site.register(RoleStock, RoleStockAdmin)
 admin.site.register(Deal)

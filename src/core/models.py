@@ -493,6 +493,21 @@ class DDComment(models.Model):
         verbose_name_plural = u"DD - комментарии"
 
 
+class DDMessage(models.Model):
+    sender = models.ForeignKey(User, verbose_name=u"Автор", related_name='sender')
+    recipient = models.ForeignKey(User, verbose_name=u"Получатель", related_name='recipient')
+    dt = models.DateTimeField(auto_now_add=True, verbose_name=u"Дата")
+    content = models.TextField(verbose_name=u"Сообщение")
+
+    def save(self, *args, **kwargs):
+        self.content = sanitizeHTML(self.content)
+        super(DDMessage, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = u"DD - личное сообщение"
+        verbose_name_plural = u"DD - переписка"
+
+
 class RoleStock(models.Model):
     role = models.ForeignKey(Role, verbose_name=u"Роль")
     company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})

@@ -196,7 +196,7 @@ class TransferForm(CommonForm):
 
 from django.forms.models import modelform_factory, inlineformset_factory
 
-ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields'))
+ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields', 'money'))
 RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_number'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))

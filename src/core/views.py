@@ -587,7 +587,7 @@ def tradition_hack_page(request, uuid):
         if request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
             return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
 
-    if not (hack.hacker == request.actual_role or hack.security == request.actual_role):
+    if not (hack.hacker == request.actual_role or hack.security == request.actual_role or request.user.is_superuser):
         raise Http404
 
     context = {

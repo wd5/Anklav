@@ -17,6 +17,11 @@ body, html
     display: none;
 }
 
+a img
+{
+    border: 0;
+}
+
 .main_container
 {
     width: 100%;

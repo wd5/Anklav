@@ -156,12 +156,14 @@ class DealForm(CommonForm):
         actions.amount -= self.cleaned_data['amount']
         actions.save()
 
-        Deal.objects.create(
+        deal = Deal.objects.create(
             role=self.role,
             amount=self.cleaned_data['amount'],
             company=self.cleaned_data['company'],
             cost=self.cleaned_data['cost'],
         )
+
+        return deal
 
 
 class TransferForm(CommonForm):

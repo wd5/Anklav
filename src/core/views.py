@@ -993,6 +993,14 @@ def stock(request):
                 action.amount += deal.amount
                 action.save()
 
+                traders = [role.role.profile.user.email for role in TraditionRole.objects.filter(level='economy')]
+                send_mail(
+                    u"Анклав: закрыто предложение на бирже",
+                    u"Закрыта сделка на %s шт акций компании '%s' по цене %s юаней." % (deal.amount, deal.company.name, deal.cost),
+                    None,
+                    traders + ['linashyti@gmail.com', 'glader.ru@gmail.com']
+                )
+
                 return HttpResponseRedirect(reverse('stock') + '?save=ok')
             else:
                 error = u"У вас недостаточно денег для покупки"
@@ -1008,7 +1016,15 @@ def stock_add(request):
     if request.POST:
         form = DealForm(request.actual_role, request.POST)
         if form.is_valid():
-            form.save()
+            deal = form.save()
+
+            traders = [role.role.profile.user.email for role in TraditionRole.objects.filter(level='economy')]
+            send_mail(
+                u"Анклав: новое предложение на бирже",
+                u"Выложено %s шт акций компании '%s' по цене %s юаней." % (deal.amount, deal.company.name, deal.cost),
+                None,
+                traders + ['linashyti@gmail.com', 'glader.ru@gmail.com']
+            )
             return HttpResponseRedirect(reverse('stock'))
 
     else:

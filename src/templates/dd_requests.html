@@ -3,6 +3,13 @@
 {% block content %}
     <h1>Заявки</h1>
 
+    <div style="border: 1px solid white; padding: 5px; float: right;">
+        <h3>Участники</h3>
+        {% for number in numbers %}
+            <div><a href="{% url dd_history number %}">{{ number }}</a></div>
+        {% endfor %}
+    </div>
+
     <p>Добро пожаловать на сервер DD. Ваш номер - <strong>{{ request.actual_role.dd_number }}</strong>. Перед вами список открытых заявок. Дерзайте!</p>
 
     <ul>

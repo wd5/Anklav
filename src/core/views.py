@@ -625,8 +625,10 @@ def dd_required(func):
 @role_required
 def dd(request):
     context = {}
+
     if request.actual_role.dd_number:
         context['requests'] = DDRequest.objects.all().order_by('-dt')
+        context['numbers'] = [role.dd_number for role in Role.objects.filter(dd_number__isnull=False).order_by('dd_number')]
         return render_to_response(request, 'dd_requests.html', context)
 
     else:
@@ -635,7 +637,7 @@ def dd(request):
                 n = int(request.POST.get('n', ''))
 
                 if Role.objects.filter(dd_number=n).exists() or n in (9, 42):
-                    raise ValidationError(u"Этот номеро уже занят, выберите другой.")
+                    raise ValidationError(u"Этот номер уже занят, выберите другой.")
 
                 request.actual_role.dd_number = n
                 request.actual_role.save()

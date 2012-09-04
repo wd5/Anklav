@@ -390,7 +390,7 @@ class Duel(models.Model):
     state = models.CharField(verbose_name=u"Состояние", max_length=20, default="not_started", choices=STATES)
     number_1 = models.CharField(verbose_name=u"Загаданное число 1", max_length=10, help_text=u"До 10 символов. Обычно - 4. Машинист должен будет ввести число такой же длины.")
     number_2 = models.CharField(verbose_name=u"Загаданное число 2", max_length=10, null=True, blank=True, default=None)
-    winner = models.ForeignKey(Role, verbose_name=u"Победитель", related_name="winner", null=True, blank=True, default=None)
+    winner = models.ForeignKey(Role, verbose_name=u"Победитель", related_name="duel_winner", null=True, blank=True, default=None)
     result = models.CharField(verbose_name=u"Итог", max_length=20, null=True, blank=True, default=None)
     dt = models.DateTimeField(verbose_name=u"Начало дуэли", default=None)
 
@@ -436,6 +436,104 @@ class DuelMove(models.Model):
     class Meta:
         verbose_name = u"Ход дуэли"
         verbose_name_plural = u"Ходы дуэлей"
+
+
+class TraditionHack(models.Model):
+    hacker = models.ForeignKey(Role, verbose_name=u"Хакер", related_name="hacker")
+    security = models.ForeignKey(Role, verbose_name=u"Машинист", related_name="security", null=True, blank=True, default=None)
+    key = models.CharField(max_length=250, verbose_name=u"Цель атаки")
+    STATES = (
+        ('not_started', u"Не началась"),
+        ('in_progress', u"Идет"),
+        ('win', u"Сломал"),
+        ('lose', u"Раскрыт"),
+        ('late', u"Опоздал"),
+        ('run', u"Сбежал"),
+        )
+    state = models.CharField(verbose_name=u"Состояние", max_length=20, default="not_started", choices=STATES)
+    hacker_number = models.CharField(verbose_name=u"Загаданное число ломщика", max_length=4, help_text=u"4 цифры.")
+    security_number = models.CharField(verbose_name=u"Загаданное число машиниста", max_length=10)
+    winner = models.ForeignKey(Role, verbose_name=u"Победитель", related_name="winner", null=True, blank=True, default=None)
+    result = models.CharField(verbose_name=u"Итог", max_length=20, null=True, blank=True, default=None)
+    dt = models.DateTimeField(verbose_name=u"Начало дуэли", auto_now_add=True)
+    uuid = models.CharField(verbose_name=u"UUID", max_length=32)
+
+    def save(self, *args, **kwargs):
+        if not self.uuid:
+            self.uuid = uuid.uuid4().hex
+
+        super(TraditionHack, self).save(*args, **kwargs)
+
+    @property
+    def is_finished(self):
+        return self.state in ('win', 'lose', 'late', 'run')
+
+    def get_target(self):
+        return Tradition.objects.get(pk=int(self.key.split('/')[1]))
+
+    def get_field_display(self):
+        from .hack import first
+        return first(lambda rec: rec[0] == self.key.split('/')[2], settings.TRADITION_FIELDS)[1]
+
+    def get_target_value(self):
+        field = self.key.split('/')[2]
+        tradition = self.get_target()
+        if field == 'document':
+            try:
+                tradition_file = TraditionFile.objects.get(tradition=tradition, title=self.key.split('/')[3])
+                return "http://%s%s%s" % (settings.DOMAIN, settings.MEDIA_URL, tradition_file.file.name)
+            except TraditionFile.DoesNotExist:
+                try:
+                    tradition_text = TraditionText.objects.get(tradition=tradition, title=self.key.split('/')[3])
+                    return tradition_text.content
+                except TraditionFile.DoesNotExist:
+                    return u"Документ с указанным названием не найден."
+
+        if field == 'documents_list':
+            documents = [doc.title for doc in TraditionFile.objects.filter(tradition=tradition)] + \
+                        [doc.title for doc in TraditionText.objects.filter(tradition=tradition)]
+            result = "\n".join(documents)
+            return result
+
+        if field == 'tradition_questbook':
+            messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            return u"\n\n".join(
+                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                    for message in messages
+            )
+
+        if field == 'corporation_questbook':
+            messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            return u"\n\n".join(
+                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                    for message in messages
+            )
+
+    class Meta:
+        verbose_name = u"Взлом традиции"
+        verbose_name_plural = u"Взломы традиций"
+
+
+class TraditionHackMove(models.Model):
+    hack = models.ForeignKey(TraditionHack, verbose_name=u"Взлом")
+    dt = models.DateTimeField(verbose_name=u"Начало хода", auto_now_add=True)
+    hacker_move = models.CharField(verbose_name=u"Ход хакера", max_length=10, null=True, blank=True, default=None)
+    hacker_result = models.CharField(verbose_name=u"Результат хакера", max_length=10, null=True, blank=True, default=None)
+    security_move = models.CharField(verbose_name=u"Ход машиниста", max_length=10, null=True, blank=True, default=None)
+    security_result = models.CharField(verbose_name=u"Результат машиниста", max_length=10, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if self.hacker_move and not self.hacker_result:
+            self.hacker_result = Duel.get_result(self.hack.security_number, self.hacker_move)
+
+        if self.security_move and not self.security_result:
+            self.security_result = Duel.get_result(self.hack.hacker_number, self.security_move)
+
+        super(TraditionHackMove, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = u"Ход взлома традиции"
+        verbose_name_plural = u"Взломы традиций - ходы"
 
 
 class Hack(models.Model):

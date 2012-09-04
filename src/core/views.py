@@ -476,6 +476,7 @@ def duels(request):
 def target(request):
     context = {
         'person_form': PersonHackTarget(request.actual_role),
+        'tradition_form': TraditionHackTarget(request.actual_role),
         }
 
     if request.POST:
@@ -483,14 +484,29 @@ def target(request):
             context['person_form'] = PersonHackTarget(request.actual_role, request.POST)
             if context['person_form'].is_valid():
                 hack = context['person_form'].save()
-                return HttpResponseRedirect(reverse('hack', args=[hack.uuid]))
+                return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
+
+        if request.POST['target'] == 'tradition':
+            context['tradition_form'] = TraditionHackTarget(request.actual_role, request.POST)
+            if context['tradition_form'].is_valid():
+                hack = context['tradition_form'].save()
+
+                # письма машинистам традиции
+                security = [role.role.profile.user.email for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]
+                send_mail(
+                    u"Анклав: атака на вашу Традицию/корпорацию!",
+                    u"На вашу структуру '%s' произошло нападение. Встать на защиту можно по ссылке http://%s%s ." % \
+                        (hack.get_target().name, settings.DOMAIN, reverse('hack_tradition_security', args=[hack.uuid])),
+                    None,
+                    security + ['linashyti@gmail.com', 'glader.ru@gmail.com'],
+                )
+                return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
     return render_to_response(request, 'hack_target.html', context)
 
 
-
 @role_required
-def hack_page(request, uuid):
+def personal_hack_page(request, uuid):
     hack = get_object_or_404(Hack, uuid=uuid, hacker=request.actual_role)
     context = {
         'hack': hack,
@@ -540,13 +556,164 @@ def hack_page(request, uuid):
                 hack.result = 'fail'
                 hack.save()
 
-            return HttpResponseRedirect(reverse('hack', args=[hack.uuid]))
+            return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
 
         except ValidationError, e:
             context['error'] = unicode(e.messages[0])
 
-    return render_to_response(request, 'hack.html', context)
+    return render_to_response(request, 'hack_personal.html', context)
 
+
+@role_required
+def tradition_hack_page_security(request, uuid):
+    u"""Выбор защитника"""
+    hack = get_object_or_404(TraditionHack, uuid=uuid)
+
+    if not request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
+        raise Http404
+
+    if hack.is_finished or hack.security:
+        return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
+    if request.POST:
+        hack.security = request.actual_role
+        hack.state = 'in_progress'
+        hack.save()
+
+        return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
+    return render_to_response(request, 'hack_tradition_security.html', {'hack': hack})
+
+
+@role_required
+def tradition_hack_page(request, uuid):
+    hack = get_object_or_404(TraditionHack, uuid=uuid)
+
+    if not hack.is_finished and not hack.security:
+        # Еще нет защитников
+        if request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
+            return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
+
+    if not (hack.hacker == request.actual_role or hack.security == request.actual_role):
+        raise Http404
+
+    context = {
+        'hack': hack,
+        'moves': list(hack.traditionhackmove_set.all().order_by('id')),
+        'mode': request.actual_role == hack.hacker and 'hacker' or 'security',
+        'last_move': None,
+        'can_move': False,
+        }
+
+    if hack.is_finished:
+        return render_to_response(request, 'hack_tradition.html', context)
+
+    if len(context['moves']):
+        context['last_move'] = context['moves'][-1]
+
+    context['can_move'] = can_move(context['mode'], hack, context['last_move'])
+
+    # Ходы
+    if context['can_move'] and request.POST:
+        if request.POST.get('action') == 'Сдаться':
+            hack.state = 'run'
+            hack.winner = hack.security
+            hack.save()
+            return HttpResponseRedirect(reverse('duels'))
+
+        try:
+            number = request.POST.get('number')
+            CreateDuelForm.check_number(number)
+
+            if not context['last_move'] or getattr(context['last_move'], '%s_move' % context['mode'], None):
+                context['last_move'] = TraditionHackMove.objects.create(
+                    hack=hack,
+                    dt=datetime.now()
+                )
+                setattr(context['last_move'], '%s_move' % context['mode'], number)
+                context['last_move'].save()
+
+            elif context['mode'] == 'hacker' and not context['last_move'].hacker_move:
+                context['last_move'].hacker_move = number
+                context['last_move'].save()
+
+            elif context['mode'] == 'security' and not context['last_move'].security_move:
+                context['last_move'].security_move = number
+                context['last_move'].save()
+
+            if context['last_move'].hacker_result == '1' * len(hack.security_number):
+                hack.state = 'win'
+                hack.winner = hack.hacker
+                hack.save()
+
+                # Отправка на почту взломанной инфы
+                send_mail(
+                    u"Анклав: успешный взлом",
+                    u"Вы взломали данные '%s' компании '%s'.\n" % (hack.get_field_display(), hack.get_target().name) + hack.get_target_value(),
+                    None,
+                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                )
+
+                # Прекращаем параллельные взломы
+                TraditionHack.objects.filter(key=hack.key, state='in_progress').exclude(pk=hack.pk).update(result='late')
+
+                return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
+            if context['last_move'].security_result == '1' * len(hack.hacker_number):
+                hack.state = 'lose'
+                hack.winner = hack.security
+                hack.save()
+
+                # Отправка машинисту на почту имени ломщика
+                send_mail(
+                    u"Анклав: успешное противостояние взлому",
+                    u"Вы защитили данные '%s' компании '%s'.\nЛомщик: %s" % (hack.get_field_display(), hack.get_target().name, hack.hacker.name),
+                    None,
+                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                )
+                return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
+            return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
+        except ValidationError, e:
+            context['error'] = unicode(e.messages[0])
+
+    return render_to_response(request, 'hack_tradition.html', context)
+
+
+def can_move(mode, hack, last_move):
+    now = datetime.now()
+
+    if mode == 'hacker':
+        if last_move:
+            if last_move.hacker_move and last_move.security_move:  # предыдущий ход сделан обоими сторонами
+                return True
+
+            if last_move.security_move:
+                return True
+
+            if last_move.hacker_move and (now - last_move.dt).seconds > 20 * 60:
+                return True
+
+        else:  # Еще не сделано ни одного хода
+            if hack.security or (now - hack.dt).seconds > 20 * 60:
+                return True
+
+    elif mode == 'security':
+        if last_move:
+            if last_move.hacker_move and last_move.security_move:  # предыдущий ход сделан обоими сторонами
+                return True
+
+            if last_move.hacker_move:
+                return True
+
+            if last_move.security_move and (now - last_move.dt).seconds > 20 * 60:
+                return True
+
+        else:  # Еще не сделано ни одного хода
+            return True
+
+    return False
 
 
 @role_required

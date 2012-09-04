@@ -1,0 +1,50 @@
+{% extends "inner_page.html" %}
+
+{% block extra_head %}
+    {% if not can_move %}
+        <meta http-equiv="refresh" content="10">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>Взлом: {{ hack.get_target }} {{ hack.get_field_display }}</h1>
+    <p>Вы - {% if mode == 'hacker' %}ломщик{% else %}машинист{% endif %}</p>
+    <p>Статус дуэли: {{ hack.get_state_display }}</p>
+
+    {% if moves %}
+        <h3>Ходы</h3>
+        <table>
+            <tr>
+                <td>{% if request.actual_role == hack.hacker %}вы{% else %}противник{% endif %}</td>
+                <td>|</td>
+                <td>{% if request.actual_role == hack.security %}вы{% else %}противник{% endif %}</td>
+            </tr>
+            {% for move in moves %}
+                <tr>
+                    <td>{% if move.hacker_move %}{{ move.hacker_move }} ({{ move.hacker_result }}){% else %}ожидание хода{% endif %}</td>
+                    <td>|</td>
+                    <td>{% if move.security_move %}{{ move.security_move }} ({{ move.security_result }}){% else %}ожидание хода{% endif %}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if hack.is_finished %}
+        <p>Дуэль окончена. Победитель - {% if hack.state == 'win' %}ломщик{% else %}машинист{% endif %}.</p>
+
+    {% else %}
+        {% if can_move %}
+            <p>Ваш ход: {{ error }}
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="text" name="number">
+                <input type="submit" name="action" value="Попробовать"> {% if mode == 'hacker' %}<input type="submit" name="action" value="Сдаться">{% endif %}
+            </form>
+            </p>
+        {% else %}
+            <p>Ожидание действий соперника.</p>
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}

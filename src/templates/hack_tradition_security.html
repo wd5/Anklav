@@ -1,0 +1,12 @@
+{% extends "inner_page.html" %}
+
+{% block content %}
+    <h1>Взлом: {{ hack.get_target }} {{ hack.get_field_display }}</h1>
+    <p>Вы - машинист</p>
+    <p>Статус дуэли: {{ hack.get_state_display }}</p>
+
+    <form action="" method="POST">
+        {% csrf_token %}
+        <input type="submit" name="action" value="Встать на защиту">
+    </form>
+{% endblock %}

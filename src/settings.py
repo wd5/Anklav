@@ -140,7 +140,6 @@ LOGGING = {
         }
 }
 
-
 ROLE_FIELDS = (
     ('tradition', u"Традиция", 6),
     ('special', u"Спецспособности", 5),
@@ -154,7 +153,8 @@ ROLE_FIELDS = (
 TRADITION_FIELDS = (
     ('document', u"Один документ", 6),
     ('documents_list', u"Список документов", 8),
-    ('questbook', u"Гостевая книга", 9),
+    ('tradition_questbook', u"Гостевая книга Традиции", 9),
+    ('corporation_questbook', u"Гостевая книга корпорации/крим. структуры", 6),
     )
 
 try:

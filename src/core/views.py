@@ -545,11 +545,12 @@ def personal_hack_page(request, uuid):
                     new_action.amount += 1
                     new_action.save()
 
+                return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
+
             if HackMove.objects.filter(hack=hack).count() >= 6:
                 hack.result = 'fail'
                 hack.save()
-
-            return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
+                return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
 
         except ValidationError, e:
             context['error'] = unicode(e.messages[0])

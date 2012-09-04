@@ -486,21 +486,21 @@ class TraditionHack(models.Model):
             documents = [doc.title for doc in TraditionFile.objects.filter(tradition=tradition)] + \
                         [doc.title for doc in TraditionText.objects.filter(tradition=tradition)]
             result = "\n".join(documents)
-            return result
+            return result or u"Документов нет."
 
         if field == 'tradition_questbook':
             messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
             return u"\n\n".join(
                 u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
                     for message in messages
-            )
+            ) or u"Сообщений нет."
 
         if field == 'corporation_questbook':
             messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
             return u"\n\n".join(
                 u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
                     for message in messages
-            )
+            ) or u"Сообщений нет."
 
     class Meta:
         verbose_name = u"Взлом традиции"
@@ -574,7 +574,8 @@ class Hack(models.Model):
 
         if field == 'actions':
             actions = RoleStock.objects.filter(role=role, amount__gt=0)
-            return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions)
+            return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions) \
+                or u"Акций нет."
 
         if field == 'actions_steal':
             actions = RoleStock.objects.filter(role=role, amount__gt=0).exists()
@@ -598,7 +599,7 @@ class Hack(models.Model):
                                                message.recipient.get_profile().role.name,
                                                message.body)
                 for message in messages
-            )
+            ) or u"Сообщений нет."
 
     class Meta:
         verbose_name = u"Взлом"

@@ -278,8 +278,8 @@ def tradition_miracles(request, code):
 
                 email(
                     u"Анклав: вы одарены чудом",
-                    u"Иерарх одарил вас чудом '%s'. Вы можете отметить его как примененное на странице http://%s%s ." \
-                        % (miracle.name, settings.DOMAIN, reverse('my_miracles')),
+                    u"%s, Иерарх одарил вас чудом '%s'. Вы можете отметить его как примененное на странице http://%s%s ." \
+                        % (role.name, miracle.name, settings.DOMAIN, reverse('my_miracles')),
                     [role.profile.user.email]
                 )
                 return HttpResponseRedirect(reverse('tradition_miracles', args=[tradition.code]))

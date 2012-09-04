@@ -683,11 +683,11 @@ def can_move(mode, hack, last_move):
             if last_move.security_move:
                 return True
 
-            if last_move.hacker_move and (now - last_move.dt).seconds > 20 * 60:
+            if last_move.hacker_move and (now - last_move.dt).seconds > 15 * 60:
                 return True
 
         else:  # Еще не сделано ни одного хода
-            if hack.security or (now - hack.dt).seconds > 20 * 60:
+            if hack.security or (now - hack.dt).seconds > 60 * 60:
                 return True
 
     elif mode == 'security':
@@ -698,7 +698,7 @@ def can_move(mode, hack, last_move):
             if last_move.hacker_move:
                 return True
 
-            if last_move.security_move and (now - last_move.dt).seconds > 20 * 60:
+            if last_move.security_move and (now - last_move.dt).seconds > 15 * 60:
                 return True
 
         else:  # Еще не сделано ни одного хода

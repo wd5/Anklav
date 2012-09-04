@@ -48,4 +48,6 @@
     <p>Доступные средства: {{ request.actual_role.money|default:"0" }} (<a href="{% url transfer %}">Отправить перевод</a>)</p>
 
     <p><a href="{% url stock_add %}">Добавить предложение</a>.</p>
+
+    <p><a href="{% url stock_history %}">История сделок</a>.</p>
 {% endblock %}

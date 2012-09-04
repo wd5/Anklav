@@ -799,6 +799,11 @@ def stock_add(request):
 
 
 @role_required
+def stock_history(request):
+    return render_to_response(request, 'stock_history.html', {'deals': Deal.objects.filter(is_closed=True).order_by('-id')})
+
+
+@role_required
 def transfer(request):
     if request.POST:
         form = TransferForm(request.actual_role, request.POST)

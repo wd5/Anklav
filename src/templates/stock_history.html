@@ -1,0 +1,21 @@
+{% extends "inner_page.html" %}
+{% load pytils_dt %}
+
+{% block content %}
+    <h1>Биржа: история сделок</h1>
+
+    <table>
+        <tr>
+            <td>Корпорация</td>
+            <td>Количество акций</td>
+            <td>Цена сделки</td>
+        </tr>
+        {% for deal in deals %}
+            <tr>
+                <td>{{ deal.company.name }}</td>
+                <td>{{ deal.amount }} шт.</td>
+                <td>{{ deal.cost }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

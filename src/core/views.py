@@ -760,6 +760,8 @@ def stock(request):
 
             if request.actual_role.money >= deal.cost:
                 deal.is_closed = True
+                deal.dt_closed = datetime.now()
+                deal.buyer = request.actual_role
                 deal.save()
 
                 if request.actual_role != deal.role:
@@ -800,7 +802,7 @@ def stock_add(request):
 
 @role_required
 def stock_history(request):
-    return render_to_response(request, 'stock_history.html', {'deals': Deal.objects.filter(is_closed=True).order_by('-id')})
+    return render_to_response(request, 'stock_history.html', {'deals': Deal.objects.filter(is_closed=True).order_by('-dt_closed')})
 
 
 @role_required

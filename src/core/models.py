@@ -513,25 +513,24 @@ class RoleStock(models.Model):
     company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})
     amount = models.IntegerField(verbose_name=u"Количество акций", default=0)
 
-#    def save(self, *args, **kwargs):
-#        pass
-
-
     class Meta:
         verbose_name = u"Акции"
         verbose_name_plural = u"Акции"
 
 
 class Deal(models.Model):
-    role = models.ForeignKey(Role, verbose_name=u"Роль")
+    role = models.ForeignKey(Role, verbose_name=u"Продавец", related_name='seller')
     company = models.ForeignKey(Tradition, verbose_name=u"Компания", limit_choices_to={'type': 'corporation'})
     amount = models.PositiveIntegerField(verbose_name=u"Количество акций", default=0)
+    dt_add = models.DateTimeField(auto_now_add=True, verbose_name=u"Создано")
     cost = models.PositiveIntegerField(verbose_name=u"Стоимость", default=0)
+    buyer = models.ForeignKey(Role, verbose_name=u"Покупатель", related_name='buyer', null=True, blank=True, default=None)
     is_closed = models.BooleanField(verbose_name=u"Исполнено", default=False)
+    dt_closed = models.DateTimeField(verbose_name=u"Когда исполнено", null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = u"Сделка"
-        verbose_name_plural = u"Сделки"
+        verbose_name_plural = u"Акции: сделки"
 
 
 def change_user_link(self):

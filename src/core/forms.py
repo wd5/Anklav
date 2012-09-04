@@ -160,7 +160,7 @@ class DealForm(CommonForm):
             role=self.role,
             amount=self.cleaned_data['amount'],
             company=self.cleaned_data['company'],
-            cost=self.cleaned_data['cost']
+            cost=self.cleaned_data['cost'],
         )
 
 

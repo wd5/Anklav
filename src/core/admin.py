@@ -62,6 +62,11 @@ class RoleStockAdmin(admin.ModelAdmin):
     list_display = ('role', 'company', 'amount')
     list_filter = ('role', 'company')
 
+
+class DealAdmin(admin.ModelAdmin):
+    list_display = ('role', 'company', 'amount', 'cost', 'buyer', 'is_closed')
+
+
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)
@@ -83,4 +88,4 @@ admin.site.register(DDRequest)
 admin.site.register(DDMessage)
 
 admin.site.register(RoleStock, RoleStockAdmin)
-admin.site.register(Deal)
+admin.site.register(Deal, DealAdmin)

@@ -483,8 +483,11 @@ class Hack(models.Model):
 
         if field == 'actions':
             actions = RoleStock.objects.filter(role=role, amount__gt=0)
-            print len(actions)
             return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions)
+
+        if field == 'actions_steal':
+            actions = RoleStock.objects.filter(role=role, amount__gt=0).exists()
+            return actions and u"Вы получаете одну случайную акцию жителя." or u"Здесь нет ни одной акции."
 
         if field == 'quest':
             return role.quest

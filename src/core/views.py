@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import logging
+import random
 
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -323,7 +324,7 @@ def tradition_view(request, code):
             author=request.actual_user,
             content=request.POST.get('post'),
         )
-        recievers = [tr.role.profile.user.email for tr in TraditionRole.objects.filter(tradition=tradition, is_approved=True)] \
+        recievers = [tr.role.profile.user.email for tr in TraditionRole.objects.filter(tradition=tradition, is_approved=True, role__profile__isnull=False)] \
                     + ['glader.ru@gmail.com', 'linashyti@gmail.com']
         for email in recievers:
             send_mail(
@@ -512,7 +513,7 @@ def hack_page(request, uuid):
                 # отправляем информацию по почте
                 send_mail(
                     u"Анклав: успешный взлом",
-                    u"Вы взломали данные '%s' жителя '%s'.\n" + hack.get_target_value(),
+                    u"Вы взломали данные '%s' жителя '%s'.\n" % (hack.get_field_display(), hack.get_target().name) + hack.get_target_value(),
                     None,
                     [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
                 )
@@ -524,7 +525,18 @@ def hack_page(request, uuid):
                 hack.result = 'win'
                 hack.save()
 
-            if HackMove.objects.filter(hack=hack).count() >= 5:
+                # Акция
+                if hack.key.endswith('actions_steal'):
+                    actions = list(RoleStock.objects.filter(role=hack.get_target(), amount__gt=0))
+                    action = random.choice(actions)
+                    action.amount -= 1
+                    action.save()
+
+                    new_action, _ = RoleStock.objects.get_or_create(role=request.actual_role, company=action.company)
+                    new_action.amount += 1
+                    new_action.save()
+
+            if HackMove.objects.filter(hack=hack).count() >= 6:
                 hack.result = 'fail'
                 hack.save()
 

@@ -946,7 +946,8 @@ def dd_history(request, recipient_number):
             email(
                 u"Анклав: новое сообщение на сервере DD",
                 u"Hello, %s. You are waiting at http://%s%s" % (recipient_number, settings.DOMAIN, reverse('dd_history', args=[request.actual_role.dd_number])),
-                [recipient.email]
+                [recipient.email],
+                admins=False,
             )
             return HttpResponseRedirect(reverse('dd_history', args=[recipient_number]))
 

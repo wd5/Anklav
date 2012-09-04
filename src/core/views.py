@@ -10,6 +10,7 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 
 from .forms import *
+from .utils import email
 
 
 def render_to_response(request, template_name, context_dict=None):
@@ -206,18 +207,17 @@ def tradition_request(request, code):
 
         try:
             master = TraditionRole.objects.get(tradition=tradition, level='master').role
-            send_mail(
+            email(
                 u"Анклав: заявка на участие",
                 u"Новая заявка на участие: http://%s%s" % (settings.DOMAIN, reverse('tradition_members', args=[tradition.code])),
-                None,
-                ['linashyti@gmail.com', 'glader.ru@gmail.com', master.profile.user.email],
+                [master.profile.user.email],
             )
         except TraditionRole.DoesNotExist:
-            send_mail(
+            email(
                 u"Анклав: заявка на участие",
                 u"У %s нет иерарха, некому утверждать заявки." % tradition.name,
                 None,
-                ['linashyti@gmail.com', 'glader.ru@gmail.com'],
+                ['linashyti@gmail.com'],
             )
         return HttpResponseRedirect(reverse('tradition_request', args=[tradition.code]))
 
@@ -276,12 +276,11 @@ def tradition_miracles(request, code):
                 tradition.mana -= miracle.cost
                 tradition.save()
 
-                send_mail(
+                email(
                     u"Анклав: вы одарены чудом",
                     u"Иерарх одарил вас чудом '%s'. Вы можете отметить его как примененное на странице http://%s%s ." \
                         % (miracle.name, settings.DOMAIN, reverse('my_miracles')),
-                    None,
-                    ['linashyti@gmail.com', 'glader.ru@gmail.com', role.profile.user.email]
+                    [role.profile.user.email]
                 )
                 return HttpResponseRedirect(reverse('tradition_miracles', args=[tradition.code]))
 
@@ -324,15 +323,12 @@ def tradition_view(request, code):
             author=request.actual_user,
             content=request.POST.get('post'),
         )
-        recievers = [tr.role.profile.user.email for tr in TraditionRole.objects.filter(tradition=tradition, is_approved=True, role__profile__isnull=False)] \
-                    + ['glader.ru@gmail.com', 'linashyti@gmail.com']
-        for email in recievers:
-            send_mail(
-                u"Анклав: Новая запись",
-                u"Новая запись на странице '%s'. http://%s%s" % (tradition.name, settings.DOMAIN, reverse('tradition', args=[tradition.code])),
-                None,
-                [email],
-            )
+        recievers = [tr.role.profile.user.email for tr in TraditionRole.objects.filter(tradition=tradition, is_approved=True, role__profile__isnull=False)]
+        email(
+            u"Анклав: Новая запись",
+            u"Новая запись на странице '%s'. http://%s%s" % (tradition.name, settings.DOMAIN, reverse('tradition', args=[tradition.code])),
+            recievers,
+        )
         return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
 
     return render_to_response(request, 'tradition.html',
@@ -440,12 +436,11 @@ def my_miracles(request):
             miracle.use_dt = datetime.now()
             miracle.save()
 
-            send_mail(
+            email(
                 u"Анклав: чудо применено",
                 u"'%s' применил на '%s' чудо '%s'."\
                 % (request.actual_role, recipient, miracle.miracle.name),
-                None,
-                ['linashyti@gmail.com', 'glader.ru@gmail.com', request.actual_role.profile.user.email, recipient.profile.user.email]
+                [request.actual_role.profile.user.email, recipient.profile.user.email]
             )
 
             return HttpResponseRedirect(reverse('my_miracles') + '?save=ok')
@@ -493,12 +488,11 @@ def target(request):
 
                 # письма машинистам традиции
                 security = [role.role.profile.user.email for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]
-                send_mail(
+                email(
                     u"Анклав: атака на вашу Традицию/корпорацию!",
                     u"На вашу структуру '%s' произошло нападение. Встать на защиту можно по ссылке http://%s%s ." % \
                         (hack.get_target().name, settings.DOMAIN, reverse('hack_tradition_security', args=[hack.uuid])),
-                    None,
-                    security + ['linashyti@gmail.com', 'glader.ru@gmail.com'],
+                    security,
                 )
                 return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
@@ -527,11 +521,10 @@ def personal_hack_page(request, uuid):
 
             if result == '1' * len(hack.number):
                 # отправляем информацию по почте
-                send_mail(
+                email(
                     u"Анклав: успешный взлом",
                     u"Вы взломали данные '%s' жителя '%s'.\n" % (hack.get_field_display(), hack.get_target().name) + hack.get_target_value(),
-                    None,
-                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                    [request.user.email]
                 )
 
                 # Прекращаем параллельные взломы
@@ -647,11 +640,10 @@ def tradition_hack_page(request, uuid):
                 hack.save()
 
                 # Отправка на почту взломанной инфы
-                send_mail(
+                email(
                     u"Анклав: успешный взлом",
                     u"Вы взломали данные '%s' компании '%s'.\n" % (hack.get_field_display(), hack.get_target().name) + hack.get_target_value(),
-                    None,
-                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                    [request.user.email]
                 )
 
                 # Прекращаем параллельные взломы
@@ -665,11 +657,10 @@ def tradition_hack_page(request, uuid):
                 hack.save()
 
                 # Отправка машинисту на почту имени ломщика
-                send_mail(
+                email(
                     u"Анклав: успешное противостояние взлому",
                     u"Вы защитили данные '%s' компании '%s'.\nЛомщик: %s" % (hack.get_field_display(), hack.get_target().name, hack.hacker.name),
-                    None,
-                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                    [request.user.email]
                 )
                 return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
@@ -951,11 +942,10 @@ def dd_history(request, recipient_number):
                 recipient=recipient,
                 content=request.POST.get('content'),
             )
-            send_mail(
+            email(
                 u"Анклав: новое сообщение на сервере DD",
                 u"Hello, %s. You are waiting at http://%s%s" % (recipient_number, settings.DOMAIN, reverse('dd_history', args=[request.actual_role.dd_number])),
-                None,
-                [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                [request.user.email]
             )
             return HttpResponseRedirect(reverse('dd_history', args=[recipient_number]))
 
@@ -994,11 +984,10 @@ def stock(request):
                 action.save()
 
                 traders = [role.role.profile.user.email for role in TraditionRole.objects.filter(level='economy')]
-                send_mail(
+                email(
                     u"Анклав: закрыто предложение на бирже",
                     u"Закрыта сделка на %s шт акций компании '%s' по цене %s юаней." % (deal.amount, deal.company.name, deal.cost),
-                    None,
-                    traders + ['linashyti@gmail.com', 'glader.ru@gmail.com']
+                    traders
                 )
 
                 return HttpResponseRedirect(reverse('stock') + '?save=ok')
@@ -1019,11 +1008,10 @@ def stock_add(request):
             deal = form.save()
 
             traders = [role.role.profile.user.email for role in TraditionRole.objects.filter(level='economy')]
-            send_mail(
+            email(
                 u"Анклав: новое предложение на бирже",
                 u"Выложено %s шт акций компании '%s' по цене %s юаней." % (deal.amount, deal.company.name, deal.cost),
-                None,
-                traders + ['linashyti@gmail.com', 'glader.ru@gmail.com']
+                traders
             )
             return HttpResponseRedirect(reverse('stock'))
 

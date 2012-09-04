@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.core.mail import send_mail
+from .utils import email
 from yafotki.fields import YFField
 from BeautifulSoup import BeautifulSoup, Comment as HtmlComment
 
@@ -84,12 +84,10 @@ class Role(models.Model):
                 if self.profile:
                     emails.append(self.profile.user.email)
 
-                send_mail(
+                email(
                     u"Анклав: роль %s" % self.name,
                     header + report,
-                    settings.SERVER_EMAIL,
-                    emails,
-                    fail_silently=True,
+                    [],
                 )
 
         return super(Role, self).save(*args, **kwargs)
@@ -198,14 +196,12 @@ class Profile(models.Model):
                     report += u"%s: '%s'\n" % (field.verbose_name, getattr(self, field.name) or '-')
 
             if report:
-                emails = [settings.MANAGERS[0][1], settings.ADMINS[0][1], self.user.email]
+                emails = [self.user.email]
 
-                send_mail(
+                email(
                     u"Анклав: профиль игрока %s" % self.name,
                     report,
-                    settings.SERVER_EMAIL,
                     emails,
-                    fail_silently=True,
                 )
 
         return super(Profile, self).save(*args, **kwargs)
@@ -233,12 +229,10 @@ class RoleConnection(models.Model):
                          (self.role.profile.user.pk, self.role,
                           self.role_rel, getattr(prev, 'comment') or '-', getattr(self, 'comment') or '-')
 
-                send_mail(
+                email(
                     u"Анклав: изменения в связях роли %s" % self.role,
                     report,
-                    settings.SERVER_EMAIL,
                     emails,
-                    fail_silently=True,
                 )
         else:
             if self.role.profile:
@@ -246,11 +240,10 @@ class RoleConnection(models.Model):
             else:
                 profile = Profile.objects.filter(role=self.role)[0]
 
-            send_mail(
+            email(
                 u"Анклав: новая связь между ролями",
                 u"Анкета: http://anklav-ekb.ru/form?change_user=%s\n\n%s -> %s\n\n%s"
                 % (profile.user.pk, self.role, self.role_rel, self.comment),
-                settings.SERVER_EMAIL,
                 emails,
             )
 
@@ -644,7 +637,7 @@ class DDRequest(models.Model):
     status = models.CharField(verbose_name=u"Статус", default='created', max_length=20, choices=STATUSES)
 
     def send_notification(self, event):
-        recievers = ['linashyti@gmail.com', 'glader.ru@gmail.com']
+        recievers = []
         if event == 'assigned':
             recievers.append(self.assignee.email)
         else:
@@ -658,11 +651,10 @@ class DDRequest(models.Model):
             'fail': u"Заявка %s помечена как проваленная. ",
             }
 
-        send_mail(
+        email(
             u"Анклав: уведомление с сервера DD",
             message[event] % self.id +
             "http://%s%s" % (settings.DOMAIN, reverse('dd_request', args=[self.id])),
-            None,
             recievers
         )
 

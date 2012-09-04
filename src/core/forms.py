@@ -6,6 +6,7 @@ from django.forms import *
 from django.db.models import Q
 
 from models import *
+from .utils import email
 
 
 class CommonForm(Form):
@@ -110,11 +111,10 @@ class CreateDuelForm(ModelForm):
             dt=datetime.now()
         )
 
-        send_mail(
+        email(
             u"Анклав: Дуэль",
             u"%s, вы вызваны на дуэль. http://anklav-ekb.ru%s" % (self.cleaned_data['role_2'].name, reverse('duel', args=[duel.pk])),
-            None,
-            [self.cleaned_data['role_2'].profile.user.email, 'glader.ru@gmail.com']
+            [self.cleaned_data['role_2'].profile.user.email]
         )
 
         return duel

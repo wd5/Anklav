@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import uuid
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -411,10 +411,9 @@ class Duel(models.Model):
     def number_len(self):
         return len(str(self.number_1))
 
-
-class Meta:
-        verbose_name = u"Дуэль"
-        verbose_name_plural = u"Дуэли"
+    class Meta:
+            verbose_name = u"Дуэль"
+            verbose_name_plural = u"Взломы: дуэли"
 
 
 class DuelMove(models.Model):
@@ -437,6 +436,95 @@ class DuelMove(models.Model):
     class Meta:
         verbose_name = u"Ход дуэли"
         verbose_name_plural = u"Ходы дуэлей"
+
+
+class Hack(models.Model):
+    hacker = models.ForeignKey(Role, verbose_name=u"Хакер")
+    key = models.CharField(max_length=250, verbose_name=u"Цель атаки")
+    dt = models.DateTimeField(auto_now_add=True, verbose_name=u"Начало атаки")
+    number = models.CharField(max_length=10, verbose_name=u"Взламываемое число")
+    RESULTS = (
+        (None, u"Идет"),
+        ('win', u"Взломано"),
+        ('fail', u"Облом"),
+        ('late', u"Опоздал"),
+        )
+    result = models.CharField(verbose_name=u"Итог", choices=RESULTS, max_length=20, null=True, blank=True, default=None)
+    uuid = models.CharField(verbose_name=u"UUID", max_length=32)
+
+    def save(self, *args, **kwargs):
+        if not self.uuid:
+            self.uuid = uuid.uuid4().hex
+
+        super(Hack, self).save(*args, **kwargs)
+
+    def get_target(self):
+        return Role.objects.get(pk=int(self.key.split('/')[1]))
+
+    def get_field_display(self):
+        from .hack import first
+        return first(lambda rec: rec[0] == self.key.split('/')[2], settings.ROLE_FIELDS)[1]
+
+    def get_target_value(self):
+        field = self.key.split('/')[2]
+        role = self.get_target()
+        if field == 'tradition':
+            try:
+                tradition = TraditionRole.objects.get(role=role, tradition__type='tradition')
+                return u"Традиция: %s" % tradition.tradition.name
+            except TraditionRole.DoesNotExist:
+                return u"Не состоит в традициях."
+
+        if field == 'special':
+            miracles = list(RoleMiracle.objects.filter(owner=role))
+            result = "\n".join(u"Чудо: %s" % miracle.miracle.name for miracle in miracles)
+            result += "\nСпецспособности: %s" % (role.special or u"нет")
+            return result
+
+        if field == 'actions':
+            actions = RoleStock.objects.filter(role=role, amount__gt=0)
+            print len(actions)
+            return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions)
+
+        if field == 'quest':
+            return role.quest
+
+        if field == 'criminal':
+            try:
+                tradition = TraditionRole.objects.get(role=role, tradition__type='crime')
+                return u"Криминальная структура: %s" % tradition.tradition.name
+            except TraditionRole.DoesNotExist:
+                return u"Не состоит в криминальных структурах."
+
+        if field == 'messages':
+            from messages.models import Message
+            messages = Message.objects.filter(models.Q(sender=role.profile.user)|models.Q(recipient=role.profile.user))
+            return u"\n\n".join(
+                u"От кого: %s\nКому: %s\n%s" % (message.sender.get_profile().role.name,
+                                               message.recipient.get_profile().role.name,
+                                               message.body)
+                for message in messages
+            )
+
+    class Meta:
+        verbose_name = u"Взлом"
+        verbose_name_plural = u"Взломы"
+
+class HackMove(models.Model):
+    hack = models.ForeignKey(Hack, verbose_name=u"Взлом")
+    dt = models.DateTimeField(verbose_name=u"Начало хода", auto_now_add=True, default=None)
+    move = models.CharField(verbose_name=u"Ход", max_length=10, null=True, blank=True, default=None)
+    result = models.CharField(verbose_name=u"Результат", max_length=10, null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if self.move and not self.result:
+            self.result = Duel.get_result(self.hack.number, self.move)
+
+        super(HackMove, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = u"Ход взлома"
+        verbose_name_plural = u"Ходы взломов"
 
 
 class DDRequest(models.Model):
@@ -479,7 +567,7 @@ class DDRequest(models.Model):
 
     class Meta:
         verbose_name = u"Заявка DD"
-        verbose_name_plural = u"DD - заявки"
+        verbose_name_plural = u"DD: заявки"
 
 
 class DDComment(models.Model):
@@ -490,7 +578,7 @@ class DDComment(models.Model):
 
     class Meta:
         verbose_name = u"Комментарий к заявке DD"
-        verbose_name_plural = u"DD - комментарии"
+        verbose_name_plural = u"DD: комментарии"
 
 
 class DDMessage(models.Model):
@@ -504,8 +592,8 @@ class DDMessage(models.Model):
         super(DDMessage, self).save(*args, **kwargs)
 
     class Meta:
-        verbose_name = u"DD - личное сообщение"
-        verbose_name_plural = u"DD - переписка"
+        verbose_name = u"DD: личное сообщение"
+        verbose_name_plural = u"DD: переписка"
 
 
 class RoleStock(models.Model):
@@ -529,7 +617,7 @@ class Deal(models.Model):
     dt_closed = models.DateTimeField(verbose_name=u"Когда исполнено", null=True, blank=True, default=None)
 
     class Meta:
-        verbose_name = u"Сделка"
+        verbose_name = u"Сделка по акциям"
         verbose_name_plural = u"Акции: сделки"
 
 

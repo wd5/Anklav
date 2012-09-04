@@ -58,6 +58,15 @@ class DuelAdmin(admin.ModelAdmin):
     inlines = (DuelMoveInline,)
 
 
+class HackMoveInline(admin.TabularInline):
+    model = HackMove
+    fk_name = 'hack'
+    extra = 0
+
+class HackAdmin(admin.ModelAdmin):
+    list_display = ('hacker', 'key', 'number', 'result')
+    inlines = (HackMoveInline,)
+
 class RoleStockAdmin(admin.ModelAdmin):
     list_display = ('role', 'company', 'amount')
     list_filter = ('role', 'company')
@@ -82,6 +91,7 @@ admin.site.register(TraditionRole, TraditionRoleAdmin)
 admin.site.register(Miracle)
 admin.site.register(RoleMiracle, RoleMiracleAdmin)
 
+admin.site.register(Hack, HackAdmin)
 admin.site.register(Duel, DuelAdmin)
 
 admin.site.register(DDRequest)

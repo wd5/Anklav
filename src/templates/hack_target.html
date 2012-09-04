@@ -6,21 +6,13 @@
     <p>Персонаж
         <form action="" method="POST" style="padding-left: 20px;">
             {% csrf_token %}
-            <select name="role">
-                {% for role in roles %}
-                    <option value="{{ role.id }}">{{ role.name }}</option>
-                {% endfor %}
-            </select>
-            <select name="field">
-                {% for field in role_fields %}
-                    <option value="{{ field.0 }}">{{ field.1 }}</option>
-                {% endfor %}
-            </select>
+            {{ person_form.as_p }}
             <input type="hidden" name="target" value="role">
             <input type="submit" name="action" value="Выбрать">
         </form>
     </p>
 
+    <!--
     <p>Корпорация/Традиция/Криминальная структура
         <form action="" method="POST" style="padding-left: 20px;">
             {% csrf_token %}
@@ -37,6 +29,6 @@
             <input type="hidden" name="target" value="tradition">
             <input type="submit" name="action" value="Выбрать">
         </form>
-    </p>
+    </p>-->
 
 {% endblock %}

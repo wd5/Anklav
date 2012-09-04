@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth import authenticate
 from django.forms import *
@@ -192,6 +192,44 @@ class TransferForm(CommonForm):
 
         self.cleaned_data['recipient'].money += self.cleaned_data['amount']
         self.cleaned_data['recipient'].save()
+
+
+class PersonHackTarget(CommonForm):
+    role = IntegerField(label=u'Кого ломаем', widget=Select)
+    field = CharField(label=u'Что ломаем', widget=Select)
+
+    def __init__(self, role, *args, **kwargs):
+        super(PersonHackTarget, self).__init__(*args, **kwargs)
+
+        self.hacker = role
+        self.fields['role'].widget.choices = ((role.pk, role.name) for role in Role.objects.filter(profile__isnull=False).exclude(pk=role.id))
+        self.fields['field'].widget.choices = [field[:2] for field in settings.ROLE_FIELDS]
+
+    def clean_role(self):
+        try:
+            return Role.objects.get(pk=self.cleaned_data['role'])
+        except Role.DoesNotExist:
+            raise ValidationError(u"Жертва не найдена")
+
+    def clean(self):
+        self.cleaned_data['key'] = 'person/%s/%s' % (self.cleaned_data['role'].id, self.cleaned_data['field'])
+
+        yesterday = datetime.now() - timedelta(days=1)
+        if Hack.objects.filter(hacker=self.hacker, key=self.cleaned_data['key'], dt__gt=yesterday).exists():
+            raise ValidationError(u"Вы недавно уже ломали эту информацию. Передохните.")
+
+        return self.cleaned_data
+
+    def save(self):
+        # создаем новый взлом
+        from .hack import generate_number
+        hack = Hack.objects.create(
+            hacker=self.hacker,
+            key=self.cleaned_data['key'],
+            number=generate_number(self.cleaned_data['key']),
+        )
+
+        return hack
 
 
 from django.forms.models import modelform_factory, inlineformset_factory

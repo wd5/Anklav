@@ -31,10 +31,11 @@ urlpatterns = patterns('',
     url('^change_user/(\d+)$', 'core.views.change_user', name="change_user"),
     url('^lock_role/(\d+)$', 'core.views.lock_role', name="lock_role"),
 
-    url('^hack$', TemplateView.as_view(template_name="hack.html"), name="hack"),
+    url('^hack$', TemplateView.as_view(template_name="hacking.html"), name="hacking"),
     url('^hack/duels$', 'core.views.duels', name="duels"),
     url('^hack/duels/(\d+)$', 'core.views.duel_page', name="duel"),
     url('^hack/target$', 'core.views.target', name="target"),
+    url('^hack/(\w+)$', 'core.views.hack_page', name="hack"),
 
     url('^groups$', 'core.views.traditions_request', name='traditions_request'),
     url('^groups/(?P<code>\w+)$', 'core.views.tradition_view', name="tradition"),

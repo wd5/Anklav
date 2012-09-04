@@ -1,8 +1,29 @@
 {% extends "inner_page.html" %}
 
 {% block content %}
-    <h1>Взлом</h1>
+    <h1>Взлом: {{ hack.get_target }} {{ hack.get_field_display }}</h1>
 
-    {# <p><a href="{% url target %}">Взлом информации</a></p> #}
-    <p><a href="{% url duels %}">Дуэли</a></p>
+    {% if hack.result %}
+        <p>Итог: {{ hack.get_result_display }}</p>
+    {% else %}
+        <p>Идет.</p>
+    {% endif %}
+
+    {% if moves %}
+        <h3>Ходы</h3>
+        {% for move in moves %}
+            <p>{{ move.move }} ({{ move.result }})</p>
+        {% endfor %}
+    {% endif %}
+
+    {% if not hack.result %}
+        <p>Ваш ход: {{ error }}
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="text" name="number">
+            <input type="submit" name="action" value="Попробовать">
+        </form>
+        </p>
+    {% endif %}
+
 {% endblock %}

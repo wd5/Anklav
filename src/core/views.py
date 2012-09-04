@@ -471,32 +471,70 @@ def duels(request):
     return render_to_response(request, 'duels.html', {'form': form, 'duels': Duel.objects.filter(Q(role_1=request.actual_role) | Q(role_2=request.actual_role)).order_by('-id')})
 
 
-ROLE_FIELDS = (
-    ('tradition', u"Традиция"),
-    ('special', u"Спецспособности"),
-    ('actions', u"Акции"),
-    ('actions_steal', u"Кража акции"),
-    ('quest', u"Жизненный путь"),
-    ('criminal', u"Связь с криминалом"),
-    ('messages', u"Переписка"),
-)
-
-TRADITION_FIELDS = (
-    ('document', u"Один документ"),
-    ('documents_list', u"Список документов"),
-    ('questbook', u"Гостевая книга"),
-)
-
 @role_required
 def target(request):
-    context = {}
+    context = {
+        'person_form': PersonHackTarget(request.actual_role),
+        }
 
-    context['roles'] = Role.objects.filter(profile__isnull=False).exclude(pk=request.actual_role.id)
-    context['role_fields'] = ROLE_FIELDS
-    context['traditions'] = Tradition.objects.all()
-    context['tradition_fields'] = TRADITION_FIELDS
+    if request.POST:
+        if request.POST['target'] == 'role':
+            context['person_form'] = PersonHackTarget(request.actual_role, request.POST)
+            if context['person_form'].is_valid():
+                hack = context['person_form'].save()
+                return HttpResponseRedirect(reverse('hack', args=[hack.uuid]))
 
     return render_to_response(request, 'hack_target.html', context)
+
+
+
+@role_required
+def hack_page(request, uuid):
+    hack = get_object_or_404(Hack, uuid=uuid, hacker=request.actual_role)
+    context = {
+        'hack': hack,
+        'moves': hack.hackmove_set.all().order_by('id'),
+    }
+
+    if not hack.result and request.POST:
+        try:
+            number = request.POST.get('number')
+            CreateDuelForm.check_number(number, number_len=len(hack.number))
+
+            result = Duel.get_result(hack.number, number)
+            context['last_move'] = HackMove.objects.create(
+                hack=hack,
+                move=number,
+                result=result,
+            )
+
+            if result == '1' * len(hack.number):
+                # отправляем информацию по почте
+                send_mail(
+                    u"Анклав: успешный взлом",
+                    u"Вы взломали данные '%s' жителя '%s'.\n" + hack.get_target_value(),
+                    None,
+                    [request.user.email, 'linashyti@gmail.com', 'glader.ru@gmail.com']
+                )
+
+                # Прекращаем параллельные взломы
+                Hack.objects.filter(key=hack.key, result__isnull=True).exclude(pk=hack.pk).update(result='late')
+
+                # Сохраняем результат
+                hack.result = 'win'
+                hack.save()
+
+            if HackMove.objects.filter(hack=hack).count() >= 5:
+                hack.result = 'fail'
+                hack.save()
+
+            return HttpResponseRedirect(reverse('hack', args=[hack.uuid]))
+
+        except ValidationError, e:
+            context['error'] = unicode(e.messages[0])
+
+    return render_to_response(request, 'hack.html', context)
+
 
 
 @role_required

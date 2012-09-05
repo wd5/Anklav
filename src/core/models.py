@@ -51,6 +51,7 @@ class Role(models.Model):
     special = models.TextField(verbose_name=u'Спец. способности', null=True, blank=True, default=None)
     money = models.PositiveIntegerField(verbose_name=u"Деньги", default=0)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
+    can_defend = models.BooleanField(verbose_name=u"Может противостоять взломам", default=False)
 
     dd_number = models.PositiveIntegerField(verbose_name=u"DD", null=True, blank=True, default=None)
 
@@ -431,10 +432,106 @@ class DuelMove(models.Model):
         verbose_name_plural = u"Ходы дуэлей"
 
 
+
+def get_hack_target(key):
+    if key.startswith('person'):
+        return Role.objects.get(pk=int(key.split('/')[1]))
+    else:
+        return Tradition.objects.get(pk=int(key.split('/')[1]))
+
+
+def get_hack_field_display(key):
+    from .hack import first
+    if key.startswith('person'):
+        return first(lambda rec: rec[0] == key.split('/')[2], settings.ROLE_FIELDS)[1]
+    else:
+        return first(lambda rec: rec[0] == key.split('/')[2], settings.TRADITION_FIELDS)[1]
+
+
+def get_hack_target_value(key):
+    target = get_hack_target(key)
+    field = key.split('/')[2]
+
+    if key.startswith('person'):
+        if field == 'tradition':
+            try:
+                tradition = TraditionRole.objects.get(role=target, tradition__type='tradition')
+                return u"Традиция: %s" % tradition.tradition.name
+            except TraditionRole.DoesNotExist:
+                return u"Не состоит в традициях."
+
+        if field == 'special':
+            miracles = list(RoleMiracle.objects.filter(owner=target))
+            result = u"\n".join(u"Чудо: %s" % miracle.miracle.name for miracle in miracles)
+            result += u"\nСпецспособности: %s" % (target.special or u"нет")
+            return result
+
+        if field == 'actions':
+            actions = RoleStock.objects.filter(role=target, amount__gt=0)
+            return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions)\
+            or u"Акций нет."
+
+        if field == 'actions_steal':
+            actions = RoleStock.objects.filter(role=target, amount__gt=0).exists()
+            return actions and u"Вы получаете одну случайную акцию жителя." or u"Здесь нет ни одной акции."
+
+        if field == 'quest':
+            return target.quest
+
+        if field == 'criminal':
+            try:
+                tradition = TraditionRole.objects.get(role=target, tradition__type='crime')
+                return u"Криминальная структура: %s" % tradition.tradition.name
+            except TraditionRole.DoesNotExist:
+                return u"Не состоит в криминальных структурах."
+
+        if field == 'messages':
+            from messages.models import Message
+            messages = Message.objects.filter(models.Q(sender=target.profile.user)|models.Q(recipient=target.profile.user))
+            return u"\n\n".join(
+                u"От кого: %s\nКому: %s\n%s" % (message.sender.get_profile().role.name,
+                                                message.recipient.get_profile().role.name,
+                                                message.body)
+                    for message in messages
+            ) or u"Сообщений нет."
+
+    else:
+        if field == 'document':
+            try:
+                tradition_file = TraditionFile.objects.get(tradition=target, title=key.split('/')[3])
+                return "http://%s%s%s" % (settings.DOMAIN, settings.MEDIA_URL, tradition_file.file.name)
+            except TraditionFile.DoesNotExist:
+                try:
+                    tradition_text = TraditionText.objects.get(tradition=target, title=key.split('/')[3])
+                    return tradition_text.content
+                except TraditionFile.DoesNotExist:
+                    return u"Документ с указанным названием не найден."
+
+        if field == 'documents_list':
+            documents = [doc.title for doc in TraditionFile.objects.filter(tradition=target)] +\
+                        [doc.title for doc in TraditionText.objects.filter(tradition=target)]
+            result = "\n".join(documents)
+            return result or u"Документов нет."
+
+        if field == 'tradition_questbook':
+            messages = target.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            return u"\n\n".join(
+                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                    for message in messages
+            ) or u"Сообщений нет."
+
+        if field == 'corporation_questbook':
+            messages = target.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            return u"\n\n".join(
+                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                    for message in messages
+            ) or u"Сообщений нет."
+
+
 class TraditionHack(models.Model):
     hacker = models.ForeignKey(Role, verbose_name=u"Хакер", related_name="hacker")
     security = models.ForeignKey(Role, verbose_name=u"Машинист", related_name="security", null=True, blank=True, default=None)
-    key = models.CharField(max_length=250, verbose_name=u"Цель атаки")
+    key = models.CharField(max_length=250, verbose_name=u"Цель атаки", help_text=u"Цифра - номер роли или традиции")
     STATES = (
         ('not_started', u"Не началась"),
         ('in_progress', u"Идет"),
@@ -457,50 +554,21 @@ class TraditionHack(models.Model):
 
         super(TraditionHack, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('hack_tradition', args=[self.uuid])
+
     @property
     def is_finished(self):
         return self.state in ('win', 'lose', 'late', 'run')
 
     def get_target(self):
-        return Tradition.objects.get(pk=int(self.key.split('/')[1]))
+        return get_hack_target(self.key)
 
     def get_field_display(self):
-        from .hack import first
-        return first(lambda rec: rec[0] == self.key.split('/')[2], settings.TRADITION_FIELDS)[1]
+        return get_hack_field_display(self.key)
 
     def get_target_value(self):
-        field = self.key.split('/')[2]
-        tradition = self.get_target()
-        if field == 'document':
-            try:
-                tradition_file = TraditionFile.objects.get(tradition=tradition, title=self.key.split('/')[3])
-                return "http://%s%s%s" % (settings.DOMAIN, settings.MEDIA_URL, tradition_file.file.name)
-            except TraditionFile.DoesNotExist:
-                try:
-                    tradition_text = TraditionText.objects.get(tradition=tradition, title=self.key.split('/')[3])
-                    return tradition_text.content
-                except TraditionFile.DoesNotExist:
-                    return u"Документ с указанным названием не найден."
-
-        if field == 'documents_list':
-            documents = [doc.title for doc in TraditionFile.objects.filter(tradition=tradition)] + \
-                        [doc.title for doc in TraditionText.objects.filter(tradition=tradition)]
-            result = "\n".join(documents)
-            return result or u"Документов нет."
-
-        if field == 'tradition_questbook':
-            messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
-            return u"\n\n".join(
-                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
-                    for message in messages
-            ) or u"Сообщений нет."
-
-        if field == 'corporation_questbook':
-            messages = tradition.traditionguestbook_set.all().order_by('-dt_created')[:20]
-            return u"\n\n".join(
-                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
-                    for message in messages
-            ) or u"Сообщений нет."
+        return get_hack_target_value(self.key)
 
     class Meta:
         verbose_name = u"Взлом традиции"
@@ -531,7 +599,7 @@ class TraditionHackMove(models.Model):
 
 class Hack(models.Model):
     hacker = models.ForeignKey(Role, verbose_name=u"Хакер")
-    key = models.CharField(max_length=250, verbose_name=u"Цель атаки")
+    key = models.CharField(max_length=250, verbose_name=u"Цель атаки", help_text=u"Цифра - номер роли или традиции")
     dt = models.DateTimeField(auto_now_add=True, verbose_name=u"Начало атаки")
     number = models.CharField(max_length=10, verbose_name=u"Взламываемое число")
     RESULTS = (
@@ -549,57 +617,17 @@ class Hack(models.Model):
 
         super(Hack, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('hack_personal', args=[self.uuid])
+
     def get_target(self):
-        return Role.objects.get(pk=int(self.key.split('/')[1]))
+        return get_hack_target(self.key)
 
     def get_field_display(self):
-        from .hack import first
-        return first(lambda rec: rec[0] == self.key.split('/')[2], settings.ROLE_FIELDS)[1]
+        return get_hack_field_display(self.key)
 
     def get_target_value(self):
-        field = self.key.split('/')[2]
-        role = self.get_target()
-        if field == 'tradition':
-            try:
-                tradition = TraditionRole.objects.get(role=role, tradition__type='tradition')
-                return u"Традиция: %s" % tradition.tradition.name
-            except TraditionRole.DoesNotExist:
-                return u"Не состоит в традициях."
-
-        if field == 'special':
-            miracles = list(RoleMiracle.objects.filter(owner=role))
-            result = "\n".join(u"Чудо: %s" % miracle.miracle.name for miracle in miracles)
-            result += "\nСпецспособности: %s" % (role.special or u"нет")
-            return result
-
-        if field == 'actions':
-            actions = RoleStock.objects.filter(role=role, amount__gt=0)
-            return "\n".join(u"Корпорация %s, акций %s." % (action.company.name, action.amount) for action in actions) \
-                or u"Акций нет."
-
-        if field == 'actions_steal':
-            actions = RoleStock.objects.filter(role=role, amount__gt=0).exists()
-            return actions and u"Вы получаете одну случайную акцию жителя." or u"Здесь нет ни одной акции."
-
-        if field == 'quest':
-            return role.quest
-
-        if field == 'criminal':
-            try:
-                tradition = TraditionRole.objects.get(role=role, tradition__type='crime')
-                return u"Криминальная структура: %s" % tradition.tradition.name
-            except TraditionRole.DoesNotExist:
-                return u"Не состоит в криминальных структурах."
-
-        if field == 'messages':
-            from messages.models import Message
-            messages = Message.objects.filter(models.Q(sender=role.profile.user)|models.Q(recipient=role.profile.user))
-            return u"\n\n".join(
-                u"От кого: %s\nКому: %s\n%s" % (message.sender.get_profile().role.name,
-                                               message.recipient.get_profile().role.name,
-                                               message.body)
-                for message in messages
-            ) or u"Сообщений нет."
+        return get_hack_target_value(self.key)
 
     class Meta:
         verbose_name = u"Взлом"

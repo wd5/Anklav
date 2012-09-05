@@ -199,6 +199,7 @@ class TransferForm(CommonForm):
 class PersonHackTarget(CommonForm):
     role = IntegerField(label=u'Кого ломаем', widget=Select)
     field = CharField(label=u'Что ломаем', widget=Select)
+    number = CharField(label=u'Ваше число', help_text=u"4 цифры")
 
     def __init__(self, role, *args, **kwargs):
         super(PersonHackTarget, self).__init__(*args, **kwargs)
@@ -213,6 +214,22 @@ class PersonHackTarget(CommonForm):
         except Role.DoesNotExist:
             raise ValidationError(u"Жертва не найдена")
 
+    def clean_number(self):
+        number = self.cleaned_data['number']
+        number_len = 4
+        try:
+            int(number)
+            if len(number) != number_len:
+                raise ValidationError(u"Загаданное число должно содержать %s цифр" % number_len)
+
+            if len(set(number)) != len(number):
+                raise ValidationError(u"Все цифры числа должны быть разными")
+
+            return number
+
+        except ValueError:
+            raise ValidationError(u"Введите четырехзначное число")
+
     def clean(self):
         self.cleaned_data['key'] = 'person/%s/%s' % (self.cleaned_data['role'].id, self.cleaned_data['field'])
 
@@ -225,11 +242,21 @@ class PersonHackTarget(CommonForm):
     def save(self):
         # создаем новый взлом
         from .hack import generate_number
-        hack = Hack.objects.create(
-            hacker=self.hacker,
-            key=self.cleaned_data['key'],
-            number=generate_number(self.cleaned_data['key']),
-        )
+
+        if self.cleaned_data['role'].can_defend:
+            hack = TraditionHack.objects.create(
+                hacker=self.hacker,
+                key=self.cleaned_data['key'],
+                hacker_number=self.cleaned_data['number'],
+                security_number=generate_number(self.cleaned_data['key']),
+            )
+
+        else:
+            hack = Hack.objects.create(
+                hacker=self.hacker,
+                key=self.cleaned_data['key'],
+                number=generate_number(self.cleaned_data['key']),
+            )
 
         return hack
 
@@ -303,7 +330,7 @@ class TraditionHackTarget(CommonForm):
 from django.forms.models import modelform_factory, inlineformset_factory
 
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields', 'money'))
-RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_number'))
+RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_number', 'can_defend'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
 TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))

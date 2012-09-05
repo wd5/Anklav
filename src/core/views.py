@@ -479,7 +479,17 @@ def target(request):
             context['person_form'] = PersonHackTarget(request.actual_role, request.POST)
             if context['person_form'].is_valid():
                 hack = context['person_form'].save()
-                return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
+
+                # письмо ломаемому
+                if hack.get_target().can_defend:
+                    email(
+                        u"Анклав: вас пытаются взломать!",
+                        u"%s, на вас произошло нападение. Встать на защиту можно по ссылке http://%s%s ." %\
+                        (hack.get_target().name, settings.DOMAIN, reverse('hack_tradition_security', args=[hack.uuid])),
+                        [hack.get_target().profile.user.email],
+                    )
+
+                return HttpResponseRedirect(hack.get_absolute_url())
 
         if request.POST['target'] == 'tradition':
             context['tradition_form'] = TraditionHackTarget(request.actual_role, request.POST)
@@ -494,7 +504,7 @@ def target(request):
                         (hack.get_target().name, settings.DOMAIN, reverse('hack_tradition_security', args=[hack.uuid])),
                     security,
                 )
-                return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+                return HttpResponseRedirect(hack.get_absolute_url())
 
     return render_to_response(request, 'hack_target.html', context)
 
@@ -563,8 +573,13 @@ def tradition_hack_page_security(request, uuid):
     u"""Выбор защитника"""
     hack = get_object_or_404(TraditionHack, uuid=uuid)
 
-    if not request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
-        raise Http404
+    if hack.key.startswith('person'):
+        if request.actual_role != hack.get_target():
+            raise Http404
+
+    else:
+        if request.actual_role not in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
+            raise Http404
 
     if hack.is_finished or hack.security:
         return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
@@ -574,7 +589,7 @@ def tradition_hack_page_security(request, uuid):
         hack.state = 'in_progress'
         hack.save()
 
-        return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+        return HttpResponseRedirect(hack.get_absolute_url())
 
     return render_to_response(request, 'hack_tradition_security.html', {'hack': hack})
 
@@ -585,8 +600,13 @@ def tradition_hack_page(request, uuid):
 
     if not hack.is_finished and not hack.security:
         # Еще нет защитников
-        if request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
-            return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
+        if hack.key.startswith('person'):
+            if request.actual_role == hack.get_target():
+                return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
+
+        else:
+            if request.actual_role in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
+                return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
 
     if not (hack.hacker == request.actual_role or hack.security == request.actual_role or request.user.is_superuser):
         raise Http404
@@ -609,11 +629,11 @@ def tradition_hack_page(request, uuid):
 
     # Ходы
     if context['can_move'] and request.POST:
-        if request.POST.get('action') == 'Сдаться':
+        if request.POST.get('action') == u'Сбежать':
             hack.state = 'run'
             hack.winner = hack.security
             hack.save()
-            return HttpResponseRedirect(reverse('duels'))
+            return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
         try:
             number = request.POST.get('number')

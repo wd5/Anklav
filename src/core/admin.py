@@ -73,7 +73,7 @@ class TraditionHackMoveInline(admin.TabularInline):
     extra = 0
 
 class TraditionHackAdmin(admin.ModelAdmin):
-    list_display = ('hacker', 'key', 'result')
+    list_display = ('hacker', 'key', 'state', 'result')
     inlines = (TraditionHackMoveInline,)
 
 

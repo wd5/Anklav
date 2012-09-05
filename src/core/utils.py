@@ -3,6 +3,12 @@
 from django.core.mail import send_mail
 
 black_list = ['silveri@mail.ru']  # Явно попросившие ничего им не присылать
+topics = [
+    u'Анклав: Новая запись',
+    u'Анклав: роль',
+    u'Анклав: закрыто',
+    u'Анклав: уведомление',
+]  # Почта, которую не надо отправлять админу
 
 def email(subject, content, recipients, admins=True):
     for mail in recipients:
@@ -10,7 +16,10 @@ def email(subject, content, recipients, admins=True):
             send_mail(subject, content, None, [mail])
 
     if admins:
-        for mail in ('linashyti@gmail.com', 'glader.ru@gmail.com'):
-            if not mail in recipients:
-                send_mail(subject, content + "\n\nSended to " + ", ".join(recipients), None, [mail])
+        if not 'linashyti@gmail.com' in recipients:
+            send_mail(subject, content + "\n\nSended to " + ", ".join(recipients), None, ['linashyti@gmail.com'])
+
+        if not 'glader.ru@gmail.com' in recipients and not any(subject.startswith(topic) for topic in topics):
+                send_mail(subject, content + "\n\nSended to " + ", ".join(recipients), None, ['glader.ru@gmail.com'])
+
 

@@ -637,7 +637,10 @@ def tradition_hack_page(request, uuid):
 
         try:
             number = request.POST.get('number')
-            CreateDuelForm.check_number(number)
+            CreateDuelForm.check_number(
+                number,
+                number_len=(context['mode'] == 'security' and len(hack.hacker_number) or len(hack.security_number))
+            )
 
             if not context['last_move'] or getattr(context['last_move'], '%s_move' % context['mode'], None):
                 context['last_move'] = TraditionHackMove.objects.create(

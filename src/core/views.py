@@ -481,12 +481,16 @@ def target(request):
                 hack = context['person_form'].save()
 
                 # письмо ломаемому
-                if hack.get_target().can_defend:
+                if hack.get_target().defender:
                     email(
                         u"Анклав: вас пытаются взломать!",
-                        u"%s, на вас произошло нападение. Встать на защиту можно по ссылке http://%s%s ." %\
-                        (hack.get_target().name, settings.DOMAIN, reverse('hack_tradition_security', args=[hack.uuid])),
-                        [hack.get_target().profile.user.email],
+                        u"Попытка взлома информации жителя %s. Встать на защиту можно по ссылке http://%s%s ." %\
+                        (
+                            hack.get_target().name,
+                            settings.DOMAIN,
+                            reverse('hack_tradition_security', args=[hack.uuid])
+                        ),
+                        [hack.get_target().defender.profile.user.email],
                     )
 
                 return HttpResponseRedirect(hack.get_absolute_url())
@@ -574,7 +578,7 @@ def tradition_hack_page_security(request, uuid):
     hack = get_object_or_404(TraditionHack, uuid=uuid)
 
     if hack.key.startswith('person'):
-        if request.actual_role != hack.get_target():
+        if request.actual_role != hack.get_target().defender:
             raise Http404
 
     else:
@@ -601,7 +605,7 @@ def tradition_hack_page(request, uuid):
     if not hack.is_finished and not hack.security:
         # Еще нет защитников
         if hack.key.startswith('person'):
-            if request.actual_role == hack.get_target():
+            if request.actual_role == hack.get_target().defender:
                 return HttpResponseRedirect(reverse('hack_tradition_security', args=[hack.uuid]))
 
         else:

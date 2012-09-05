@@ -243,7 +243,7 @@ class PersonHackTarget(CommonForm):
         # создаем новый взлом
         from .hack import generate_number
 
-        if self.cleaned_data['role'].can_defend:
+        if self.cleaned_data['role'].defender:
             hack = TraditionHack.objects.create(
                 hacker=self.hacker,
                 key=self.cleaned_data['key'],
@@ -330,7 +330,7 @@ class TraditionHackTarget(CommonForm):
 from django.forms.models import modelform_factory, inlineformset_factory
 
 ProfileForm = modelform_factory(Profile, exclude=('user', 'role', 'paid', 'locked_fields', 'money'))
-RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_number', 'can_defend'))
+RoleForm = modelform_factory(Role, exclude=('order', 'profile', 'quest', 'dd_number', 'defender'))
 QuestForm = modelform_factory(Role, fields=('quest',))
 TraditionForm = modelform_factory(Tradition, fields=('content',))
 TraditionTextModelForm = modelform_factory(TraditionText, fields=('title', 'content',))

@@ -51,7 +51,7 @@ class Role(models.Model):
     special = models.TextField(verbose_name=u'Спец. способности', null=True, blank=True, default=None)
     money = models.PositiveIntegerField(verbose_name=u"Деньги", default=0)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
-    can_defend = models.BooleanField(verbose_name=u"Может противостоять взломам", default=False)
+    defender = models.ForeignKey('self', verbose_name=u"Защитник", null=True, blank=True, default=None, related_name='role_security')
 
     dd_number = models.PositiveIntegerField(verbose_name=u"DD", null=True, blank=True, default=None)
 

@@ -65,8 +65,9 @@ class HackMoveInline(admin.TabularInline):
     extra = 0
 
 class HackAdmin(admin.ModelAdmin):
-    list_display = ('hacker', 'key', 'number', 'result')
+    list_display = ('hacker', 'description', 'key', 'number', 'result')
     inlines = (HackMoveInline,)
+    ordering = ('-dt',)
 
 class TraditionHackMoveInline(admin.TabularInline):
     model = TraditionHackMove
@@ -74,8 +75,9 @@ class TraditionHackMoveInline(admin.TabularInline):
     extra = 0
 
 class TraditionHackAdmin(admin.ModelAdmin):
-    list_display = ('hacker', 'key', 'state', 'result')
+    list_display = ('hacker', 'description', 'key', 'state')
     inlines = (TraditionHackMoveInline,)
+    ordering = ('-dt',)
 
 
 

@@ -571,6 +571,10 @@ class TraditionHack(models.Model):
     def get_target_value(self):
         return get_hack_target_value(self.key)
 
+    def description(self):
+        return u"%s: %s" % (self.get_target(), self.get_field_display())
+    description.short_description = u"Описание"
+
     class Meta:
         verbose_name = u"Взлом традиции"
         verbose_name_plural = u"Взломы традиций"
@@ -629,6 +633,10 @@ class Hack(models.Model):
 
     def get_target_value(self):
         return get_hack_target_value(self.key)
+
+    def description(self):
+        return u"%s: %s" % (self.get_target(), self.get_field_display())
+    description.short_description = u"Описание"
 
     class Meta:
         verbose_name = u"Взлом"

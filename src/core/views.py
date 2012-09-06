@@ -443,7 +443,9 @@ def target(request):
     context = {
         'person_form': PersonHackTarget(request.actual_role),
         'tradition_form': TraditionHackTarget(request.actual_role),
+        'hacks': list(Hack.objects.filter(hacker=request.actual_role)) + list(TraditionHack.objects.filter(hacker=request.actual_role))
         }
+    context['hacks'].sort(key=lambda hack: hack.dt, reverse=True)
 
     if request.POST:
         if request.POST['target'] == 'role':

@@ -1,4 +1,5 @@
 {% extends "inner_page.html" %}
+{% load pytils_dt %}
 
 {% block content %}
     <h1>Взлом: выбор цели</h1>
@@ -19,4 +20,25 @@
             <input type="hidden" name="target" value="tradition">
             <input type="submit" name="action" value="Выбрать">
         </form>
+
+    <hr>
+    <h3>Журнал взломов</h3>
+    <table class="b-bordered">
+        <tr>
+            <th>Переход</th>
+            <th>Жертва взлома</th>
+            <th>Цель</th>
+            <th>Итог</th>
+            <th>Дата</th>
+        </tr>
+        {% for hack in hacks %}
+            <tr>
+                <td><a href="{{ hack.get_absolute_url }}">взлом</a></td>
+                <td>{{ hack.get_target.name }}</td>
+                <td>{{ hack.get_field_display }}</td>
+                <td>{% if hack.hacker_number %}{{ hack.get_state_display }}{% else %}{{ hack.get_result_display|default:"Идет" }}{% endif %}</td>
+                <td><nobr>{{ hack.dt|ru_strftime:"%d %B, %H:%M" }}</nobr></td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

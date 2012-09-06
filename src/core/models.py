@@ -634,6 +634,7 @@ class Hack(models.Model):
         verbose_name = u"Взлом"
         verbose_name_plural = u"Взломы"
 
+
 class HackMove(models.Model):
     hack = models.ForeignKey(Hack, verbose_name=u"Взлом")
     dt = models.DateTimeField(verbose_name=u"Начало хода", auto_now_add=True, default=None)

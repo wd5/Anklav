@@ -17,12 +17,13 @@ class ProfileAdmin(admin.ModelAdmin):
     list_per_page = 300
 
     def lookup_allowed(self, *args, **kwargs):
-            return True
+        return True
 
 
 class RoleAdmin(admin.ModelAdmin):
     list_display = ('name', 'profession', 'profile', 'dd_number')
     raw_id_fields = ('profile',)
+    ordering = ('name',)
 
 
 class RoleConnectionAdmin(admin.ModelAdmin):

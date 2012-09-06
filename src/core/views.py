@@ -1048,6 +1048,12 @@ def transfer(request):
         form = TransferForm(request.actual_role, request.POST)
         if form.is_valid():
             form.save()
+
+            email(
+                u"Анклав: поступление денег",
+                u"Вам пришел денежный перевод на %s юаней." % form.cleaned_data['amount'],
+                [form.cleaned_data['recipient'].profile.user.email],
+            )
             return HttpResponseRedirect(reverse('stock') + '?transfer=ok')
 
     else:

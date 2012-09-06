@@ -167,18 +167,23 @@ class DealForm(CommonForm):
 
 
 class TransferForm(CommonForm):
-    recipient = IntegerField(label=u'Получатель', widget=Select)
+    recipient = CharField(label=u'Получатель', widget=Select)
     amount = IntegerField(label=u'Сумма')
 
     def __init__(self, role, *args, **kwargs):
         super(TransferForm, self).__init__(*args, **kwargs)
 
         self.sender = role
-        self.fields['recipient'].widget.choices = ((role.pk, role.name) for role in Role.objects.filter(profile__isnull=False).exclude(pk=role.id))
+        self.fields['recipient'].widget.choices = \
+            [(role.name, role.name) for role in Role.objects.filter(profile__isnull=False).exclude(pk=role.id).order_by('name')] + \
+            [(role.dd_number, role.dd_number) for role in Role.objects.filter(dd_number__isnull=False).exclude(pk=role.id).order_by('dd_number')]
 
     def clean_recipient(self):
         try:
-            return Role.objects.get(pk=self.cleaned_data['recipient'])
+            if self.cleaned_data['recipient'].isdigit():
+                return Role.objects.get(dd_number=self.cleaned_data['recipient'])
+            else:
+                return Role.objects.get(pk=self.cleaned_data['recipient'])
         except Role.DoesNotExist:
             raise ValidationError(u"Получатель не найден")
 

@@ -2,9 +2,11 @@
 {% load pytils_dt %}
 
 {% block content %}
-	{% for announce in object_list %}
+	{% for announce in items %}
 		<h2>{{ announce.title|safe }}</h2>
 		<div class="b-news_content">{{ announce.content|safe }}</div>
         <div><small>({{ announce.dt|ru_strftime:"%d %B, %H:%M" }})</small></div>
 	{% endfor %}
+
+    {% include "block_pagination.html" %}
 {% endblock %}

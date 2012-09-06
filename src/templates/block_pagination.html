@@ -1,0 +1,20 @@
+{% load news %}
+<ul class="b-pager">
+    {% if prev_page %}
+        <li><a href="{{ url }}">&larr;&larr;</a></li>
+        <li><a href="{{ url|add_page:prev_page }}">&larr;</a></li>
+    {% endif %}
+    {% for p in showed_pages %}
+        {% ifequal p page_number %}
+            <li class="current">
+                <b>{{ p }}</b>
+            </li>
+        {% else %}
+            <li><a href="{{ url|add_page:p }}">{{ p }}</a></li>
+        {% endifequal %}
+    {% endfor %}
+    {% if next_page %}
+        <li><a href="{{ url|add_page:next_page }}">&rarr;</a></li>
+        <li><a href="{{ url|add_page:last_page }}">&rarr;&rarr;</a></li>
+    {% endif %}
+</ul>

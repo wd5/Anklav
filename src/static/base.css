@@ -219,3 +219,20 @@ a:visited
 {
     display: inline !important;
 }
+
+.b-pager
+{
+    margin: 20px 0 0 0;
+}
+
+.b-pager li
+{
+    float: left;
+    padding: 5px 8px 15px 8px;
+    list-style: none;
+}
+
+.b-pager .current
+{
+    color: #fff;
+}

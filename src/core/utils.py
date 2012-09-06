@@ -14,7 +14,10 @@ topics = [
 def email(subject, content, recipients, admins=True):
     for mail in recipients:
         if mail not in black_list:
-            send_mail(subject, content, None, [mail])
+            try:
+                send_mail(subject, content, None, [mail])
+            except Exception:
+                pass
 
     if admins:
         if not 'linashyti@gmail.com' in recipients:

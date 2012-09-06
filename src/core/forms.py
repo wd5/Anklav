@@ -143,7 +143,7 @@ class DealForm(CommonForm):
     def clean(self):
         try:
             actions = RoleStock.objects.get(role=self.role, company=self.cleaned_data['company'])
-            if actions.amount < self.cleaned_data['amount']:
+            if actions.amount < self.cleaned_data.get('amount', 1000):
                 raise ValidationError(u"У вас недостаточно акций этой фирмы, уменьшите заявку до %s акций." % actions.amount)
 
             return self.cleaned_data

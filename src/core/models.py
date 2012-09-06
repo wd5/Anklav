@@ -52,6 +52,7 @@ class Role(models.Model):
     money = models.PositiveIntegerField(verbose_name=u"Деньги", default=0)
     quest = models.TextField(verbose_name=u"Квента", null=True, blank=True)
     defender = models.ForeignKey('self', verbose_name=u"Защитник", null=True, blank=True, default=None, related_name='role_security')
+    online = models.BooleanField(verbose_name=u"Подключен к сети", default=True)
 
     dd_number = models.PositiveIntegerField(verbose_name=u"DD", null=True, blank=True, default=None)
 

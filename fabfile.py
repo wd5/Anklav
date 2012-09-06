@@ -139,3 +139,8 @@ def update_local_db():
     run("rm dump.sql")
     local("mysql -uroot %(DATABASE_DB)s < dump.sql" % globals())
     local("del dump.sql")
+
+
+def local_migrate():
+    local('cd src && ..\\ENV\\Scripts\\python manage.py schemamigration core --auto')
+    local('cd src && ..\\ENV\\Scripts\\python manage.py migrate')

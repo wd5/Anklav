@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
-
+from django.template import RequestContext
 from django.core.mail import send_mail
+
+def render_to_response(request, template_name, context_dict=None):
+    from django.shortcuts import render_to_response as _render_to_response
+    context = RequestContext(request, context_dict or {})
+    return _render_to_response(template_name, context_instance=context)
+
+
 
 black_list = ['silveri@mail.ru']  # Явно попросившие ничего им не присылать
 topics = [

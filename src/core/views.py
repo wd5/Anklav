@@ -6,17 +6,12 @@ import random
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 
 from .forms import *
-from .utils import email
-
-
-def render_to_response(request, template_name, context_dict=None):
-    from django.shortcuts import render_to_response as _render_to_response
-    context = RequestContext(request, context_dict or {})
-    return _render_to_response(template_name, context_instance=context)
+from .utils import email, render_to_response
+from .decorators import role_required, tradition_required, dd_required, online_required
 
 
 def registration(request):
@@ -156,32 +151,6 @@ def profile(request):
         form = ProfileForm(instance=request.actual_profile)
 
     return render_to_response(request, 'profile.html', {'form': form})
-
-
-def role_required(func):
-    def wrapper(request, *args, **kwargs):
-        if request.actual_role or request.user.is_superuser:
-            return func(request, *args, **kwargs)
-        else:
-            return render_to_response(request, 'role_required.html')
-    return wrapper
-
-
-def tradition_required(func):
-    def wrapper(request, *args, **kwargs):
-        if request.actual_role or request.user.is_superuser:
-            try:
-                tradition = Tradition.objects.get(code=kwargs['code'])
-                if request.user.is_superuser or \
-                    TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True).exists():
-                        return func(request, *args, **kwargs)
-
-            except Tradition.DoesNotExist:
-                pass
-
-        raise Http404
-    return wrapper
-
 
 @login_required
 def traditions_request(request):
@@ -452,6 +421,7 @@ def my_miracles(request):
 
 
 @role_required
+@online_required
 def duels(request):
     log = logging.getLogger('django.duels')
 
@@ -468,6 +438,7 @@ def duels(request):
 
 
 @role_required
+@online_required
 def target(request):
     context = {
         'person_form': PersonHackTarget(request.actual_role),
@@ -514,6 +485,7 @@ def target(request):
 
 
 @role_required
+@online_required
 def personal_hack_page(request, uuid):
     hack = get_object_or_404(Hack, uuid=uuid, hacker=request.actual_role)
     context = {
@@ -573,6 +545,7 @@ def personal_hack_page(request, uuid):
 
 
 @role_required
+@online_required
 def tradition_hack_page_security(request, uuid):
     u"""Выбор защитника"""
     hack = get_object_or_404(TraditionHack, uuid=uuid)
@@ -599,6 +572,7 @@ def tradition_hack_page_security(request, uuid):
 
 
 @role_required
+@online_required
 def tradition_hack_page(request, uuid):
     hack = get_object_or_404(TraditionHack, uuid=uuid)
 
@@ -736,6 +710,7 @@ def can_move(mode, hack, last_move):
 
 
 @role_required
+@online_required
 def duel_page(request, pk):
     log = logging.getLogger('django.duels')
 
@@ -849,16 +824,8 @@ def duel_page(request, pk):
     return render_to_response(request, 'duel.html', context)
 
 
-def dd_required(func):
-    def wrapper(request, *args, **kwargs):
-        if request.actual_role or request.actual_role.dd_number:
-            return func(request, *args, **kwargs)
-
-        return HttpResponseRedirect(reverse('dd'))
-    return wrapper
-
-
 @role_required
+@online_required
 def dd(request):
     context = {}
 
@@ -888,6 +855,7 @@ def dd(request):
 
 
 @dd_required
+@online_required
 def dd_add(request):
     if request.POST:
         form = DDForm(request.POST)
@@ -903,6 +871,7 @@ def dd_add(request):
 
 
 @dd_required
+@online_required
 def dd_request(request, req_id):
     req = get_object_or_404(DDRequest, pk=req_id)
 
@@ -951,11 +920,13 @@ def dd_request(request, req_id):
 
 
 @dd_required
+@online_required
 def dd_messages(request):
     pass
 
 
 @dd_required
+@online_required
 def dd_history(request, recipient_number):
     context = {}
 
@@ -985,6 +956,7 @@ def dd_history(request, recipient_number):
 
 
 @role_required
+@online_required
 def stock(request):
     deals = Deal.objects.filter(is_closed=False).order_by('company')
     actions = RoleStock.objects.filter(role=request.actual_role, amount__gt=0)
@@ -1030,6 +1002,7 @@ def stock(request):
 
 
 @role_required
+@online_required
 def stock_add(request):
     if request.POST:
         form = DealForm(request.actual_role, request.POST)
@@ -1051,11 +1024,13 @@ def stock_add(request):
 
 
 @role_required
+@online_required
 def stock_history(request):
     return render_to_response(request, 'stock_history.html', {'deals': Deal.objects.filter(is_closed=True).order_by('-dt_closed')})
 
 
 @role_required
+@online_required
 def transfer(request):
     if request.POST:
         form = TransferForm(request.actual_role, request.POST)

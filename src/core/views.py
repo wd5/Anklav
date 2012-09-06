@@ -862,6 +862,7 @@ def dd(request):
         return render_to_response(request, 'dd_number_form.html', context)
 
 
+@role_required
 @dd_required
 @online_required
 def dd_add(request):
@@ -878,6 +879,7 @@ def dd_add(request):
     return render_to_response(request, 'dd_request_add.html', {'form': form})
 
 
+@role_required
 @dd_required
 @online_required
 def dd_request(request, req_id):
@@ -927,12 +929,14 @@ def dd_request(request, req_id):
     return render_to_response(request, 'dd_request.html', {'req': req, 'comments': req.ddcomment_set.all().order_by('dt')})
 
 
+@role_required
 @dd_required
 @online_required
 def dd_messages(request):
     pass
 
 
+@role_required
 @dd_required
 @online_required
 def dd_history(request, recipient_number):

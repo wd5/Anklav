@@ -33,7 +33,7 @@ def tradition_required(func):
 
 def dd_required(func):
     def wrapper(request, *args, **kwargs):
-        if request.actual_role or request.actual_role.dd_number:
+        if request.actual_role.dd_number:
             return func(request, *args, **kwargs)
 
         return HttpResponseRedirect(reverse('dd'))

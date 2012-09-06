@@ -508,10 +508,27 @@ def personal_hack_page(request, uuid):
             )
 
             if result == '1' * len(hack.number):
+                hacked_value = hack.get_target_value()
+
+                # Акция
+                if hack.key.endswith('actions_steal'):
+                    actions = list(RoleStock.objects.filter(role=hack.get_target(), amount__gt=0))
+                    if actions:
+                        action = random.choice(actions)
+                        action.amount -= 1
+                        action.save()
+
+                        new_action, _ = RoleStock.objects.get_or_create(role=request.actual_role, company=action.company)
+                        new_action.amount += 1
+                        new_action.save()
+
+                        hacked_value += u" Акция компании '%s'" % action.company.name
+
+
                 # отправляем информацию по почте
                 email(
                     u"Анклав: успешный взлом",
-                    u"Вы взломали данные '%s' жителя '%s'.\n" % (hack.get_field_display(), hack.get_target().name) + hack.get_target_value(),
+                    u"Вы взломали данные '%s' жителя '%s'.\n%s" % (hack.get_field_display(), hack.get_target().name, hacked_value),
                     [request.user.email]
                 )
 
@@ -521,17 +538,6 @@ def personal_hack_page(request, uuid):
                 # Сохраняем результат
                 hack.result = 'win'
                 hack.save()
-
-                # Акция
-                if hack.key.endswith('actions_steal'):
-                    actions = list(RoleStock.objects.filter(role=hack.get_target(), amount__gt=0))
-                    action = random.choice(actions)
-                    action.amount -= 1
-                    action.save()
-
-                    new_action, _ = RoleStock.objects.get_or_create(role=request.actual_role, company=action.company)
-                    new_action.amount += 1
-                    new_action.save()
 
                 return HttpResponseRedirect(reverse('hack_personal', args=[hack.uuid]))
 

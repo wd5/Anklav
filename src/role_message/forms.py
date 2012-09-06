@@ -22,18 +22,22 @@ class ComposeForm(forms.Form):
     body = forms.CharField(label=_(u"Body"),
         widget=forms.Textarea(attrs={'rows': '12', 'cols':'55'}))
 
-
     def __init__(self, *args, **kwargs):
         super(ComposeForm, self).__init__(*args, **kwargs)
-        self.fields['recipient'].widget.choices = [(role.pk, role.name)\
-        for role in Role.objects.filter(profile__isnull=False).order_by('name')]
+        self.fields['recipient'].widget.choices = [('', u'(выберите получателя)')] + [(role.pk, role.name)\
+            for role in Role.objects.filter(profile__isnull=False).order_by('name')]
 
+    def clean_recipient(self):
+        try:
+            return Role.objects.get(pk=self.cleaned_data['recipient'])
+        except Role.DoesNotExist:
+            raise ValidationError(u"Выберите получателя сообщения")
 
     def save(self, sender, parent_msg=None):
         subject = self.cleaned_data['subject']
         body = self.cleaned_data['body']
         message_list = []
-        role = Role.objects.get(pk=self.cleaned_data['recipient'])
+        role = self.cleaned_data['recipient']
         user = role.profile.user
         msg = Message(
             sender = sender,

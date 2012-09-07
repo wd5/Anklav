@@ -893,6 +893,13 @@ def dd_add(request):
             req = form.save(commit=False)
             req.author = request.actual_user
             req.save()
+
+            email(
+                u"Анклав: новая заявка на сервере DD",
+                u"На сервере DD размещена новая заявка. Ознакомиться с ней можно по адресу http://%s%s ." % \
+                    (settings.DOMAIN, reverse('dd_request', args=[req.id])),
+                [role.profile.user.email for role in Role.objects.filter(dd_number__isnull=False)]
+            )
             return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
     else:
         form = DDForm()

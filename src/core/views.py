@@ -690,6 +690,11 @@ def tradition_hack_page(request, uuid):
                 )
                 return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
+            if TraditionHackMove.objects.filter(hack=hack).count() >= 6 and not hack.security:
+                hack.state = 'fail'
+                hack.save()
+                return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
             return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
         except ValidationError, e:

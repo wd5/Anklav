@@ -540,6 +540,7 @@ class TraditionHack(models.Model):
         ('lose', u"Раскрыт"),
         ('late', u"Опоздал"),
         ('run', u"Сбежал"),
+        ('fail', u"Облом"),
         )
     state = models.CharField(verbose_name=u"Состояние", max_length=20, default="not_started", choices=STATES)
     hacker_number = models.CharField(verbose_name=u"Загаданное число ломщика", max_length=4, help_text=u"4 цифры.")

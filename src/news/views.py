@@ -7,8 +7,12 @@ from django.forms.models import modelform_factory
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.core.paginator import QuerySetPaginator
+from django.conf import settings
 
 from .models import CommonNews
+
+from src.core.utils import email
+from src.core.models import TraditionRole
 
 
 def render_to_response(request, template_name, context_dict=None):
@@ -71,6 +75,12 @@ def add_common_news(request):
                 author=request.actual_user,
                 title=form.cleaned_data['title'],
                 content=form.cleaned_data['content'],
+            )
+
+            email(
+                u"Анклав: новая заметка в газете",
+                u"В газету добавлена новая заметка. Читать: http://%s%s ." % (settings.DOMAIN, reverse('common_news')),
+                [role.role.profile.user.email for role in TraditionRole.objects.filter(level='media')]
             )
             return HttpResponseRedirect(reverse('common_news_item', args=[obj.pk]))
     else:

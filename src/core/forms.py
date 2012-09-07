@@ -183,7 +183,7 @@ class TransferForm(CommonForm):
             if self.cleaned_data['recipient'].isdigit():
                 return Role.objects.get(dd_number=self.cleaned_data['recipient'])
             else:
-                return Role.objects.get(pk=self.cleaned_data['recipient'])
+                return Role.objects.get(name=self.cleaned_data['recipient'])
         except Role.DoesNotExist:
             raise ValidationError(u"Получатель не найден")
 

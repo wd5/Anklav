@@ -2,7 +2,7 @@
 import logging
 from django.contrib.auth.models import User
 
-from .models import Profile, Role, TraditionRole
+from .models import Profile, TraditionRole, RoleStock
 
 class Prepare:
     def process_request(self, request):
@@ -35,10 +35,13 @@ class Prepare:
                     pass
 
         if request.actual_role:
-            request.actual_role.companies = [
+            request.actual_role.companies = set([
                 traditionrole.tradition
                 for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True)
-            ]
+            ])
+
+            for actions in RoleStock.objects.filter(role=request.actual_role, amount__gte=20):
+                request.actual_role.companies.add(actions.company)
 
 
 class LogPost:

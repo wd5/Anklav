@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 
 from .utils import render_to_response
-from .models import Tradition, TraditionRole
+from .models import Tradition, TraditionRole, RoleStock
 
 
 def role_required(func):
@@ -20,8 +20,9 @@ def tradition_required(func):
         if request.actual_role or request.user.is_superuser:
             try:
                 tradition = Tradition.objects.get(code=kwargs['code'])
-                if request.user.is_superuser or\
-                   TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True).exists():
+                if request.user.is_superuser or \
+                        TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True).exists() or \
+                        RoleStock.objects.filter(role=request.actual_role, company=tradition, amount__gte=20).exists():
                     return func(request, *args, **kwargs)
 
             except Tradition.DoesNotExist:

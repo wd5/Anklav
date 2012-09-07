@@ -916,7 +916,10 @@ def dd_request(request, req_id):
             req.send_notification('comment')
             return HttpResponseRedirect(reverse('dd_request', args=[req.id]))
 
-        if req.status == 'created' and request.POST.get('action') == u"Назначить исполнителем" and request.POST.get('n'):
+        if req.status == 'created' \
+                and request.user == req.author \
+                and request.POST.get('action') == u"Назначить исполнителем" \
+                and request.POST.get('n'):
             try:
                 role = Role.objects.get(dd_number=request.POST.get('n'))
                 user = role.profile.user

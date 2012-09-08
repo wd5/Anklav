@@ -561,7 +561,7 @@ class TraditionHack(models.Model):
 
     @property
     def is_finished(self):
-        return self.state in ('win', 'lose', 'late', 'run')
+        return self.state in ('win', 'lose', 'late', 'run', 'fail')
 
     def get_target(self):
         return get_hack_target(self.key)

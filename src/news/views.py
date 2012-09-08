@@ -63,6 +63,7 @@ def common_news(request):
         10,
         request.GET.get('page')
     )
+    context['url'] = reverse('common_news')
     return render_to_response(request, 'news/commonnews_list.html', context)
 
 

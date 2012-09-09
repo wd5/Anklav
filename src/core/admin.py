@@ -30,6 +30,12 @@ class RoleConnectionAdmin(admin.ModelAdmin):
     list_display = ('role', 'role_rel', 'is_locked')
 
 
+class TraditionGuestbookAdmin(admin.ModelAdmin):
+    list_display = ('tradition', 'author', 'dt_created')
+    list_filter = ('tradition', 'author')
+    ordering = ('-dt_created',)
+
+
 class TraditionRoleAdmin(admin.ModelAdmin):
     list_display = ('tradition', 'role', 'level', 'is_approved')
     list_filter = ('level', 'is_approved', 'tradition')
@@ -97,7 +103,7 @@ admin.site.register(Role, RoleAdmin)
 admin.site.register(RoleConnection, RoleConnectionAdmin)
 
 admin.site.register(Tradition)
-admin.site.register(TraditionGuestbook)
+admin.site.register(TraditionGuestbook, TraditionGuestbookAdmin)
 admin.site.register(TraditionText, TraditionTextAdmin)
 admin.site.register(TraditionFile, TraditionTextAdmin)
 admin.site.register(TraditionRole, TraditionRoleAdmin)

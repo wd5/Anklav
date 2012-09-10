@@ -35,10 +35,13 @@ class Prepare:
                     pass
 
         if request.actual_role:
-            request.actual_role.companies = set([
-                traditionrole.tradition
-                for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True)
-            ])
+            request.actual_role.companies = set()
+            for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True):
+                if traditionrole.tradition.type in ('tradition', 'crime'):
+                    request.actual_role.companies.add(traditionrole.tradition)
+
+                elif RoleStock.objects.filter(role=request.actual_role, company=traditionrole.tradition, amount__gte=1):
+                    request.actual_role.companies.add(traditionrole.tradition)
 
             for actions in RoleStock.objects.filter(role=request.actual_role, amount__gte=20):
                 request.actual_role.companies.add(actions.company)

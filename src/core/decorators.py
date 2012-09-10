@@ -19,10 +19,18 @@ def tradition_required(func):
     def wrapper(request, *args, **kwargs):
         if request.actual_role or request.user.is_superuser:
             try:
+                if request.user.is_superuser:
+                    return func(request, *args, **kwargs)
+
                 tradition = Tradition.objects.get(code=kwargs['code'])
-                if request.user.is_superuser or \
-                        TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True).exists() or \
-                        RoleStock.objects.filter(role=request.actual_role, company=tradition, amount__gte=20).exists():
+                if TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True, tradition__type__in=('tradition', 'crime')).exists():
+                    return func(request, *args, **kwargs)
+
+                if TraditionRole.objects.filter(tradition=tradition, role=request.actual_role, is_approved=True, tradition__type='corporation').exists() and \
+                   RoleStock.objects.filter(role=request.actual_role, company=tradition, amount__gte=1).exists():
+                    return func(request, *args, **kwargs)
+
+                if RoleStock.objects.filter(role=request.actual_role, company=tradition, amount__gte=20).exists():
                     return func(request, *args, **kwargs)
 
             except Tradition.DoesNotExist:

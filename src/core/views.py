@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 
 from .forms import *
-from .utils import email, render_to_response
+from .utils import email, render_to_response, make_pages
 from .decorators import role_required, tradition_required, dd_required, online_required
 
 
@@ -300,15 +300,20 @@ def tradition_view(request, code):
         )
         return HttpResponseRedirect(reverse('tradition', args=[tradition.code]) + '?save=ok')
 
-    return render_to_response(request, 'tradition.html',
-        {
-            'tradition': tradition,
-            'articles': tradition.traditiontext_set.all(),
-            'files': tradition.traditionfile_set.all(),
-            'chat': tradition.traditionguestbook_set.all().order_by('-dt_created')[:20],
-            'master': membership and membership.level == 'master',
-        }
-    )
+    context = {
+        'tradition': tradition,
+        'articles': tradition.traditiontext_set.all(),
+        'files': tradition.traditionfile_set.all(),
+        'master': membership and membership.level == 'master',
+        'url': reverse('tradition', args=[tradition.code]),
+    }
+
+    context.update(make_pages(tradition.traditionguestbook_set.all().order_by('-dt_created'),
+        20,
+        request.GET.get('page')
+    ))
+
+    return render_to_response(request, 'tradition.html', context)
 
 
 @tradition_required

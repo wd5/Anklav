@@ -20,10 +20,12 @@
         <textarea rows="1" cols="40" name="post"></textarea>&nbsp;<input type="submit" value="Написать">
     </form></p>
 
-    {% for message in chat %}
+    {% for message in items %}
         <div class="b-news_date">{{ message.dt_created|ru_strftime:"%d %B, %H:%M" }}</div>
         <div class="b-news_content">{{ message.author.get_profile.role.name }}: {{ message.content }}</div>
     {% endfor %}
+
+    {% include "block_pagination.html" %}
 {% endblock %}
 
 {% block right_column %}

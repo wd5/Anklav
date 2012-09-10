@@ -515,16 +515,16 @@ def get_hack_target_value(key):
             return result or u"Документов нет."
 
         if field == 'tradition_questbook':
-            messages = target.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            messages = target.traditionguestbook_set.all().order_by('-dt_created')
             return u"\n\n".join(
-                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                u"От кого: %s\nКогда:%s\n%s" % (message.author.get_profile().role.name, message.dt_created, message.content)
                     for message in messages
             ) or u"Сообщений нет."
 
         if field == 'corporation_questbook':
-            messages = target.traditionguestbook_set.all().order_by('-dt_created')[:20]
+            messages = target.traditionguestbook_set.all().order_by('-dt_created')
             return u"\n\n".join(
-                u"От кого: %s\n%s" % (message.author.get_profile().role.name, message.content)
+                u"От кого: %s\nКогда:%s\n%s" % (message.author.get_profile().role.name, message.dt_created, message.content)
                     for message in messages
             ) or u"Сообщений нет."
 

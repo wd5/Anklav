@@ -23,12 +23,10 @@ def sanitizeHTML(value, mode='none'):
         Если mode==strict - все теги кроме разрешенных
     """
     if mode == 'strict':
-        valid_tags = 'p i strong b u a h1 h2 h3 pre br div span blockquote glader youtube cut blue object param embed iframe'.split()
+        valid_tags = 'p i img strong b u a h1 h2 h3 pre br div span'.split()
     else:
         valid_tags = []
     valid_attrs = 'href src pic user page class text title alt'.split()
-    # параметры видеороликов
-    valid_attrs += 'width height classid codebase id name value flashvars allowfullscreen allowscriptaccess quality src type bgcolor base seamlesstabbing swLiveConnect pluginspage data frameborder'.split()
 
     soup = BeautifulSoup(value)
     for comment in soup.findAll(

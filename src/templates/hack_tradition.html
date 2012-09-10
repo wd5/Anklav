@@ -46,18 +46,18 @@
                     <input type="text" name="number">
                     <input type="submit" name="action" value="Попробовать">
                 </form>
-                {% if mode == 'hacker' %}
-                    <br>
-                    <form action="" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" name="action" value="Сбежать">
-                    </form>
-                {% endif %}
             </p>
         {% else %}
             <p>Ожидание действий соперника.</p>
         {% endif %}
 
+        {% if mode == 'hacker' %}
+            <br>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <input type="submit" name="action" value="Сбежать">
+            </form>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

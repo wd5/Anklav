@@ -618,14 +618,14 @@ def tradition_hack_page(request, uuid):
 
     context['can_move'] = can_move(context['mode'], hack, context['last_move'])
 
+    if request.POST and not hack.is_finished and request.POST.get('action') == u'Сбежать':
+        hack.state = 'run'
+        hack.winner = hack.security
+        hack.save()
+        return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
+
     # Ходы
     if context['can_move'] and request.POST:
-        if request.POST.get('action') == u'Сбежать':
-            hack.state = 'run'
-            hack.winner = hack.security
-            hack.save()
-            return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
-
         try:
             number = request.POST.get('number')
             CreateDuelForm.check_number(

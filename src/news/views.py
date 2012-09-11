@@ -45,7 +45,8 @@ def add_common_news(request):
 
             email(
                 u"Анклав: новая заметка в газете",
-                u"В газету добавлена новая заметка. Читать: http://%s%s \n\n%s" % (settings.DOMAIN, reverse('common_news'), form.cleaned_data['content']),
+                u"В газету добавлена новая заметка. Читать: http://%s%s \n\n%s\n%s" % \
+                    (settings.DOMAIN, reverse('common_news'), form.cleaned_data['title'], form.cleaned_data['content']),
                 [role.role.profile.user.email for role in TraditionRole.objects.filter(level='media')]
             )
             return HttpResponseRedirect(reverse('common_news_item', args=[obj.pk]))

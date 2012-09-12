@@ -9,15 +9,32 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from messages.models import Message
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 
 from .forms import ComposeForm
-from core.models import Role
+from src.core.models import Role
 
 
 def render_to_response(request, template_name, context_dict=None):
     from django.shortcuts import render_to_response as _render_to_response
     context = RequestContext(request, context_dict or {})
     return _render_to_response(template_name, context_instance=context)
+
+
+@login_required
+def history(request):
+    messages = Message.objects.filter(Q(sender=request.user)|Q(recipient=request.user))
+    history = u"\n\n==========================================\n\n".join(
+        u"От кого: %s\nКому: %s\nКогда: %s\n%s" % \
+        (
+            message.sender.get_profile().role.name,
+            message.recipient.get_profile().role.name,
+            message.sent_at,
+            message.body,
+        ) for message in messages
+    ) or u"Сообщений нет."
+
+    return render_to_response(request, 'messages/history.html', {'history': history.replace('\n', '<br>'),})
 
 
 def __messages_compose(request):

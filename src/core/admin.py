@@ -116,6 +116,7 @@ admin.site.register(TraditionHack, TraditionHackAdmin)
 admin.site.register(Duel, DuelAdmin)
 
 admin.site.register(DDRequest)
+admin.site.register(DDComment)
 admin.site.register(DDMessage)
 
 admin.site.register(RoleStock, RoleStockAdmin)

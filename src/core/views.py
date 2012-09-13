@@ -981,7 +981,7 @@ def dd_history(request, recipient_number):
     try:
         recipient = Role.objects.get(dd_number=recipient_number).profile.user
         context['number'] = recipient_number
-        context['dd_messages'] = DDMessage.objects.filter(Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user))
+        context['dd_messages'] = DDMessage.objects.filter(Q(sender=request.user, recipient=recipient) | Q(sender=recipient, recipient=request.user)).order_by('dt')
 
         if request.POST and request.POST.get('content'):
             DDMessage.objects.create(

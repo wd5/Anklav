@@ -189,6 +189,8 @@ class TransferForm(CommonForm):
 
     def clean_amount(self):
         if self.sender.money >= int(self.cleaned_data['amount']):
+            if int(self.cleaned_data['amount']) < 0:
+                raise ValidationError(u"Ах ты хакер какой!")
             return int(self.cleaned_data['amount'])
         else:
             raise ValidationError(u"У вас недостаточно средств")

@@ -1090,6 +1090,14 @@ def transfer(request):
                 u"Вам пришел денежный перевод на %s юаней." % form.cleaned_data['amount'],
                 [form.cleaned_data['recipient'].profile.user.email],
             )
+
+            log = logging.getLogger('django.post')
+            log.info(
+                "Transfer from role %s to role %s: %s",
+                request.actual_role.id,
+                form.cleaned_data['recipient'].id,
+                form.cleaned_data['amount'],
+            )
             return HttpResponseRedirect(reverse('stock') + '?transfer=ok')
 
     else:

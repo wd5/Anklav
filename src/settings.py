@@ -144,7 +144,7 @@ ROLE_FIELDS = (
     ('tradition', u"Традиция", 6),
     ('special', u"Спецспособности", 5),
     ('actions', u"Акции", 5),
-    ('actions_steal', u"Кража акции", 4),
+    ('actions_steal', u"Кража акции", 5),
     ('quest', u"Жизненный путь", 7),
     ('criminal', u"Связь с криминалом", 5),
     ('messages', u"Переписка", 5),

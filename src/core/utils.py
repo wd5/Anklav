@@ -8,8 +8,6 @@ def render_to_response(request, template_name, context_dict=None):
     context = RequestContext(request, context_dict or {})
     return _render_to_response(template_name, context_instance=context)
 
-
-
 black_list = ['silveri@mail.ru']  # Явно попросившие ничего им не присылать
 topics = [
     u'Анклав: Новая запись',
@@ -18,6 +16,7 @@ topics = [
     u'Анклав: уведомление',
     u'Анклав: новое предложение',
     u'Анклав: поступление денег',
+    u'Анклав: вы одарены',
 ]  # Почта, которую не надо отправлять админу
 
 def email(subject, content, recipients, admins=True):

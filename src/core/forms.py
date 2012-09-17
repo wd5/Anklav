@@ -175,17 +175,30 @@ class TransferForm(CommonForm):
 
         self.sender = role
         self.fields['recipient'].widget.choices = \
-            [(role.name, role.name) for role in Role.objects.filter(profile__isnull=False).exclude(pk=role.id).order_by('name')] + \
-            [(role.dd_number, role.dd_number) for role in Role.objects.filter(dd_number__isnull=False).exclude(pk=role.id).order_by('dd_number')]
+            [(r.name, r.name) for r in Role.objects.filter(profile__isnull=False).exclude(pk=role.id).order_by('name')] + \
+            [(r.dd_number, r.dd_number) for r in Role.objects.filter(dd_number__isnull=False).exclude(pk=role.id).order_by('dd_number')]
 
-    def clean_recipient(self):
+
+    def _get_role(self, recipient):
         try:
             if self.cleaned_data['recipient'].isdigit():
                 return Role.objects.get(dd_number=self.cleaned_data['recipient'])
             else:
                 return Role.objects.get(name=self.cleaned_data['recipient'])
         except Role.DoesNotExist:
+            pass
+
+        return None
+
+    def clean_recipient(self):
+        recipient = self._get_role(self.cleaned_data['recipient'])
+        if not recipient:
             raise ValidationError(u"Получатель не найден")
+
+        if recipient == self.sender:
+            raise ValidationError(u"Нельзя отправлять перевод самому себе")
+
+        return recipient
 
     def clean_amount(self):
         if self.sender.money >= int(self.cleaned_data['amount']):

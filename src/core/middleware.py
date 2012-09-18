@@ -2,7 +2,7 @@
 import logging
 from django.contrib.auth.models import User
 
-from .models import Profile, TraditionRole, RoleStock
+from .models import Profile, TraditionRole, RoleStock, Tradition
 
 class Prepare:
     def process_request(self, request):
@@ -35,16 +35,20 @@ class Prepare:
                     pass
 
         if request.actual_role:
-            request.actual_role.companies = set()
-            for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True):
-                if traditionrole.tradition.type in ('tradition', 'crime'):
-                    request.actual_role.companies.add(traditionrole.tradition)
+            if request.user.is_superuser:
+                request.actual_role.companies = Tradition.objects.all().order_by('name')
 
-                elif RoleStock.objects.filter(role=request.actual_role, company=traditionrole.tradition, amount__gte=1):
-                    request.actual_role.companies.add(traditionrole.tradition)
+            else:
+                request.actual_role.companies = set()
+                for traditionrole in TraditionRole.objects.filter(role=request.actual_role, is_approved=True):
+                    if traditionrole.tradition.type in ('tradition', 'crime'):
+                        request.actual_role.companies.add(traditionrole.tradition)
 
-            for actions in RoleStock.objects.filter(role=request.actual_role, amount__gte=20):
-                request.actual_role.companies.add(actions.company)
+                    elif RoleStock.objects.filter(role=request.actual_role, company=traditionrole.tradition, amount__gte=1):
+                        request.actual_role.companies.add(traditionrole.tradition)
+
+                for actions in RoleStock.objects.filter(role=request.actual_role, amount__gte=20):
+                    request.actual_role.companies.add(actions.company)
 
 
 class LogPost:

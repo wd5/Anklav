@@ -571,12 +571,13 @@ def tradition_hack_page_security(request, uuid):
         if request.actual_role not in [role.role for role in TraditionRole.objects.filter(tradition=hack.get_target(), level='security')]:
             raise Http404
 
-    if hack.is_finished or hack.security:
+    if hack.security:
         return HttpResponseRedirect(reverse('hack_tradition', args=[hack.uuid]))
 
     if request.POST:
         hack.security = request.actual_role
-        hack.state = 'in_progress'
+        if not hack.is_finished:
+            hack.state = 'in_progress'
         hack.save()
 
         return HttpResponseRedirect(hack.get_absolute_url())
@@ -589,7 +590,7 @@ def tradition_hack_page_security(request, uuid):
 def tradition_hack_page(request, uuid):
     hack = get_object_or_404(TraditionHack, uuid=uuid)
 
-    if not hack.is_finished and not hack.security:
+    if not hack.security:
         # Еще нет защитников
         if hack.key.startswith('person'):
             if request.actual_role == hack.get_target().defender:

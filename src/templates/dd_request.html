@@ -15,7 +15,7 @@
 
     <hr>
         {% for comment in comments %}
-        <p><a href="{% url dd_history comment.author.get_profile.role.dd_number %}">{{ comment.author.get_profile.role.dd_number }}</a>: {{ comment.content }} <small>({{ comment.dt|ru_strftime:"%d %B" }})</small>
+        <p><a href="{% url dd_history comment.author.get_profile.role.dd_number %}">{{ comment.author.get_profile.role.dd_number }}</a>: {{ comment.content }} <small>({{ comment.dt|ru_strftime:"%d %B, %H:%M" }})</small>
             {% if req.status == 'created' and request.user == req.author %}
                 <form action="" method="POST">
                     {% csrf_token %}

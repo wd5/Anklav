@@ -286,7 +286,7 @@ def tradition_view(request, code):
     tradition = Tradition.objects.get(code=code)
     membership = tradition.membership(request.actual_role)
 
-    if request.POST and request.POST.get('post'):
+    if False: #request.POST and request.POST.get('post'):
         TraditionGuestbook.objects.create(
             tradition=tradition,
             author=request.actual_user,

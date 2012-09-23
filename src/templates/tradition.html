@@ -15,10 +15,10 @@
         {% endif %}
     </h2>
 
-    <p><form action="" method="POST">
+    <!--<p><form action="" method="POST">
         {% csrf_token %}
         <textarea rows="1" cols="40" name="post"></textarea>&nbsp;<input type="submit" value="Написать">
-    </form></p>
+    </form></p>-->
 
     {% for message in items %}
         <div class="b-news_date">{{ message.dt_created|ru_strftime:"%d %B, %H:%M" }}</div>

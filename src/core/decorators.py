@@ -17,6 +17,12 @@ def role_required(func):
 
 def tradition_required(func):
     def wrapper(request, *args, **kwargs):
+        return func(request, *args, **kwargs)
+    return wrapper
+
+
+def tradition_required_while_game(func):
+    def wrapper(request, *args, **kwargs):
         if request.actual_role or request.user.is_superuser:
             try:
                 if request.user.is_superuser:

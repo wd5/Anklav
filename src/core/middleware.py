@@ -35,6 +35,9 @@ class Prepare:
                     pass
 
         if request.actual_role:
+            request.actual_role.companies = Tradition.objects.all().order_by('name')
+            return
+
             if request.user.is_superuser:
                 request.actual_role.companies = Tradition.objects.all().order_by('name')
 

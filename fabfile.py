@@ -39,15 +39,18 @@ def init():
         sudo('mkdir -p /var/log/projects/anklav')
         sudo('chmod 777 /var/log/projects/anklav')
 
-    if not exists('/etc/lighttpd/conf-available/10-modules.conf'):
-        put('tools/lighttpd/10-modules.conf', '/etc/lighttpd/conf-available/10-modules.conf', use_sudo=True)
-        sudo('ln -s /etc/lighttpd/conf-available/10-modules.conf /etc/lighttpd/conf-enabled/10-modules.conf', shell=False)
+    if exists('/etc/nginx/sites-enabled/default'):
+        sudo('rm /etc/nginx/sites-enabled/default')
 
-    if not exists('/etc/lighttpd/conf-available/90-anklav-ekb.conf'):
-        sudo('touch /etc/lighttpd/conf-available/90-anklav-ekb.conf')
-        sudo('chown %s /etc/lighttpd/conf-available/90-anklav-ekb.conf' % SSH_USER)
-    if not exists('/etc/lighttpd/conf-enabled/90-anklav-ekb.conf'):
-        sudo('ln -s /etc/lighttpd/conf-available/90-anklav-ekb.conf /etc/lighttpd/conf-enabled/90-anklav-ekb.conf', shell=False)
+    if not exists('/etc/nginx/listen'):
+        put('tools/nginx/listen', '/etc/nginx/listen', use_sudo=True)
+    if not exists('/etc/nginx/fastcgi_params_extended'):
+        put('tools/nginx/fastcgi_params_extended', '/etc/nginx/fastcgi_params_extended', use_sudo=True)
+
+    if not exists('/etc/nginx/sites-available/90-anklav-ekb.conf'):
+        sudo('touch /etc/nginx/sites-available/90-anklav-ekb.conf')
+    if not exists('/etc/nginx/sites-enabled/90-anklav-ekb.conf'):
+        sudo('ln -s /etc/nginx/sites-available/90-anklav-ekb.conf /etc/nginx/sites-enabled/90-anklav-ekb.conf')
 
     if not exists('/etc/sv/anklav'):
         sudo('mkdir -p /etc/sv/anklav/supervise')
@@ -64,7 +67,7 @@ def production():
     upload()
     environment()
     local_settings()
-    lighttpd()
+    nginx()
     runit()
     dump()
     migrate()
@@ -97,9 +100,9 @@ def local_settings():
         )
 
 
-def lighttpd():
-    run('cp %(directory)s/tools/lighttpd/90-anklav-ekb.conf /etc/lighttpd/conf-available/90-anklav-ekb.conf' % env, shell=False)
-#    sudo('/etc/init.d/lighttpd reload', shell=False)
+def nginx():
+    with settings(user='ubuntu'):
+        sudo('cp %(directory)s/tools/nginx/90-anklav-ekb.conf /etc/nginx/sites-available/90-anklav-ekb.conf' % env)
 
 
 def runit():

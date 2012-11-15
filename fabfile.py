@@ -128,6 +128,7 @@ def migrate():
 
 def restart():
     run('sudo sv restart anklav')
+    run('chmod 777 %(directory)s/fcgi.sock' % env)
 
 
 def local_env():
